@@ -1,1 +1,13 @@
-roms/*
+# OS
+.DS_Store
+
+# IDE
+.vscode
+
+# Assets
+/roms/*
+!/roms/10-print.gb
+/gboy
+
+# Vendor
+/vendor
