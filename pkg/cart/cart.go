@@ -56,11 +56,11 @@ func title(data *[]byte) string {
 }
 
 func cartType(data *[]byte) CartType {
-	cartTypeId := int((*data)[cartTypeAddr])
-	if cartTypeId == 0 {
-		return CartType{id: cartTypeId, name: "ROM only"}
+	cartTypeID := int((*data)[cartTypeAddr])
+	if cartTypeID == 0 {
+		return CartType{id: cartTypeID, name: "ROM only"}
 	}
-	return CartType{id: cartTypeId, name: "UNKNOWN"}
+	return CartType{id: cartTypeID, name: "UNKNOWN"}
 }
 
 func LoadFromFile(filename string) (*Cart, error) {

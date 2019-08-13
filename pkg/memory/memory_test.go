@@ -1,11 +1,11 @@
 package memory
 
 import (
-	assert "gotest.tools/assert"
-	testing "testing"
-	cart "github.com/gorkaio/gboy/pkg/cart"
 	gomock "github.com/golang/mock/gomock"
+	cart "github.com/gorkaio/gboy/pkg/cart"
+	assert "gotest.tools/assert"
 	rand "math/rand"
+	testing "testing"
 )
 
 func TestReadsAddressInCartRange(t *testing.T) {
@@ -23,7 +23,7 @@ func TestReadsAddressInCartRange(t *testing.T) {
 		AnyTimes()
 
 	mem, err := NewMemory(cart)
-	if (err != nil) {
+	if err != nil {
 		t.Error("Unable to initialise memory")
 	}
 
@@ -43,7 +43,7 @@ func TestWritesAddressInCartRange(t *testing.T) {
 		Write(address, data)
 
 	mem, err := NewMemory(cart)
-	if (err != nil) {
+	if err != nil {
 		t.Error("Unable to initialise memory")
 	}
 
