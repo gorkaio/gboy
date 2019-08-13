@@ -6,6 +6,11 @@ import (
 
 const cartAddressHigh = 0x7FFF
 
+type Controller interface {
+	Read(address uint16) byte
+	Write(address uint16, data byte)
+}
+
 // Memory defines the memory structure
 type Memory struct {
 	cart cart.CartController
