@@ -28,5 +28,24 @@ func TestExecutesInstructions(t *testing.T) {
 	mem.EXPECT().Read(PCStartAddress).Return(NOP)
 
 	cpu := NewCPU(mem)
+	pc := cpu.registers.PC
+
 	assert.Equal(t, cpu.Step(), NOPCycles)
+	assert.Equal(t, true, cpu.registers.PC > pc)
+}
+
+func TestPanicsWithUnknownOpcodes(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	defer func() {
+        if r := recover(); r == nil {
+            t.Errorf("Did not panic with unknown opcode")
+        }
+	}()
+	
+	mem := memory.NewMockController(ctrl)
+	mem.EXPECT().Read(PCStartAddress).Return(byte(0xFE))
+
+	cpu := NewCPU(mem)
+	cpu.Step()
 }
