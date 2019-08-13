@@ -29,3 +29,23 @@ func TestReadsAddressInCartRange(t *testing.T) {
 
 	assert.Equal(t, mem.Read(address), data)
 }
+
+func TestWritesAddressInCartRange(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	address := uint16(rand.Intn(0x7FFF))
+	data := byte(rand.Intn(0xFF))
+
+	cart := cart.NewMockCartController(ctrl)
+	cart.
+		EXPECT().
+		Write(address, data)
+
+	mem, err := NewMemory(cart)
+	if (err != nil) {
+		t.Error("Unable to initialise memory")
+	}
+
+	mem.Write(address, data)
+}

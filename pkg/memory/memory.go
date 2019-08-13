@@ -20,8 +20,18 @@ func NewMemory(cart cart.CartController) (*Memory, error) {
 }
 
 func (mem *Memory) Read(address uint16) byte {
-	if (address <= cartAddressHigh) {
+	if addressInCart(address) {
 		return mem.cart.Read(address)
 	}
 	return 0
+}
+
+func (mem *Memory) Write(address uint16, data byte) {
+	if addressInCart(address) {
+		mem.cart.Write(address, data)
+	}
+}
+
+func addressInCart(address uint16) bool {
+	return (address <= cartAddressHigh)
 }
