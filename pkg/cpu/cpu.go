@@ -11,25 +11,24 @@ type Registers struct {
 
 // CPU structure
 type CPU struct {
-	registers Registers
-	memory memory.Controller
+	Registers Registers
+	memory    memory.Controller
 }
 
-// NewCPU initialises a new Z80 cpu
-func NewCPU(memory memory.Controller) *CPU {
-	cpu := CPU{
-		registers: Registers{
+// New initialises a new Z80 cpu
+func New(memory memory.Controller) *CPU {
+	return &CPU{
+		Registers: Registers{
 			PC: uint16(0x100),
 		},
 		memory: memory,
 	}
-	return &cpu
 }
 
 // Step executes next instruction and returns cycles consumed
 func (cpu *CPU) Step() int {
-	if (cpu.memory.Read(cpu.registers.PC) == 0x00) {
-		cpu.registers.PC++
+	if cpu.memory.Read(cpu.Registers.PC) == 0x00 {
+		cpu.Registers.PC++
 		return 4
 	}
 	panic("Unknown OpCode")

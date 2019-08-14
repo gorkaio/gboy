@@ -19,6 +19,6 @@ func main() {
     fmt.Println(err)
     os.Exit(1)
   }
-  fmt.Printf("  title: %q\n", cart.Title())
-  fmt.Printf("  type: %s\n", cart.Type())
+  fmt.Printf("  title: %q\n", cart.Title)
+  fmt.Printf("  type: %s (%s)\n", cart.Type.Name, cart.Type.Description)
 }

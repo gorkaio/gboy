@@ -13,11 +13,11 @@ type Controller interface {
 
 // Memory defines the memory structure
 type Memory struct {
-	cart cart.CartController
+	cart cart.Controller
 }
 
-// NewMemory creates a new memory
-func NewMemory(cart cart.CartController) (*Memory, error) {
+// New creates a new memory
+func New(cart cart.Controller) (*Memory, error) {
 	mem := Memory{
 		cart: cart,
 	}

@@ -10,44 +10,50 @@ import (
 const titleStartAddr, titleEndAddr = 0x134, 0x143
 const cartTypeAddr = 0x147
 
-type CartController interface {
+// Controller defines the interface for accessing the cart
+type Controller interface {
 	Read(addr uint16) byte
 	Write(addr uint16, data byte)
 }
 
-type CartType struct {
-	id   int
-	name string
+// Type defines the cartdrige type
+type Type struct {
+	ID          int
+	Name        string
+	Description string
 }
 
+// Cart contains the cartdridge data
 type Cart struct {
-	filename string
-	title    string
-	cartType CartType
-	CartController
+	Filename   string
+	Title      string
+	Type       Type
+	controller Controller
 }
 
-func newCart(data []byte, filename string) (*Cart, error) {
+func new(data []byte, filename string) (*Cart, error) {
 	cartType := cartType(&data)
-	if cartType.id != 0 {
-		msg := fmt.Sprintf("Unknown memory controller (%#02x). Cannot load ROM.", cartType.id)
+	if cartType.ID != 0 {
+		msg := fmt.Sprintf("Unknown memory controller (%#02x). Cannot load ROM.", cartType.ID)
 		return nil, errors.New(msg)
 	}
+
 	cart := Cart{
-		filename:       filename,
-		title:          title(&data),
-		cartType:       cartType,
-		CartController: NewMBC0(data),
+		Filename:   filename,
+		Title:      title(&data),
+		Type:       cartType,
+		controller: NewMBC0(data),
 	}
+
 	return &cart, nil
 }
 
-func (c *Cart) Title() string {
-	return c.title
+func (cart *Cart) Read(address uint16) byte {
+	return cart.controller.Read(address)
 }
 
-func (c *Cart) Type() string {
-	return fmt.Sprintf("%s (%#02x)", c.cartType.name, c.cartType.id)
+func (cart *Cart) Write(address uint16, data uint8) {
+	cart.controller.Write(address, data)
 }
 
 func title(data *[]byte) string {
@@ -55,21 +61,22 @@ func title(data *[]byte) string {
 	return strings.Trim(title, "\x00")
 }
 
-func cartType(data *[]byte) CartType {
+func cartType(data *[]byte) Type {
 	cartTypeID := int((*data)[cartTypeAddr])
 	if cartTypeID == 0 {
-		return CartType{id: cartTypeID, name: "ROM only"}
+		return Type{ID: cartTypeID, Name: "MBC0", Description: "ROM only"}
 	}
-	return CartType{id: cartTypeID, name: "UNKNOWN"}
+	return Type{ID: cartTypeID, Name: "UNKNOWN", Description: "Unknown"}
 }
 
+// LoadFromFile loads cartdridge information from file
 func LoadFromFile(filename string) (*Cart, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	cart, err := newCart(data, filename)
+	cart, err := new(data, filename)
 	if err != nil {
 		return nil, err
 	}
