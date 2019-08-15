@@ -9,6 +9,12 @@ import (
 
 // Registers are CPU registeres
 type Registers struct {
+	A uint8
+	F uint8
+	B uint8
+	C uint8
+	H uint8
+	L uint8
 	PC uint16
 }
 
