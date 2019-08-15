@@ -1,5 +1,8 @@
 package cart
 
+//go:generate mockgen -destination=../mocks/mock_cart.go -package=mocks github.com/gorkaio/gboy/pkg/cart CartInterface
+//go:generate mockgen -destination=../mocks/mock_mbc.go -package=mocks github.com/gorkaio/gboy/pkg/cart MemoryBankControllerInterface
+
 import (
 	"errors"
 	"fmt"
@@ -10,8 +13,14 @@ import (
 const titleStartAddr, titleEndAddr = 0x134, 0x143
 const cartTypeAddr = 0x147
 
-// Controller defines the interface for accessing the cart
-type Controller interface {
+// CartInterface interface for the cart
+type CartInterface interface {
+	Load(romfile string) error
+	MemoryBankControllerInterface
+}
+
+// MemoryBankControllerInterface interface for the MBC
+type MemoryBankControllerInterface interface {
 	Read(addr uint16) byte
 	Write(addr uint16, data byte)
 }
@@ -28,24 +37,14 @@ type Cart struct {
 	Filename   string
 	Title      string
 	Type       Type
-	controller Controller
+	controller MemoryBankControllerInterface
+	CartInterface
+	MemoryBankControllerInterface
 }
 
-func new(data []byte, filename string) (*Cart, error) {
-	cartType := cartType(&data)
-	if cartType.ID != 0 {
-		msg := fmt.Sprintf("Unknown memory controller (%#02x). Cannot load ROM.", cartType.ID)
-		return nil, errors.New(msg)
-	}
-
-	cart := Cart{
-		Filename:   filename,
-		Title:      title(&data),
-		Type:       cartType,
-		controller: NewMBC0(data),
-	}
-
-	return &cart, nil
+// New returns a new empty cart
+func New() (*Cart, error) {
+	return &Cart{}, nil
 }
 
 func (cart *Cart) Read(address uint16) byte {
@@ -69,16 +68,23 @@ func cartType(data *[]byte) Type {
 	return Type{ID: cartTypeID, Name: "UNKNOWN", Description: "Unknown"}
 }
 
-// LoadFromFile loads cartdridge information from file
-func LoadFromFile(filename string) (*Cart, error) {
-	data, err := ioutil.ReadFile(filename)
+// Load loads cartdridge information from file
+func (cart *Cart) Load(romfile string) error {
+	data, err := ioutil.ReadFile(romfile)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	cart, err := new(data, filename)
-	if err != nil {
-		return nil, err
+	cartType := cartType(&data)
+	if cartType.ID != 0 {
+		msg := fmt.Sprintf("Unknown memory controller (%#02x). Cannot load ROM.", cartType.ID)
+		return errors.New(msg)
 	}
-	return cart, nil
+
+	cart.Filename = romfile
+	cart.Title = title(&data)
+	cart.Type = cartType
+	cart.controller = NewMBC0(data)
+
+	return nil
 }

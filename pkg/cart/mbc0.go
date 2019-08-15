@@ -1,14 +1,15 @@
 package cart
 
+type mbc0 struct {
+	memory []byte
+	MemoryBankControllerInterface
+}
+
 // NewMBC0 creates a new memory bank controller of type 0
-func NewMBC0(data []byte) Controller {
+func NewMBC0(data []byte) MemoryBankControllerInterface {
 	return &mbc0{
 		memory: data,
 	}
-}
-
-type mbc0 struct {
-	memory []byte
 }
 
 func (r *mbc0) Read(addr uint16) byte {

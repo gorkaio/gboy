@@ -2,34 +2,30 @@ package cpu_test
 
 import (
 	cpu "github.com/gorkaio/gboy/pkg/cpu"
-	assert "gotest.tools/assert"
+	assert "github.com/stretchr/testify/assert"
 	testing "testing"
 )
 
 func TestDisassemblesOpCodes(t *testing.T) {
-	assert.Equal(t, cpu.Dasm(0x00), "NOP")
+	instruction, err := cpu.Dasm(0x00)
+	assert.NoError(t, err)
+	assert.Equal(t, instruction, "NOP")
 }
 
-func TestAssemblesOpCodes(t *testing.T) {
-	assert.Equal(t, cpu.Asm("NOP"), uint(0x00))
+func TestFailsToDisassembleUnknownOpCodes(t *testing.T) {
+	instruction, err := cpu.Dasm(0xFF)
+	assert.Error(t, err, "Unknown opcode 0xFF")
+	assert.Equal(t, instruction, "?")
 }
 
-func TestPanicsDisassemblingUnknownOpCodes(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Did not panic with unknown opcode")
-		}
-	}()
-
-	cpu.Dasm(0xFEFFEFEF)
+func TestAssemblesInstructions(t *testing.T) {
+	opcode, err := cpu.Asm("NOP")
+	assert.NoError(t, err)
+	assert.Equal(t, opcode, 0x00)
 }
 
-func TestPanicsAssemblingUnknownInstructions(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Did not panic with unknown opcode")
-		}
-	}()
-
-	cpu.Asm("WTF")
+func TestFailsToAssembleUnknownInstructions(t *testing.T) {
+	opcode, err := cpu.Asm("WTF")
+	assert.Error(t, err)
+	assert.Equal(t, opcode, 0x00)
 }
