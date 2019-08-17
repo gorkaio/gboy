@@ -1,6 +1,8 @@
-build:
+build: generate
 	go build -o gboy cmd/gboy/main.go
 
-test:
-	go generate ./...
+test: generate
 	go test ./...
+
+generate:
+	go generate ./...

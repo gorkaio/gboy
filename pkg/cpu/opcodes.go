@@ -2,131 +2,182 @@ package cpu
 
 import (
 	"fmt"
-	"strings"
-	"errors"
-	tablewriter "github.com/olekukonko/tablewriter"
-	"os"
 )
 
 const (
 	unknownOpCode = "?"
-	NOP = 0x00
-	JMP = 0xC3
-	XOR_A = 0xAF
-	LD_HL_D16 = 0x21
-	LD_C_D8 = 0x0E
-	LD_B_D8 = 0x06
-	LDD_HL_A = 0x32
-	DEC_B = 0x05
+	NOP           = 0x00
+	JMP           = 0xC3
+	XOR_A         = 0xAF
+	LD_HL_D16     = 0x21
+	LD_C_D8       = 0x0E
+	LD_B_D8       = 0x06
+	LDD_HL_A      = 0x32
+	DEC_B         = 0x05
 )
 
-var opCodeToMnemonic = []string{
-	"NOP",
+const (
+	lbyte = 1
+	lword = 2
+)
+
+type opHandler func(cpu *CPU, args ...int) int
+
+type op struct {
+	mnemonic string
+	args     []int
+	length   int
+	handler  opHandler
 }
 
-var mnemonicToOpCode = map[string]int{
-	"NOP": 0x00,
+func (op *op) String() string {
+	args := make([]interface{}, len(op.args))
+	for i, arg := range op.args {
+		args[i] = arg
+	}
+
+	return fmt.Sprintf(op.mnemonic, args...)
 }
 
-var opcodeHandlers = map[uint8]func(cpu *CPU) int {
-	NOP: func(cpu *CPU) int {
-		cpu.Registers.PC++
-		printDebugInfo("NOP", cpu)
-		return 4
+type opDefinition struct {
+	mnemonic   string
+	length     int
+	argLengths []int
+	handler    opHandler
+}
+
+var opDefinitions = map[uint8]opDefinition{
+	NOP: {
+		mnemonic:   "NOP",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
+			return 4
+		},
 	},
-	JMP: func(cpu *CPU) int {
-		addressLow := uint16(cpu.memory.Read(cpu.Registers.PC + 1))
-		addressHigh := uint16(cpu.memory.Read(cpu.Registers.PC + 2))
-		cpu.Registers.PC = addressHigh << 8 | addressLow
-		printDebugInfo(fmt.Sprintf("JMP %#04x", cpu.Registers.PC), cpu)
-		return 16
+	JMP: {
+		mnemonic:   "JMP %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Set(uint16(args[0]))
+			return 16
+		},
 	},
-	XOR_A: func(cpu *CPU) int {
-		cpu.Registers.A = 0
-		cpu.Registers.F |= 0x80
-		cpu.Registers.PC++
-		printDebugInfo("XOR A", cpu)
-		return 4
+	XOR_A: {
+		mnemonic:   "XOR A",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.A.Set(0)
+			cpu.F.Set(cpu.F.Get() | flagZ)
+			cpu.PC.Inc()
+			return 4
+		},
 	},
-	LD_HL_D16: func(cpu *CPU) int {
-		cpu.Registers.L = cpu.memory.Read(cpu.Registers.PC + 1)
-		cpu.Registers.H = cpu.memory.Read(cpu.Registers.PC + 2)
-		printDebugInfo(fmt.Sprintf("LD HL, %#02x", uint16(cpu.Registers.H) << 8 | uint16(cpu.Registers.L)), cpu)
-		cpu.Registers.PC+=3
-		return 12
+	LD_HL_D16: {
+		mnemonic:   "LD HL, %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			d16 := uint16(args[0])
+			cpu.HL.Set(d16)
+			cpu.PC.Inc()
+			cpu.PC.Inc()
+			cpu.PC.Inc()
+			return 12
+		},
 	},
-	LD_C_D8: func(cpu *CPU) int {
-		cpu.Registers.C = cpu.memory.Read(cpu.Registers.PC + 1)
-		cpu.Registers.PC+=2
-		printDebugInfo(fmt.Sprintf("LD C, %#02x", cpu.Registers.C), cpu)
-		return 8
+	LD_C_D8: {
+		mnemonic:   "LD C, %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			d8 := uint8(args[0])
+			cpu.C.Set(d8)
+			cpu.PC.Inc()
+			cpu.PC.Inc()
+			return 8
+		},
 	},
-	LD_B_D8: func(cpu *CPU) int {
-		cpu.Registers.B = cpu.memory.Read(cpu.Registers.PC + 1)
-		cpu.Registers.PC+=2
-		printDebugInfo(fmt.Sprintf("LD B, %#02x", cpu.Registers.B), cpu)
-		return 8
+	LD_B_D8: {
+		mnemonic:   "LD B, %#02x",
+		argLengths: []int{lword},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			d8 := uint8(args[0])
+			cpu.B.Set(d8)
+			cpu.PC.Inc()
+			cpu.PC.Inc()
+			return 8
+		},
 	},
-	LDD_HL_A: func(cpu *CPU) int {
-		cpu.memory.Write(uint16(cpu.Registers.H) << 8 | uint16(cpu.Registers.L), cpu.Registers.A)
-		cpu.Registers.L--
-		cpu.Registers.PC++
-		printDebugInfo("LD (HL), A", cpu)
-		return 8
+	LDD_HL_A: {
+		mnemonic:   "LD (HL-), A",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.memoryWriteByte(cpu.HL.Get(), cpu.A.Get())
+			cpu.HL.Dec()
+			cpu.PC.Inc()
+			return 8
+		},
 	},
-	DEC_B: func(cpu *CPU) int {
-		cpu.Registers.B--
-		cpu.Registers.F |= 0x40 // Set N flag
-		if cpu.Registers.B == 0 {
-			cpu.Registers.F |= 0x80 // Set Z flag if zero
+	DEC_B: {
+		mnemonic:   "DEC B",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.B.Dec()
+			cpu.F.Set(cpu.F.Get() | flagN)
+			if cpu.B.Get() == 0 {
+				cpu.F.Set(cpu.F.Get() | flagZ)
+			}
+			cpu.PC.Inc()
+			return 4
+		},
+	},
+}
+
+func opCodeFrom(data uint32) (op, error) {
+	opCode := byte((data & 0xFF000000) >> 24)
+	opDefinition, f := opDefinitions[opCode]
+	if f != true {
+		return op{}, fmt.Errorf("Unknown opcode %#02x", opCode)
+	}
+
+	args := []int{}
+	data = data << 8
+	for _, s := range opDefinition.argLengths {
+		switch s {
+		case lbyte:
+			arg := (data & 0xFF000000) >> 24
+			args = append(args, int(arg))
+			data = data << 8
+		case lword:
+			arg := flipWord(uint16((data & 0xFFFF0000) >> 16))
+			args = append(args, int(arg))
+			data = data << 16
+		default:
+			panic("Unknown argument type")
 		}
-		cpu.Registers.PC++
-		printDebugInfo("DEC B", cpu)
-		return 4
-	},
-}
-
-// Dasm disassembles an instruction
-func Dasm(data int) (string, error) {
-	if (isOpCodeUnknown(data)) {
-		errorString := fmt.Sprintf("Unknown instruction %#02x", data)
-		return unknownOpCode, errors.New(errorString)
 	}
-	return opCodeToMnemonic[data], nil
-}
 
-// Asm assemblies an instruction
-func Asm(data string) (int, error) {
-	mnemonic := strings.ToUpper(data)
-	if opcode, h := mnemonicToOpCode[mnemonic]; h {
-		return opcode, nil
+	op := op{
+		mnemonic: opDefinition.mnemonic,
+		args:     args,
+		length:   opDefinition.length,
+		handler:  opDefinition.handler,
 	}
-	errorString := fmt.Sprintf("Unknown instruction %s", mnemonic)
-	return 0, errors.New(errorString)
+	return op, nil
 }
 
-func isOpCodeUnknown(opcode int) bool {
-	return len(opCodeToMnemonic) < opcode || opCodeToMnemonic[opcode] == unknownOpCode
+func (cpu *CPU) opCodeAt(address uint16) (op, error) {
+	data := cpu.memoryReadDWord(address)
+	return opCodeFrom(data)
 }
 
-func printDebugInfo(operation string, cpu *CPU) {
-	fmt.Printf("\n\n%s\n", operation)
-	registerTable := tablewriter.NewWriter(os.Stdout)
-	registerTable.SetHeader([]string{"Reg", "Value"})
-	registerTable.Append([]string{"AF", fmt.Sprintf("%#04x", uint16(cpu.Registers.A) << 8 | uint16(cpu.Registers.F))})
-	registerTable.Append([]string{"BC", fmt.Sprintf("%#04x", uint16(cpu.Registers.B) << 8 | uint16(cpu.Registers.C))})
-	registerTable.Append([]string{"DE", fmt.Sprintf("%#04x", uint16(cpu.Registers.D) << 8 | uint16(cpu.Registers.E))})
-	registerTable.Append([]string{"HL", fmt.Sprintf("%#04x", uint16(cpu.Registers.H) << 8 | uint16(cpu.Registers.L))})
-	registerTable.Append([]string{"SP", fmt.Sprintf("%#04x", cpu.Registers.SP)})
-	registerTable.Append([]string{"PC", fmt.Sprintf("%#04x", cpu.Registers.PC)})
-	registerTable.Render()
-	flagTable := tablewriter.NewWriter(os.Stdout)
-	flagTable.SetHeader([]string{"Z", "N", "H", "C"})
-	flagTable.Append([]string{
-		fmt.Sprintf("%t", cpu.Registers.F & 0x80 > 1),
-		fmt.Sprintf("%t", cpu.Registers.F & 0x40 > 1),
-		fmt.Sprintf("%t", cpu.Registers.F & 0x20 > 1),
-		fmt.Sprintf("%t", cpu.Registers.F & 0x10 > 1),
-	})
-	flagTable.Render()
+func flipWord(data uint16) uint16 {
+	return ((data & 0xFF00) >> 8) | ((data & 0x00FF) << 8)
 }

@@ -9,7 +9,6 @@ import (
 )
 
 const PCStartAddress = uint16(0x100)
-const NOP = byte(0x00)
 
 func TestProgramCounterStartsAt0x100(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -17,7 +16,7 @@ func TestProgramCounterStartsAt0x100(t *testing.T) {
 
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	c := cpu.New(mem)
-	assert.Equal(t, c.Registers.PC, uint16(0x100))
+	assert.Equal(t, uint16(0x100), c.PC.Get())
 }
 
 func TestExecutesInstructions(t *testing.T) {
@@ -25,15 +24,15 @@ func TestExecutesInstructions(t *testing.T) {
 	defer ctrl.Finish()
 
 	mem := mocks.NewMockMemoryInterface(ctrl)
-	mem.EXPECT().Read(PCStartAddress).Return(NOP)
+	mem.EXPECT().Read(PCStartAddress).Return(byte(cpu.NOP))
 
 	c := cpu.New(mem)
-	pc := c.Registers.PC
+	pc := c.PC.Get()
 	cyclesConsumed, err := c.Step()
 	assert.NoError(t, err)
 
 	assert.True(t, cyclesConsumed > 0)
-	assert.True(t, c.Registers.PC > pc)
+	assert.True(t, c.PC.Get() > pc)
 }
 
 func TestErrorsWithUnknownOpcodes(t *testing.T) {
@@ -46,4 +45,16 @@ func TestErrorsWithUnknownOpcodes(t *testing.T) {
 	c := cpu.New(mem)
 	_, err := c.Step()
 	assert.Error(t, err, "Unknown opcode 0xFE")
+}
+
+func TestExecutesNOP(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem.EXPECT().Read(PCStartAddress).Return(uint8(cpu.NOP))
+
+	c := cpu.New(mem)
+	cycles, err := c.Step()
+	assert.NoError(t, err)
+	assert.Equal(t, cycles, 4)
 }

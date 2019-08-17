@@ -22,10 +22,10 @@ func New(romfile string) (*Gameboy, error) {
 	}
 
 	err = cart.Load(romfile)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
-	
+
 	mem, err := memory.New(cart)
 	if err != nil {
 		return nil, err

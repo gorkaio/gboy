@@ -2,8 +2,8 @@ package memory_test
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	mocks "github.com/gorkaio/gboy/pkg/mocks"
 	memory "github.com/gorkaio/gboy/pkg/memory"
+	mocks "github.com/gorkaio/gboy/pkg/mocks"
 	assert "github.com/stretchr/testify/assert"
 	rand "math/rand"
 	testing "testing"
@@ -54,7 +54,7 @@ func TestLoadsCartFromFile(t *testing.T) {
 	cartdrige.
 		EXPECT().
 		Load(romfile)
-	
+
 	mem, err := memory.New(cartdrige)
 	assert.NoError(t, err)
 

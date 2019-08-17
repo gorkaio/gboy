@@ -29,7 +29,7 @@ func New(cart cart.CartInterface) (*Memory, error) {
 // LoadRomFile loads a cart from file
 func (mem *Memory) LoadRomFile(romfile string) error {
 	err := mem.cart.Load(romfile)
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 
