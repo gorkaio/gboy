@@ -103,7 +103,7 @@ var opDefinitions = map[uint8]opDefinition{
 	},
 	LD_B_D8: {
 		mnemonic:   "LD B, %#02x",
-		argLengths: []int{lword},
+		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
 			d8 := uint8(args[0])
