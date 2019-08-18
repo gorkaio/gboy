@@ -135,6 +135,11 @@ func (cpu *CPU) UpdateZ(data uint8) {
 	}
 }
 
+// Z returns the status of the Zero flag
+func (cpu *CPU) Z() bool {
+	return cpu.F.Get() & flagZ == flagZ
+}
+
 // SetN sets the Negative Flag
 func (cpu *CPU) SetN() {
 	cpu.F.Set(cpu.F.Get() | flagN)

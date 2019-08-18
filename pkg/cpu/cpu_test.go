@@ -75,7 +75,7 @@ func TestSetsZFlag(t *testing.T) {
 	c := cpu.New(mem)
 	c.F.Set(0x00)
 	c.SetZ()
-	assert.Equal(t, c.F.Get(), uint8(0x80))
+	assert.True(t, c.Z())
 }
 
 func TestClearsZFlag(t *testing.T) {
@@ -85,7 +85,7 @@ func TestClearsZFlag(t *testing.T) {
 	c := cpu.New(mem)
 	c.F.Set(0xFF)
 	c.ClearZ()
-	assert.Equal(t, c.F.Get(), uint8(0x7F))
+	assert.False(t, c.Z())
 }
 
 func TestUpdatesZFlag(t *testing.T) {
@@ -95,8 +95,8 @@ func TestUpdatesZFlag(t *testing.T) {
 	c := cpu.New(mem)
 	c.F.Set(0x00)
 	c.UpdateZ(0)
-	assert.Equal(t, c.F.Get(), uint8(0x80))
+	assert.True(t, c.Z())
 	c.UpdateZ(2)
-	assert.Equal(t, c.F.Get(), uint8(0x00))
+	assert.False(t, c.Z())
 }
 

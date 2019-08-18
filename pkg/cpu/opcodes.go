@@ -144,7 +144,7 @@ var opDefinitions = map[uint8]opDefinition{
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.PC.Inc()
 			cpu.PC.Inc()
-			if ((cpu.F.Get() & flagZ) > 0) {
+			if cpu.Z() {
 				rel := int8(args[0]) // Signed relative address jump distance
 				address := int(cpu.PC.Get()) + int(rel)
 				cpu.PC.Set(uint16(address))
