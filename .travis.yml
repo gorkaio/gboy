@@ -5,4 +5,4 @@ go:
 - 1.12.x
 - master
 
-script: make test
+script: env GO111MODULE=on make test
