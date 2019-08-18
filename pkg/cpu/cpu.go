@@ -54,7 +54,7 @@ func New(memory memory.MemoryInterface) *CPU {
 	cpu.E = cpu.DE.L()
 	cpu.H = cpu.HL.H()
 	cpu.L = cpu.HL.L()
-	cpu.debugEnabled = false
+	cpu.debugEnabled = true
 	return &cpu
 }
 
@@ -80,6 +80,7 @@ func (cpu *CPU) Step() (int, error) {
 		fmt.Println(op.String())
 	}
 
+	cpu.PC.IncBy(op.length)
 	cycles := op.handler(cpu, op.args...)
 	if cpu.debugEnabled {
 		cpu.printStatus()

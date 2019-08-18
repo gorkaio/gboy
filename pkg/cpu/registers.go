@@ -5,7 +5,9 @@ type ByteRegisterInterface interface {
 	Get() uint8
 	Set(data uint8)
 	Inc()
+	IncBy(q uint8)
 	Dec()
+	DecBy(q uint8)
 }
 
 // WordRegisterInterface defines the interface for 16 bit registers
@@ -13,7 +15,9 @@ type WordRegisterInterface interface {
 	Get() uint16
 	Set(data uint16)
 	Inc()
+	IncBy(q uint16)
 	Dec()
+	DecBy(q uint16)
 	H() ByteRegisterInterface
 	L() ByteRegisterInterface
 }
@@ -56,12 +60,22 @@ func (r *ByteRegister) Set(data uint8) {
 
 // Inc increases the value of a 8 bit register by one
 func (r *ByteRegister) Inc() {
-	r.v++
+	r.IncBy(1)
+}
+
+// IncBy increases the value of a 8 bit register by q
+func (r *ByteRegister) IncBy(q uint8) {
+	r.v+=q
 }
 
 // Dec decreases the value of a 8 bit register by one
 func (r *ByteRegister) Dec() {
-	r.v--
+	r.DecBy(1)
+}
+
+// DecBy decreases the value of a 8 bit register by q
+func (r *ByteRegister) DecBy(q uint8) {
+	r.v-=q
 }
 
 // Get gets the value of a 16 bit register
@@ -74,14 +88,24 @@ func (r *WordRegister) Set(data uint16) {
 	r.h.v, r.l.v = splitWord(data)
 }
 
-// Inc increasex the value of a 16 bit register by one
+// Inc increases the value of a 16 bit register by one
 func (r *WordRegister) Inc() {
-	r.Set(r.Get() + 1)
+	r.IncBy(1)
+}
+
+// IncBy increases the value of a 16 bit register by q
+func (r *WordRegister) IncBy(q uint16) {
+	r.Set(r.Get() + q)
 }
 
 // Dec decreases the value of a 16 bit register by one
 func (r *WordRegister) Dec() {
-	r.Set(r.Get() - 1)
+	r.DecBy(1)
+}
+
+// DecBy decreases the value of a 16 bit register by q
+func (r *WordRegister) DecBy(q uint16) {
+	r.Set(r.Get() - q)
 }
 
 // H gets the high byte register of a 16 bit register

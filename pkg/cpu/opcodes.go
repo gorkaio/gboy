@@ -14,7 +14,7 @@ const (
 	LD_B_D8       = 0x06
 	LDD_HL_A      = 0x32
 	DEC_B         = 0x05
-	JR_NZ_R8 = 0x20
+	JR_NZ_R8 	  = 0x20
 )
 
 const (
@@ -27,7 +27,7 @@ type opHandler func(cpu *CPU, args ...int) int
 type op struct {
 	mnemonic string
 	args     []int
-	length   int
+	length   uint16
 	handler  opHandler
 }
 
@@ -42,7 +42,7 @@ func (op *op) String() string {
 
 type opDefinition struct {
 	mnemonic   string
-	length     int
+	length     uint16
 	argLengths []int
 	handler    opHandler
 }
@@ -53,7 +53,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
 			return 4
 		},
 	},
@@ -71,7 +70,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
 			cpu.A.Set(0)
 			cpu.F.Set(cpu.F.Get() | flagZ)
 			return 4
@@ -82,9 +80,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
-			cpu.PC.Inc()
-			cpu.PC.Inc()
 			d16 := uint16(args[0])
 			cpu.HL.Set(d16)
 			return 12
@@ -95,8 +90,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
-			cpu.PC.Inc()
 			d8 := uint8(args[0])
 			cpu.C.Set(d8)
 			return 8
@@ -107,8 +100,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
-			cpu.PC.Inc()
 			d8 := uint8(args[0])
 			cpu.B.Set(d8)
 			return 8
@@ -119,7 +110,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
 			cpu.memoryWriteByte(cpu.HL.Get(), cpu.A.Get())
 			cpu.HL.Dec()
 			return 8
@@ -130,7 +120,6 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
 			cpu.B.Dec()
 			cpu.SetN()
 			cpu.UpdateZ(cpu.B.Get())
@@ -140,11 +129,9 @@ var opDefinitions = map[uint8]opDefinition{
 	JR_NZ_R8: {
 		mnemonic:   "JR NZ, %#02x",
 		argLengths: []int{lbyte},
-		length:     1,
+		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Inc()
-			cpu.PC.Inc()
-			if cpu.Z() {
+			if !cpu.Z() {
 				rel := int8(args[0]) // Signed relative address jump distance
 				address := int(cpu.PC.Get()) + int(rel)
 				cpu.PC.Set(uint16(address))
