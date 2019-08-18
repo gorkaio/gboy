@@ -25,6 +25,9 @@ func TestExecutesInstructions(t *testing.T) {
 
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	mem.EXPECT().Read(PCStartAddress).Return(byte(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress + 1).Return(byte(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress + 2).Return(byte(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(cpu.NOP))
 
 	c := cpu.New(mem)
 	pc := c.PC.Get()
@@ -41,6 +44,9 @@ func TestErrorsWithUnknownOpcodes(t *testing.T) {
 
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	mem.EXPECT().Read(PCStartAddress).Return(byte(0xFE))
+	mem.EXPECT().Read(PCStartAddress + 1).Return(byte(0xFE))
+	mem.EXPECT().Read(PCStartAddress + 2).Return(byte(0xFE))
+	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(0xFE))
 
 	c := cpu.New(mem)
 	_, err := c.Step()
@@ -52,6 +58,9 @@ func TestExecutesNOP(t *testing.T) {
 	defer ctrl.Finish()
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	mem.EXPECT().Read(PCStartAddress).Return(uint8(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress + 1).Return(uint8(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress + 2).Return(uint8(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress + 3).Return(uint8(cpu.NOP))
 
 	c := cpu.New(mem)
 	cycles, err := c.Step()
