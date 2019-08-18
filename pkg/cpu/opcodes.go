@@ -16,16 +16,16 @@ const (
 	INC_C         = 0x0C
 	DEC_C         = 0x0D
 	LD_C_D8       = 0x0E
-	LD_DE_D16	  = 0x11
-	INC_DE	      = 0x13
-	INC_D	      = 0x14
-	DEC_D	      = 0x15
+	LD_DE_D16     = 0x11
+	INC_DE        = 0x13
+	INC_D         = 0x14
+	DEC_D         = 0x15
 	LD_D_D8       = 0x16
-	DEC_DE	      = 0x1B
-	INC_E	      = 0x1C
-	DEC_E	      = 0x1D
-	LD_E_D8	      = 0x1E
-	JR_NZ_R8 	  = 0x20
+	DEC_DE        = 0x1B
+	INC_E         = 0x1C
+	DEC_E         = 0x1D
+	LD_E_D8       = 0x1E
+	JR_NZ_R8      = 0x20
 	LD_HL_D16     = 0x21
 	INC_HL        = 0x23
 	INC_H         = 0x24
@@ -43,6 +43,8 @@ const (
 	LD_A_D8       = 0x3E
 	XOR_A         = 0xAF
 	JMP           = 0xC3
+	LDH_A8_A      = 0xE0
+	LDH_A_A8      = 0xF0
 	DI            = 0xF3
 	EI            = 0xFB
 )
@@ -461,7 +463,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.ClearIME()
+			cpu.clearIME()
 			return 4
 		},
 	},
@@ -470,8 +472,29 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.SetIME()
+			cpu.setIME()
 			return 4
+		},
+	},
+	LDH_A8_A: {
+		mnemonic:   "LDH (%#02x), A",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			address := 0xFF00 + uint16(args[0])
+			cpu.memoryWriteByte(address, cpu.A.Get())
+			return 12
+		},
+	},
+	LDH_A_A8: {
+		mnemonic:   "LDH A, (%#02x)",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			address := 0xFF00 + uint16(args[0])
+			data := cpu.memoryReadByte(address)
+			cpu.A.Set(data)
+			return 12
 		},
 	},
 }

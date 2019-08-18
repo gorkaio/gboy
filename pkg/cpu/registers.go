@@ -65,7 +65,7 @@ func (r *ByteRegister) Inc() {
 
 // IncBy increases the value of a 8 bit register by q
 func (r *ByteRegister) IncBy(q uint8) {
-	r.v+=q
+	r.v += q
 }
 
 // Dec decreases the value of a 8 bit register by one
@@ -75,7 +75,7 @@ func (r *ByteRegister) Dec() {
 
 // DecBy decreases the value of a 8 bit register by q
 func (r *ByteRegister) DecBy(q uint8) {
-	r.v-=q
+	r.v -= q
 }
 
 // Get gets the value of a 16 bit register

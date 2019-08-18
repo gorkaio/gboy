@@ -40,7 +40,6 @@ func TestByteRegistersCanDecreaseTheirValueWithOverflow(t *testing.T) {
 	assert.Equal(t, uint8(0xFF), r.Get())
 }
 
-
 func TestWordRegistersUpdateTheirValues(t *testing.T) {
 	r := cpu.WordRegister{}
 	r.Set(0xFEFE)

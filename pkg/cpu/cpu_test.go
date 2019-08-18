@@ -99,4 +99,3 @@ func TestUpdatesZFlag(t *testing.T) {
 	c.UpdateZ(2)
 	assert.False(t, c.Z())
 }
-
