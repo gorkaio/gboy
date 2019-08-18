@@ -9,5 +9,9 @@
 !/roms/10-print.gb
 /gboy
 
+# Doc
+/doc/*
+!/doc/gbspec.txt
+
 # Vendor
 /vendor

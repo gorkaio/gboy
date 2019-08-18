@@ -54,7 +54,7 @@ func New(memory memory.MemoryInterface) *CPU {
 	cpu.E = cpu.DE.L()
 	cpu.H = cpu.HL.H()
 	cpu.L = cpu.HL.L()
-	cpu.debugEnabled = true
+	cpu.debugEnabled = false
 	return &cpu
 }
 
@@ -71,13 +71,13 @@ func (cpu *CPU) DebugDisable() {
 // Step executes next instruction and returns cycles consumed
 func (cpu *CPU) Step() (int, error) {
 	op, err := cpu.opCodeAt(cpu.PC.Get())
+	if err != nil {
+		return 0, err
+	}
+
 	if cpu.debugEnabled {
 		cpu.printStatus()
 		fmt.Println(op.String())
-	}
-
-	if err != nil {
-		return 0, err
 	}
 
 	cycles := op.handler(cpu, op.args...)
@@ -114,6 +114,35 @@ func (cpu *CPU) memoryWriteWord(address uint16, data uint16) {
 	h, l := splitWord(data)
 	cpu.memory.Write(address, l)
 	cpu.memory.Write(address+1, h)
+}
+
+// SetZ sets the Zero Flag
+func (cpu *CPU) SetZ() {
+	cpu.F.Set(cpu.F.Get() | flagZ)
+}
+
+// ClearZ clears the Zero Flag
+func (cpu *CPU) ClearZ() {
+	cpu.F.Set(cpu.F.Get() &^ flagZ)
+}
+
+// UpdateZ updates the Zero Flag according to the given value
+func (cpu *CPU) UpdateZ(data uint8) {
+	if (data == 0) {
+		cpu.SetZ()
+	} else {
+		cpu.ClearZ()
+	}
+}
+
+// SetN sets the Negative Flag
+func (cpu *CPU) SetN() {
+	cpu.F.Set(cpu.F.Get() | flagN)
+}
+
+// ClearN clears the Negative Flag
+func (cpu *CPU) ClearN() {
+	cpu.F.Set(cpu.F.Get() &^ flagN)
 }
 
 func (cpu *CPU) printStatus() {

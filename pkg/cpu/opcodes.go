@@ -14,6 +14,7 @@ const (
 	LD_B_D8       = 0x06
 	LDD_HL_A      = 0x32
 	DEC_B         = 0x05
+	JR_NZ_R8 = 0x20
 )
 
 const (
@@ -70,9 +71,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
 			cpu.A.Set(0)
 			cpu.F.Set(cpu.F.Get() | flagZ)
-			cpu.PC.Inc()
 			return 4
 		},
 	},
@@ -81,11 +82,11 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
+			cpu.PC.Inc()
+			cpu.PC.Inc()
 			d16 := uint16(args[0])
 			cpu.HL.Set(d16)
-			cpu.PC.Inc()
-			cpu.PC.Inc()
-			cpu.PC.Inc()
 			return 12
 		},
 	},
@@ -94,10 +95,10 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
+			cpu.PC.Inc()
 			d8 := uint8(args[0])
 			cpu.C.Set(d8)
-			cpu.PC.Inc()
-			cpu.PC.Inc()
 			return 8
 		},
 	},
@@ -106,10 +107,10 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
+			cpu.PC.Inc()
 			d8 := uint8(args[0])
 			cpu.B.Set(d8)
-			cpu.PC.Inc()
-			cpu.PC.Inc()
 			return 8
 		},
 	},
@@ -118,9 +119,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
 			cpu.memoryWriteByte(cpu.HL.Get(), cpu.A.Get())
 			cpu.HL.Dec()
-			cpu.PC.Inc()
 			return 8
 		},
 	},
@@ -129,13 +130,27 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.B.Dec()
-			cpu.F.Set(cpu.F.Get() | flagN)
-			if cpu.B.Get() == 0 {
-				cpu.F.Set(cpu.F.Get() | flagZ)
-			}
 			cpu.PC.Inc()
+			cpu.B.Dec()
+			cpu.SetN()
+			cpu.UpdateZ(cpu.B.Get())
 			return 4
+		},
+	},
+	JR_NZ_R8: {
+		mnemonic:   "JR NZ, %#02x",
+		argLengths: []int{lbyte},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.PC.Inc()
+			cpu.PC.Inc()
+			if ((cpu.F.Get() & flagZ) > 0) {
+				rel := int8(args[0]) // Signed relative address jump distance
+				address := int(cpu.PC.Get()) + int(rel)
+				cpu.PC.Set(uint16(address))
+				return 12
+			}
+			return 8
 		},
 	},
 }

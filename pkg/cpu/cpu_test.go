@@ -58,3 +58,36 @@ func TestExecutesNOP(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, cycles, 4)
 }
+
+func TestSetsZFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0x00)
+	c.SetZ()
+	assert.Equal(t, c.F.Get(), uint8(0x80))
+}
+
+func TestClearsZFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0xFF)
+	c.ClearZ()
+	assert.Equal(t, c.F.Get(), uint8(0x7F))
+}
+
+func TestUpdatesZFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0x00)
+	c.UpdateZ(0)
+	assert.Equal(t, c.F.Get(), uint8(0x80))
+	c.UpdateZ(2)
+	assert.Equal(t, c.F.Get(), uint8(0x00))
+}
+
