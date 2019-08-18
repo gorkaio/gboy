@@ -16,20 +16,20 @@ const (
 
 // CPU structure
 type CPU struct {
-	AF           WordRegister
-	BC           WordRegister
-	DE           WordRegister
-	HL           WordRegister
-	PC           WordRegister
-	SP           WordRegister
-	A            *ByteRegister
-	F            *ByteRegister
-	B            *ByteRegister
-	C            *ByteRegister
-	D            *ByteRegister
-	E            *ByteRegister
-	H            *ByteRegister
-	L            *ByteRegister
+	BC           WordRegisterInterface
+	AF           WordRegisterInterface
+	DE           WordRegisterInterface
+	HL           WordRegisterInterface
+	PC           WordRegisterInterface
+	SP           WordRegisterInterface
+	A            ByteRegisterInterface
+	F            ByteRegisterInterface
+	B            ByteRegisterInterface
+	C            ByteRegisterInterface
+	D            ByteRegisterInterface
+	E            ByteRegisterInterface
+	H            ByteRegisterInterface
+	L            ByteRegisterInterface
 	memory       memory.MemoryInterface
 	debugEnabled bool
 	imeFlag      bool
@@ -55,7 +55,7 @@ func New(memory memory.MemoryInterface) *CPU {
 	cpu.E = cpu.DE.L()
 	cpu.H = cpu.HL.H()
 	cpu.L = cpu.HL.L()
-	cpu.debugEnabled = false
+	cpu.debugEnabled = true
 	cpu.imeFlag = false
 	return &cpu
 }
@@ -201,12 +201,13 @@ func (cpu *CPU) printStatus() {
 	registerTable.Append([]string{"PC", fmt.Sprintf("%#04x", cpu.PC.Get())})
 	registerTable.Render()
 	flagTable := tablewriter.NewWriter(os.Stdout)
-	flagTable.SetHeader([]string{"Z", "N", "H", "C"})
+	flagTable.SetHeader([]string{"Z", "N", "H", "C", "IME"})
 	flagTable.Append([]string{
 		fmt.Sprintf("%t", cpu.F.Get()&0x80 > 1),
 		fmt.Sprintf("%t", cpu.F.Get()&0x40 > 1),
 		fmt.Sprintf("%t", cpu.F.Get()&0x20 > 1),
 		fmt.Sprintf("%t", cpu.F.Get()&0x10 > 1),
+		fmt.Sprintf("%t", cpu.InterruptsEnabled()),
 	})
 	flagTable.Render()
 }

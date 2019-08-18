@@ -30,19 +30,19 @@ type ByteRegister struct {
 
 // WordRegister is an 16 bit register, composed of two 8 bit registers
 type WordRegister struct {
-	h ByteRegister
-	l ByteRegister
+	h *ByteRegister
+	l *ByteRegister
 	WordRegisterInterface
 }
 
-func newByteRegister() ByteRegister {
-	return ByteRegister{
+func newByteRegister() *ByteRegister {
+	return &ByteRegister{
 		v: 0,
 	}
 }
 
-func newWordRegister() WordRegister {
-	return WordRegister{
+func newWordRegister() *WordRegister {
+	return &WordRegister{
 		h: newByteRegister(),
 		l: newByteRegister(),
 	}
@@ -109,13 +109,13 @@ func (r *WordRegister) DecBy(q uint16) {
 }
 
 // H gets the high byte register of a 16 bit register
-func (r *WordRegister) H() *ByteRegister {
-	return &r.h
+func (r *WordRegister) H() ByteRegisterInterface {
+	return r.h
 }
 
 // L gets the low byte register of a 16 bit register
-func (r *WordRegister) L() *ByteRegister {
-	return &r.l
+func (r *WordRegister) L() ByteRegisterInterface {
+	return r.l
 }
 
 func concatWord(a uint8, b uint8) uint16 {

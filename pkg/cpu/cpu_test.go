@@ -30,6 +30,7 @@ func TestExecutesInstructions(t *testing.T) {
 	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(cpu.NOP))
 
 	c := cpu.New(mem)
+	c.DebugDisable()
 	pc := c.PC.Get()
 	cyclesConsumed, err := c.Step()
 	assert.NoError(t, err)
@@ -49,6 +50,7 @@ func TestErrorsWithUnknownOpcodes(t *testing.T) {
 	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(0x00))
 
 	c := cpu.New(mem)
+	c.DebugDisable()
 	_, err := c.Step()
 	assert.Error(t, err, "Unknown opcode 0xDB")
 }
@@ -63,6 +65,7 @@ func TestExecutesNOP(t *testing.T) {
 	mem.EXPECT().Read(PCStartAddress + 3).Return(uint8(cpu.NOP))
 
 	c := cpu.New(mem)
+	c.DebugDisable()
 	cycles, err := c.Step()
 	assert.NoError(t, err)
 	assert.Equal(t, cycles, 4)

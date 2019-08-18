@@ -224,10 +224,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.A.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.A.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.A)
 		},
 	},
 	INC_B: {
@@ -235,10 +232,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.B.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.B.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.B)
 		},
 	},
 	INC_C: {
@@ -246,10 +240,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.C.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.C.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.C)
 		},
 	},
 	INC_D: {
@@ -257,10 +248,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.D.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.D.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.D)
 		},
 	},
 	INC_E: {
@@ -268,10 +256,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.E.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.E.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.E)
 		},
 	},
 	INC_H: {
@@ -279,10 +264,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.H.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.H.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.H)
 		},
 	},
 	INC_L: {
@@ -290,10 +272,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.L.Inc()
-			cpu.SetFlagN(false)
-			cpu.SetFlagZ(cpu.L.Get() == 0)
-			return 4
+			return cpu.incR8(cpu.L)
 		},
 	},
 	DEC_A: {
@@ -301,10 +280,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.A.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.A.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.A)
 		},
 	},
 	DEC_B: {
@@ -312,10 +288,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.B.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.B.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.B)
 		},
 	},
 	DEC_C: {
@@ -323,10 +296,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.C.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.C.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.C)
 		},
 	},
 	DEC_D: {
@@ -334,10 +304,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.D.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.D.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.D)
 		},
 	},
 	DEC_E: {
@@ -345,10 +312,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.E.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.E.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.E)
 		},
 	},
 	DEC_H: {
@@ -356,10 +320,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.H.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.H.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.H)
 		},
 	},
 	DEC_L: {
@@ -367,10 +328,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.L.Dec()
-			cpu.SetFlagN(true)
-			cpu.SetFlagZ(cpu.L.Get() == 0)
-			return 4
+			return cpu.decR8(cpu.L)
 		},
 	},
 	INC_BC: {
@@ -378,7 +336,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.BC.Inc()
+			return cpu.incR16(cpu.BC)
 			return 8
 		},
 	},
@@ -387,8 +345,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.DE.Inc()
-			return 8
+			return cpu.incR16(cpu.DE)
 		},
 	},
 	INC_HL: {
@@ -396,8 +353,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.HL.Inc()
-			return 8
+			return cpu.incR16(cpu.HL)
 		},
 	},
 	INC_SP: {
@@ -405,8 +361,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.SP.Inc()
-			return 8
+			return cpu.incR16(cpu.SP)
 		},
 	},
 	DEC_BC: {
@@ -414,8 +369,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.BC.Dec()
-			return 8
+			return cpu.decR16(cpu.BC)
 		},
 	},
 	DEC_DE: {
@@ -423,8 +377,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.DE.Dec()
-			return 8
+			return cpu.decR16(cpu.DE)
 		},
 	},
 	DEC_HL: {
@@ -432,8 +385,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.HL.Dec()
-			return 8
+			return cpu.decR16(cpu.HL)
 		},
 	},
 	DEC_SP: {
@@ -441,8 +393,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.SP.Dec()
-			return 8
+			return cpu.decR16(cpu.SP)
 		},
 	},
 	JR_NZ_R8: {
@@ -548,6 +499,30 @@ func opCodeFrom(data uint32) (op, error) {
 func (cpu *CPU) opCodeAt(address uint16) (op, error) {
 	data := cpu.memoryReadDWord(address)
 	return opCodeFrom(data)
+}
+
+func (cpu *CPU) decR8(r ByteRegisterInterface) int {
+	r.Dec()
+	cpu.SetFlagN(true)
+	cpu.SetFlagZ(r.Get() == 0)
+	return 4
+}
+
+func (cpu *CPU) incR8(r ByteRegisterInterface) int {
+	r.Inc()
+	cpu.SetFlagN(false)
+	cpu.SetFlagZ(r.Get() == 0)
+	return 4
+}
+
+func (cpu *CPU) decR16(r WordRegisterInterface) int {
+	r.Dec()
+	return 8
+}
+
+func (cpu *CPU) incR16(r WordRegisterInterface) int {
+	r.Inc()
+	return 8
 }
 
 func flipWord(data uint16) uint16 {
