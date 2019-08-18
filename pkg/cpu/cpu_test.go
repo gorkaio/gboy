@@ -43,14 +43,14 @@ func TestErrorsWithUnknownOpcodes(t *testing.T) {
 	defer ctrl.Finish()
 
 	mem := mocks.NewMockMemoryInterface(ctrl)
-	mem.EXPECT().Read(PCStartAddress).Return(byte(0xFE))
-	mem.EXPECT().Read(PCStartAddress + 1).Return(byte(0xFE))
-	mem.EXPECT().Read(PCStartAddress + 2).Return(byte(0xFE))
-	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(0xFE))
+	mem.EXPECT().Read(PCStartAddress).Return(byte(0xDB))
+	mem.EXPECT().Read(PCStartAddress + 1).Return(byte(0x00))
+	mem.EXPECT().Read(PCStartAddress + 2).Return(byte(0x00))
+	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(0x00))
 
 	c := cpu.New(mem)
 	_, err := c.Step()
-	assert.Error(t, err, "Unknown opcode 0xFE")
+	assert.Error(t, err, "Unknown opcode 0xDB")
 }
 
 func TestExecutesNOP(t *testing.T) {
@@ -67,35 +67,79 @@ func TestExecutesNOP(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, cycles, 4)
 }
-
 func TestSetsZFlag(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	c := cpu.New(mem)
 	c.F.Set(0x00)
-	c.SetZ()
-	assert.True(t, c.Z())
+	c.SetFlagZ(true)
+	assert.True(t, c.FlagZ())
 }
-
 func TestClearsZFlag(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	c := cpu.New(mem)
 	c.F.Set(0xFF)
-	c.ClearZ()
-	assert.False(t, c.Z())
+	c.SetFlagZ(false)
+	assert.False(t, c.FlagZ())
 }
 
-func TestUpdatesZFlag(t *testing.T) {
+func TestSetsCFlag(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mem := mocks.NewMockMemoryInterface(ctrl)
 	c := cpu.New(mem)
 	c.F.Set(0x00)
-	c.UpdateZ(0)
-	assert.True(t, c.Z())
-	c.UpdateZ(2)
-	assert.False(t, c.Z())
+	c.SetFlagC(true)
+	assert.True(t, c.FlagC())
+}
+
+func TestClearsCFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0xFF)
+	c.SetFlagC(false)
+	assert.False(t, c.FlagC())
+}
+
+func TestSetsHFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0x00)
+	c.SetFlagH(true)
+	assert.True(t, c.FlagH())
+}
+func TestClearsHFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0xFF)
+	c.SetFlagH(false)
+	assert.False(t, c.FlagH())
+}
+
+func TestSetsNFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0x00)
+	c.SetFlagN(true)
+	assert.True(t, c.FlagN())
+}
+func TestClearsNFlag(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mem := mocks.NewMockMemoryInterface(ctrl)
+	c := cpu.New(mem)
+	c.F.Set(0xFF)
+	c.SetFlagN(false)
+	assert.False(t, c.FlagN())
 }

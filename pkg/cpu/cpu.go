@@ -119,53 +119,75 @@ func (cpu *CPU) memoryWriteWord(address uint16, data uint16) {
 	cpu.memory.Write(address+1, h)
 }
 
-// SetZ sets the Zero Flag
-func (cpu *CPU) SetZ() {
-	cpu.F.Set(cpu.F.Get() | flagZ)
-}
-
-// ClearZ clears the Zero Flag
-func (cpu *CPU) ClearZ() {
-	cpu.F.Set(cpu.F.Get() &^ flagZ)
-}
-
-// clearIME clears the interrupt master enable flag
-func (cpu *CPU) clearIME() {
-	cpu.imeFlag = false
-}
-
-// setIME sets the interrupt master enable flag
-func (cpu *CPU) setIME() {
-	cpu.imeFlag = true
-}
-
-// IME reads the status of the interrupt master enable flag
-func (cpu *CPU) IME() bool {
-	return cpu.imeFlag
-}
-
-// UpdateZ updates the Zero Flag according to the given value
-func (cpu *CPU) UpdateZ(data uint8) {
-	if data == 0 {
-		cpu.SetZ()
+// SetFlagZ sets or clears the Zero Flag
+func (cpu *CPU) SetFlagZ(value bool) {
+	if value {
+		cpu.F.Set(cpu.F.Get() | flagZ)
 	} else {
-		cpu.ClearZ()
+		cpu.F.Set(cpu.F.Get() &^ flagZ)
 	}
 }
 
-// Z returns the status of the Zero flag
-func (cpu *CPU) Z() bool {
+// SetFlagC sets or clears the Carry Flag
+func (cpu *CPU) SetFlagC(value bool) {
+	if value {
+		cpu.F.Set(cpu.F.Get() | flagC)
+	} else {
+		cpu.F.Set(cpu.F.Get() &^ flagC)
+	}
+}
+
+// SetFlagN sets or clears the Negative Flag
+func (cpu *CPU) SetFlagN(value bool) {
+	if value {
+		cpu.F.Set(cpu.F.Get() | flagN)
+	} else {
+		cpu.F.Set(cpu.F.Get() &^ flagN)
+	}
+}
+
+// SetFlagH sets or clears the Half-Carry Flag
+func (cpu *CPU) SetFlagH(value bool) {
+	if value {
+		cpu.F.Set(cpu.F.Get() | flagH)
+	} else {
+		cpu.F.Set(cpu.F.Get() &^ flagH)
+	}
+}
+
+// FlagZ returns the status of the Zero flag
+func (cpu *CPU) FlagZ() bool {
 	return cpu.F.Get()&flagZ == flagZ
 }
 
-// SetN sets the Negative Flag
-func (cpu *CPU) SetN() {
-	cpu.F.Set(cpu.F.Get() | flagN)
+// FlagC returns the status of the Carry flag
+func (cpu *CPU) FlagC() bool {
+	return cpu.F.Get()&flagC == flagC
 }
 
-// ClearN clears the Negative Flag
-func (cpu *CPU) ClearN() {
-	cpu.F.Set(cpu.F.Get() &^ flagN)
+// FlagN returns the status of the Negative flag
+func (cpu *CPU) FlagN() bool {
+	return cpu.F.Get()&flagN == flagN
+}
+
+// FlagH returns the status of the Half-Carry flag
+func (cpu *CPU) FlagH() bool {
+	return cpu.F.Get()&flagH == flagH
+}
+
+// DisableInterrupts clears the interrupt master enable flag
+func (cpu *CPU) DisableInterrupts() {
+	cpu.imeFlag = false
+}
+
+// EnableInterrupts sets the interrupt master enable flag
+func (cpu *CPU) EnableInterrupts() {
+	cpu.imeFlag = true
+}
+
+// InterruptsEnabled reads the status of the interrupt master enable flag
+func (cpu *CPU) InterruptsEnabled() bool {
+	return cpu.imeFlag
 }
 
 func (cpu *CPU) printStatus() {

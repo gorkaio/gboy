@@ -47,6 +47,7 @@ const (
 	LDH_A_A8      = 0xF0
 	DI            = 0xF3
 	EI            = 0xFB
+	CP_D8         = 0xFE
 )
 
 const (
@@ -103,8 +104,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.A.Set(0)
-			cpu.SetZ()
-			cpu.ClearN()
+			cpu.SetFlagZ(true)
+			cpu.SetFlagN(false)
 			return 4
 		},
 	},
@@ -224,8 +225,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.A.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.A.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.A.Get() == 0)
 			return 4
 		},
 	},
@@ -235,8 +236,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.B.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.B.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.B.Get() == 0)
 			return 4
 		},
 	},
@@ -246,8 +247,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.C.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.C.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.C.Get() == 0)
 			return 4
 		},
 	},
@@ -257,8 +258,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.D.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.D.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.D.Get() == 0)
 			return 4
 		},
 	},
@@ -268,8 +269,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.E.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.E.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.E.Get() == 0)
 			return 4
 		},
 	},
@@ -279,8 +280,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.H.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.H.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.H.Get() == 0)
 			return 4
 		},
 	},
@@ -290,8 +291,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.L.Inc()
-			cpu.ClearN()
-			cpu.UpdateZ(cpu.L.Get())
+			cpu.SetFlagN(false)
+			cpu.SetFlagZ(cpu.L.Get() == 0)
 			return 4
 		},
 	},
@@ -301,8 +302,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.A.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.A.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.A.Get() == 0)
 			return 4
 		},
 	},
@@ -312,8 +313,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.B.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.B.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.B.Get() == 0)
 			return 4
 		},
 	},
@@ -323,8 +324,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.C.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.C.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.C.Get() == 0)
 			return 4
 		},
 	},
@@ -334,8 +335,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.D.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.D.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.D.Get() == 0)
 			return 4
 		},
 	},
@@ -345,8 +346,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.E.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.E.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.E.Get() == 0)
 			return 4
 		},
 	},
@@ -356,8 +357,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.H.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.H.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.H.Get() == 0)
 			return 4
 		},
 	},
@@ -367,8 +368,8 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.L.Dec()
-			cpu.SetN()
-			cpu.UpdateZ(cpu.L.Get())
+			cpu.SetFlagN(true)
+			cpu.SetFlagZ(cpu.L.Get() == 0)
 			return 4
 		},
 	},
@@ -449,7 +450,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			if !cpu.Z() {
+			if !cpu.FlagZ() {
 				rel := int8(args[0]) // Signed relative address jump distance
 				address := int(cpu.PC.Get()) + int(rel)
 				cpu.PC.Set(uint16(address))
@@ -463,7 +464,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.clearIME()
+			cpu.DisableInterrupts()
 			return 4
 		},
 	},
@@ -472,7 +473,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.setIME()
+			cpu.EnableInterrupts()
 			return 4
 		},
 	},
@@ -495,6 +496,18 @@ var opDefinitions = map[uint8]opDefinition{
 			data := cpu.memoryReadByte(address)
 			cpu.A.Set(data)
 			return 12
+		},
+	},
+	CP_D8: {
+		mnemonic:   "CP %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			d8 := uint8(args[0])
+			cpu.SetFlagZ(cpu.A.Get() == d8)
+			cpu.SetFlagC(cpu.A.Get() < d8)
+			cpu.SetFlagN(true)
+			return 8
 		},
 	},
 }

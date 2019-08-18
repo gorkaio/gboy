@@ -21,7 +21,7 @@ func TestEIEnablesInterruptMasterEnableFlag(t *testing.T) {
 	c := cpu.New(mem)
 	_, err := c.Step()
 	assert.NoError(t, err)
-	assert.True(t, c.IME())
+	assert.True(t, c.InterruptsEnabled())
 }
 
 func TestDIDisablesInterruptMasterEnableFlag(t *testing.T) {
@@ -37,5 +37,5 @@ func TestDIDisablesInterruptMasterEnableFlag(t *testing.T) {
 	c := cpu.New(mem)
 	_, err := c.Step()
 	assert.NoError(t, err)
-	assert.False(t, c.IME())
+	assert.False(t, c.InterruptsEnabled())
 }
