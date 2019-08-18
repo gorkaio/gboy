@@ -43,6 +43,8 @@ const (
 	LD_A_D8       = 0x3E
 	XOR_A         = 0xAF
 	JMP           = 0xC3
+	DI            = 0xF3
+	EI            = 0xFB
 )
 
 const (
@@ -452,6 +454,24 @@ var opDefinitions = map[uint8]opDefinition{
 				return 12
 			}
 			return 8
+		},
+	},
+	DI: {
+		mnemonic:   "DI",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.ClearIME()
+			return 4
+		},
+	},
+	EI: {
+		mnemonic:   "EI",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.SetIME()
+			return 4
 		},
 	},
 }

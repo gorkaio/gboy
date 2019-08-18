@@ -32,6 +32,7 @@ type CPU struct {
 	L            *ByteRegister
 	memory       memory.MemoryInterface
 	debugEnabled bool
+	imeFlag		 bool
 }
 
 // New initialises a new Z80 cpu
@@ -55,6 +56,7 @@ func New(memory memory.MemoryInterface) *CPU {
 	cpu.H = cpu.HL.H()
 	cpu.L = cpu.HL.L()
 	cpu.debugEnabled = false
+	cpu.imeFlag = false
 	return &cpu
 }
 
@@ -125,6 +127,16 @@ func (cpu *CPU) SetZ() {
 // ClearZ clears the Zero Flag
 func (cpu *CPU) ClearZ() {
 	cpu.F.Set(cpu.F.Get() &^ flagZ)
+}
+
+// ClearIME clears the interrupt master enable flag
+func (cpu *CPU) ClearIME() {
+	cpu.imeFlag = false
+}
+
+// SetIME sets the interrupt master enable flag
+func (cpu *CPU) SetIME() {
+	cpu.imeFlag = true
 }
 
 // UpdateZ updates the Zero Flag according to the given value
