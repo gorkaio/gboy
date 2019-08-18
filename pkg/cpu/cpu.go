@@ -54,7 +54,7 @@ func New(memory memory.MemoryInterface) *CPU {
 	cpu.E = cpu.DE.L()
 	cpu.H = cpu.HL.H()
 	cpu.L = cpu.HL.L()
-	cpu.debugEnabled = true
+	cpu.debugEnabled = false
 	return &cpu
 }
 
