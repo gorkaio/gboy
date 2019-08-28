@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-  "os"
-  "github.com/gorkaio/gboy/pkg/gameboy"
+	"github.com/gorkaio/gboy/pkg/gameboy"
+	"os"
 )
 
 func main() {
@@ -12,15 +12,21 @@ func main() {
 		os.Exit(1)
 	}
 
-  romfile := os.Args[1]
+	romfile := os.Args[1]
 	fmt.Println("GBoy!")
-  fmt.Printf("Loading %q...\n", romfile)
-  
-  gameboy, err := gameboy.New(romfile)
-  if (err != nil) {
-    fmt.Println(err.Error())
-    os.Exit(1)
-  }
+	fmt.Printf("Loading %q...\n", romfile)
 
-  gameboy.Run()
+	gb, err := gameboy.InitializeGameboy()
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	err = gb.LoadCart(romfile)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	gb.Run()
 }

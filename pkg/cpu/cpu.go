@@ -14,6 +14,12 @@ const (
 	flagC = 0x10
 )
 
+type CPUInterface interface {
+	DebugEnable()
+	DebugDisable()
+	Step() (int, error)
+}
+
 // CPU structure
 type CPU struct {
 	BC           WordRegisterInterface
@@ -36,7 +42,7 @@ type CPU struct {
 }
 
 // New initialises a new Z80 cpu
-func New(memory memory.MemoryInterface) *CPU {
+func New(memory memory.MemoryInterface) CPUInterface {
 	cpu := CPU{
 		AF:     newWordRegister(),
 		BC:     newWordRegister(),

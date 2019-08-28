@@ -6,6 +6,7 @@ package mocks
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	cart "github.com/gorkaio/gboy/pkg/cart"
 	reflect "reflect"
 )
 
@@ -32,20 +33,6 @@ func (m *MockCartInterface) EXPECT() *MockCartInterfaceMockRecorder {
 	return m.recorder
 }
 
-// Load mocks base method
-func (m *MockCartInterface) Load(arg0 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Load", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Load indicates an expected call of Load
-func (mr *MockCartInterfaceMockRecorder) Load(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Load", reflect.TypeOf((*MockCartInterface)(nil).Load), arg0)
-}
-
 // Read mocks base method
 func (m *MockCartInterface) Read(arg0 uint16) byte {
 	m.ctrl.T.Helper()
@@ -58,6 +45,34 @@ func (m *MockCartInterface) Read(arg0 uint16) byte {
 func (mr *MockCartInterfaceMockRecorder) Read(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockCartInterface)(nil).Read), arg0)
+}
+
+// Title mocks base method
+func (m *MockCartInterface) Title() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Title")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Title indicates an expected call of Title
+func (mr *MockCartInterfaceMockRecorder) Title() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Title", reflect.TypeOf((*MockCartInterface)(nil).Title))
+}
+
+// Type mocks base method
+func (m *MockCartInterface) Type() cart.Type {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Type")
+	ret0, _ := ret[0].(cart.Type)
+	return ret0
+}
+
+// Type indicates an expected call of Type
+func (mr *MockCartInterfaceMockRecorder) Type() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Type", reflect.TypeOf((*MockCartInterface)(nil).Type))
 }
 
 // Write mocks base method

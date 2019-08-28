@@ -3,50 +3,73 @@ package memory
 //go:generate mockgen -destination=../mocks/mock_memory.go -package=mocks github.com/gorkaio/gboy/pkg/memory MemoryInterface
 
 import (
-	cart "github.com/gorkaio/gboy/pkg/cart"
+	"github.com/gorkaio/gboy/pkg/cart"
 )
 
 const cartAddressHigh = 0x7FFF
 
 type MemoryInterface interface {
+	Load(romfile string) error
+	Eject()
 	Read(address uint16) byte
 	Write(address uint16, data byte)
 }
 
 // Memory defines the memory structure
 type Memory struct {
-	cart cart.CartInterface
+	cart       cart.CartInterface
+	loader     cart.Loader
+	system     []byte
+	cartLoaded bool
 }
 
 // New creates a new memory
-func New(cart cart.CartInterface) (*Memory, error) {
+func New(loader cart.Loader) (MemoryInterface, error) {
 	mem := Memory{
-		cart: cart,
+		system:     make([]byte, 0x8000),
+		loader:     loader,
+		cartLoaded: false,
 	}
 	return &mem, nil
 }
 
-// LoadRomFile loads a cart from file
-func (mem *Memory) LoadRomFile(romfile string) error {
-	err := mem.cart.Load(romfile)
+// Eject ejects the current cartdrige
+func (mem *Memory) Eject() {
+	mem.cart = nil
+	mem.cartLoaded = false
+}
+
+// Load loads a cart from file
+func (mem *Memory) Load(romfile string) error {
+	c, err := mem.loader.Load(romfile)
 	if err != nil {
 		return err
 	}
-
+	mem.cart = c
+	mem.cartLoaded = true
 	return nil
 }
 
 func (mem *Memory) Read(address uint16) byte {
 	if addressInCart(address) {
-		return mem.cart.Read(address)
+		if mem.cartLoaded {
+			return mem.cart.Read(address)
+		}
+		return 0xFF
 	}
-	return 0
+
+	return mem.system[address&0x7FFF]
 }
 
 func (mem *Memory) Write(address uint16, data byte) {
 	if addressInCart(address) {
-		mem.cart.Write(address, data)
+		if mem.cartLoaded {
+			mem.cart.Write(address, data)
+		}
+		return
 	}
+
+	mem.system[address&0x7FFF] = data
 }
 
 func addressInCart(address uint16) bool {

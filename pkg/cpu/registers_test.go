@@ -2,8 +2,8 @@ package cpu_test
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	mocks "github.com/gorkaio/gboy/pkg/mocks"
 	cpu "github.com/gorkaio/gboy/pkg/cpu"
+	mocks "github.com/gorkaio/gboy/pkg/mocks"
 	assert "github.com/stretchr/testify/assert"
 	testing "testing"
 )
@@ -205,7 +205,7 @@ func TestWordRegistersUpdateTheirValues(t *testing.T) {
 	assert.Equal(t, uint16(0xCAFE), c.AF.Get())
 	assert.Equal(t, uint8(0xCA), c.A.Get())
 	assert.Equal(t, uint8(0xFE), c.F.Get())
-	
+
 	c.BC.Set(0xCAFE)
 	assert.Equal(t, uint16(0xCAFE), c.BC.Get())
 	assert.Equal(t, uint8(0xCA), c.B.Get())

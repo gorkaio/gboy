@@ -32,6 +32,32 @@ func (m *MockMemoryInterface) EXPECT() *MockMemoryInterfaceMockRecorder {
 	return m.recorder
 }
 
+// Eject mocks base method
+func (m *MockMemoryInterface) Eject() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Eject")
+}
+
+// Eject indicates an expected call of Eject
+func (mr *MockMemoryInterfaceMockRecorder) Eject() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Eject", reflect.TypeOf((*MockMemoryInterface)(nil).Eject))
+}
+
+// Load mocks base method
+func (m *MockMemoryInterface) Load(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Load", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Load indicates an expected call of Load
+func (mr *MockMemoryInterfaceMockRecorder) Load(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Load", reflect.TypeOf((*MockMemoryInterface)(nil).Load), arg0)
+}
+
 // Read mocks base method
 func (m *MockMemoryInterface) Read(arg0 uint16) byte {
 	m.ctrl.T.Helper()
