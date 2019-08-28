@@ -6,7 +6,7 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeLoader() (*Loader, error) {
+func InitializeLoader() (Loader, error) {
 	wire.Build(NewFileLoader)
 	return nil, nil
 }

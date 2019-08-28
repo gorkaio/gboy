@@ -13,12 +13,12 @@ type FileLoader struct {
 }
 
 // NewFileLoader initialises a new romfile loader
-func NewFileLoader() *FileLoader {
+func NewFileLoader() Loader {
 	return &FileLoader{}
 }
 
 // Load loads a romfile from file
-func (fl *FileLoader) Load(resource string) (*Cart, error) {
+func (fl *FileLoader) Load(resource string) (CartInterface, error) {
 	data, err := ioutil.ReadFile(resource)
 	if err != nil {
 		return nil, err
