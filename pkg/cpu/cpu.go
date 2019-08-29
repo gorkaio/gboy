@@ -1,11 +1,21 @@
 package cpu
 
+//go:generate mockgen -destination=../mocks/mock_cpu.go -package=mocks github.com/gorkaio/gboy/pkg/cpu CPUInterface
+
 import (
 	"fmt"
-	memory "github.com/gorkaio/gboy/pkg/memory"
-	tablewriter "github.com/olekukonko/tablewriter"
+	"github.com/gorkaio/gboy/pkg/bits"
+	"github.com/gorkaio/gboy/pkg/memory"
+	reg "github.com/gorkaio/gboy/pkg/registers"
+	"github.com/olekukonko/tablewriter"
 	"os"
 )
+
+type CPUInterface interface {
+	Step() (int, error)
+	DebugEnable()
+	DebugDisable()
+}
 
 const (
 	flagZ = 0x80
@@ -16,35 +26,25 @@ const (
 
 // CPU structure
 type CPU struct {
-	BC           WordRegisterInterface
-	AF           WordRegisterInterface
-	DE           WordRegisterInterface
-	HL           WordRegisterInterface
-	PC           WordRegisterInterface
-	SP           WordRegisterInterface
-	A            ByteRegisterInterface
-	F            ByteRegisterInterface
-	B            ByteRegisterInterface
-	C            ByteRegisterInterface
-	D            ByteRegisterInterface
-	E            ByteRegisterInterface
-	H            ByteRegisterInterface
-	L            ByteRegisterInterface
-	memory       memory.MemoryInterface
-	debugEnabled bool
-	imeFlag      bool
+	AF, BC, DE, HL, SP, PC reg.WordRegisterInterface
+	A, F, B, C, D, E, H, L reg.ByteRegisterInterface
+	memory                 memory.MemoryInterface
+	debugEnabled           bool
+	imeFlag                bool
 }
 
 // New initialises a new Z80 cpu
 func New(memory memory.MemoryInterface) *CPU {
 	cpu := CPU{
-		AF:     newWordRegister(),
-		BC:     newWordRegister(),
-		DE:     newWordRegister(),
-		HL:     newWordRegister(),
-		SP:     newWordRegister(),
-		PC:     newWordRegister(),
+		AF:     reg.NewMaskedWordRegister(0xFFF0),
+		BC:     reg.NewWordRegister(),
+		DE:     reg.NewWordRegister(),
+		HL:     reg.NewWordRegister(),
+		SP:     reg.NewWordRegister(),
+		PC:     reg.NewWordRegister(),
 		memory: memory,
+		debugEnabled: true,
+		imeFlag: false,
 	}
 	cpu.PC.Set(0x100)
 	cpu.A = cpu.AF.H()
@@ -55,8 +55,6 @@ func New(memory memory.MemoryInterface) *CPU {
 	cpu.E = cpu.DE.L()
 	cpu.H = cpu.HL.H()
 	cpu.L = cpu.HL.L()
-	cpu.debugEnabled = true
-	cpu.imeFlag = false
 	return &cpu
 }
 
@@ -94,7 +92,7 @@ func (cpu *CPU) Step() (int, error) {
 func (cpu *CPU) memoryReadWord(address uint16) uint16 {
 	l := cpu.memory.Read(address)
 	h := cpu.memory.Read(address + 1)
-	return concatWord(h, l)
+	return bits.ConcatWord(h, l)
 }
 
 func (cpu *CPU) memoryReadDWord(address uint16) uint32 {
@@ -114,7 +112,7 @@ func (cpu *CPU) memoryWriteByte(address uint16, data uint8) {
 }
 
 func (cpu *CPU) memoryWriteWord(address uint16, data uint16) {
-	h, l := splitWord(data)
+	h, l := bits.SplitWord(data)
 	cpu.memory.Write(address, l)
 	cpu.memory.Write(address+1, h)
 }

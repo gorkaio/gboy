@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"github.com/gorkaio/gboy/pkg/registers"
 )
 
 const (
@@ -501,26 +502,26 @@ func (cpu *CPU) opCodeAt(address uint16) (op, error) {
 	return opCodeFrom(data)
 }
 
-func (cpu *CPU) decR8(r ByteRegisterInterface) int {
+func (cpu *CPU) decR8(r registers.ByteRegisterInterface) int {
 	r.Dec()
 	cpu.SetFlagN(true)
 	cpu.SetFlagZ(r.Get() == 0)
 	return 4
 }
 
-func (cpu *CPU) incR8(r ByteRegisterInterface) int {
+func (cpu *CPU) incR8(r registers.ByteRegisterInterface) int {
 	r.Inc()
 	cpu.SetFlagN(false)
 	cpu.SetFlagZ(r.Get() == 0)
 	return 4
 }
 
-func (cpu *CPU) decR16(r WordRegisterInterface) int {
+func (cpu *CPU) decR16(r registers.WordRegisterInterface) int {
 	r.Dec()
 	return 8
 }
 
-func (cpu *CPU) incR16(r WordRegisterInterface) int {
+func (cpu *CPU) incR16(r registers.WordRegisterInterface) int {
 	r.Inc()
 	return 8
 }
