@@ -18,10 +18,9 @@ func main() {
 	fmt.Println("GBoy!")
 	fmt.Printf("Loading %q...\n", romfile)
 
-	memory := memory.New()
-	cpu := cpu.New(memory)
-	
-	gb, err := gameboy.New(memory, cpu)
+	m := memory.New()
+	c := cpu.New(m)
+	gb, err := gameboy.New(m, c)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
