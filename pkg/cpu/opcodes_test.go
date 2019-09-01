@@ -3,8 +3,7 @@ package cpu_test
 import (
 	"github.com/golang/mock/gomock"
 	"github.com/gorkaio/gboy/pkg/cpu"
-	"github.com/gorkaio/gboy/pkg/mocks"
-	"github.com/gorkaio/gboy/pkg/registers"
+	mocks "github.com/gorkaio/gboy/pkg/cpu/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,7 +12,7 @@ func TestEIEnablesInterruptMasterEnableFlag(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem := mocks.NewMockMemory(ctrl)
 	readInstruction(mem, PCStartAddress, []byte{cpu.EI, 0x00, 0x00, 0x00})
 
 	c := cpu.New(mem)
@@ -26,7 +25,7 @@ func TestDIDisablesInterruptMasterEnableFlag(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem := mocks.NewMockMemory(ctrl)
 	readInstruction(mem, PCStartAddress, []byte{cpu.DI, 0x00, 0x00, 0x00})
 
 	c := cpu.New(mem)
@@ -39,34 +38,33 @@ func TestDECDecrementsByteRegisters(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem := mocks.NewMockMemory(ctrl)
 	c := cpu.New(mem)
 
 	var tests = []struct {
 		address     uint16
 		instruction []byte
-		register    registers.ByteRegisterInterface
+		register    string
+		expected	uint8
 		cycles      int
 	}{
-		{0x100, []byte{cpu.DEC_A, 0x00, 0x00, 0x00}, c.A, 4},
-		{0x200, []byte{cpu.DEC_B, 0x00, 0x00, 0x00}, c.B, 4},
-		{0x300, []byte{cpu.DEC_C, 0x00, 0x00, 0x00}, c.C, 4},
-		{0x400, []byte{cpu.DEC_D, 0x00, 0x00, 0x00}, c.D, 4},
-		{0x500, []byte{cpu.DEC_E, 0x00, 0x00, 0x00}, c.E, 4},
-		{0x600, []byte{cpu.DEC_H, 0x00, 0x00, 0x00}, c.H, 4},
-		{0x700, []byte{cpu.DEC_L, 0x00, 0x00, 0x00}, c.L, 4},
+		{0x100, []byte{cpu.DEC_A, 0x00, 0x00, 0x00}, "A", 0xFF, 4},
+		{0x101, []byte{cpu.DEC_B, 0x00, 0x00, 0x00}, "B", 0xFF, 4},
+		{0x102, []byte{cpu.DEC_C, 0x00, 0x00, 0x00}, "C", 0xFF, 4},
+		{0x103, []byte{cpu.DEC_D, 0x00, 0x00, 0x00}, "D", 0xFF, 4},
+		{0x104, []byte{cpu.DEC_E, 0x00, 0x00, 0x00}, "E", 0xFF, 4},
+		{0x105, []byte{cpu.DEC_H, 0x00, 0x00, 0x00}, "H", 0xFF, 4},
+		{0x106, []byte{cpu.DEC_L, 0x00, 0x00, 0x00}, "L", 0xFF, 4},
 	}
 
 	for _, test := range tests {
 		readInstruction(mem, test.address, test.instruction)
-		test.register.Set(0xFF)
-		c.PC.Set(test.address)
 		cycles, err := c.Step()
 
 		assert.NoError(t, err)
 		assert.Equal(t, cycles, test.cycles)
-		assert.Equal(t, test.register.Get(), uint8(0xFE))
-		assert.Equal(t, c.PC.Get(), test.address+1)
+		assert.Equal(t, c.Status()[test.register], test.expected)
+		assert.Equal(t, c.Status()["PC"].(uint16), test.address+1)
 	}
 }
 
@@ -74,31 +72,30 @@ func TestDECDecrementsWordRegisters(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem := mocks.NewMockMemory(ctrl)
 	c := cpu.New(mem)
 
 	var tests = []struct {
 		address     uint16
 		instruction []byte
-		register    registers.WordRegisterInterface
+		register    string
+		expected uint16
 		cycles      int
 	}{
-		{0x100, []byte{cpu.DEC_BC, 0x00, 0x00, 0x00}, c.BC, 8},
-		{0x200, []byte{cpu.DEC_DE, 0x00, 0x00, 0x00}, c.DE, 8},
-		{0x300, []byte{cpu.DEC_HL, 0x00, 0x00, 0x00}, c.HL, 8},
-		{0x400, []byte{cpu.DEC_SP, 0x00, 0x00, 0x00}, c.SP, 8},
+		{0x100, []byte{cpu.DEC_BC, 0x00, 0x00, 0x00}, "BC", 0xFFFF, 8},
+		{0x101, []byte{cpu.DEC_DE, 0x00, 0x00, 0x00}, "DE", 0xFFFF, 8},
+		{0x102, []byte{cpu.DEC_HL, 0x00, 0x00, 0x00}, "HL", 0xFFFF, 8},
+		{0x103, []byte{cpu.DEC_SP, 0x00, 0x00, 0x00}, "SP", 0xFFFF, 8},
 	}
 
 	for _, test := range tests {
 		readInstruction(mem, test.address, test.instruction)
-		test.register.Set(0xFFFF)
-		c.PC.Set(test.address)
 		cycles, err := c.Step()
 
 		assert.NoError(t, err)
 		assert.Equal(t, cycles, test.cycles)
-		assert.Equal(t, test.register.Get(), uint16(0xFFFE))
-		assert.Equal(t, c.PC.Get(), test.address+1)
+		assert.Equal(t, c.Status()[test.register], test.expected)
+		assert.Equal(t, c.Status()["PC"].(uint16), test.address+1)
 	}
 }
 
@@ -106,34 +103,33 @@ func TestINCIncrementsByteRegisters(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem := mocks.NewMockMemory(ctrl)
 	c := cpu.New(mem)
 
 	var tests = []struct {
 		address     uint16
 		instruction []byte
-		register    registers.ByteRegisterInterface
+		register    string
+		expected uint8
 		cycles      int
 	}{
-		{0x100, []byte{cpu.INC_A, 0x00, 0x00, 0x00}, c.A, 4},
-		{0x200, []byte{cpu.INC_B, 0x00, 0x00, 0x00}, c.B, 4},
-		{0x300, []byte{cpu.INC_C, 0x00, 0x00, 0x00}, c.C, 4},
-		{0x400, []byte{cpu.INC_D, 0x00, 0x00, 0x00}, c.D, 4},
-		{0x500, []byte{cpu.INC_E, 0x00, 0x00, 0x00}, c.E, 4},
-		{0x600, []byte{cpu.INC_H, 0x00, 0x00, 0x00}, c.H, 4},
-		{0x700, []byte{cpu.INC_L, 0x00, 0x00, 0x00}, c.L, 4},
+		{0x100, []byte{cpu.INC_A, 0x00, 0x00, 0x00}, "A", 1, 4},
+		{0x101, []byte{cpu.INC_B, 0x00, 0x00, 0x00}, "B", 1, 4},
+		{0x102, []byte{cpu.INC_C, 0x00, 0x00, 0x00}, "C", 1, 4},
+		{0x103, []byte{cpu.INC_D, 0x00, 0x00, 0x00}, "D", 1, 4},
+		{0x104, []byte{cpu.INC_E, 0x00, 0x00, 0x00}, "E", 1, 4},
+		{0x105, []byte{cpu.INC_H, 0x00, 0x00, 0x00}, "H", 1, 4},
+		{0x106, []byte{cpu.INC_L, 0x00, 0x00, 0x00}, "L", 1, 4},
 	}
 
 	for _, test := range tests {
 		readInstruction(mem, test.address, test.instruction)
-		test.register.Set(0xFE)
-		c.PC.Set(test.address)
 		cycles, err := c.Step()
 
 		assert.NoError(t, err)
 		assert.Equal(t, cycles, test.cycles)
-		assert.Equal(t, test.register.Get(), uint8(0xFF))
-		assert.Equal(t, c.PC.Get(), test.address+1)
+		assert.Equal(t, c.Status()[test.register], test.expected)
+		assert.Equal(t, c.Status()["PC"].(uint16), test.address+1)
 	}
 }
 
@@ -141,35 +137,34 @@ func TestINCIncrementsWordRegisters(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mem := mocks.NewMockMemoryInterface(ctrl)
+	mem := mocks.NewMockMemory(ctrl)
 	c := cpu.New(mem)
 
 	var tests = []struct {
 		address     uint16
 		instruction []byte
-		register    registers.WordRegisterInterface
+		register    string
+		expected uint16
 		cycles      int
 	}{
-		{0x100, []byte{cpu.INC_BC, 0x00, 0x00, 0x00}, c.BC, 8},
-		{0x200, []byte{cpu.INC_DE, 0x00, 0x00, 0x00}, c.DE, 8},
-		{0x300, []byte{cpu.INC_HL, 0x00, 0x00, 0x00}, c.HL, 8},
-		{0x400, []byte{cpu.INC_SP, 0x00, 0x00, 0x00}, c.SP, 8},
+		{0x100, []byte{cpu.INC_BC, 0x00, 0x00, 0x00}, "BC", 1, 8},
+		{0x101, []byte{cpu.INC_DE, 0x00, 0x00, 0x00}, "DE", 1, 8},
+		{0x102, []byte{cpu.INC_HL, 0x00, 0x00, 0x00}, "HL", 1, 8},
+		{0x103, []byte{cpu.INC_SP, 0x00, 0x00, 0x00}, "SP", 1, 8},
 	}
 
 	for _, test := range tests {
 		readInstruction(mem, test.address, test.instruction)
-		test.register.Set(0xFFFE)
-		c.PC.Set(test.address)
 		cycles, err := c.Step()
 
 		assert.NoError(t, err)
 		assert.Equal(t, cycles, test.cycles)
-		assert.Equal(t, test.register.Get(), uint16(0xFFFF))
-		assert.Equal(t, c.PC.Get(), test.address+1)
+		assert.Equal(t, c.Status()[test.register], test.expected)
+		assert.Equal(t, c.Status()["PC"].(uint16), test.address+1)
 	}
 }
 
-func readInstruction(mem *mocks.MockMemoryInterface, address uint16, instruction []byte) {
+func readInstruction(mem *mocks.MockMemory, address uint16, instruction []byte) {
 	for i, b := range instruction {
 		mem.EXPECT().Read(address + uint16(i)).Return(b)
 	}

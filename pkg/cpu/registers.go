@@ -1,55 +1,23 @@
-package registers
+package cpu
 
 import (
 	"github.com/gorkaio/gboy/pkg/bits"
 )
 
-type RegisterInterface interface{}
-
-// ByteRegisterInterface defines the interface for 8 bit registers
-type ByteRegisterInterface interface {
-	Get() uint8
-	Set(data uint8)
-	Inc()
-	IncBy(q uint8)
-	Dec()
-	DecBy(q uint8)
-	GetMask() uint8
-	SetMask(uint8)
-	RegisterInterface
-}
-
-// WordRegisterInterface defines the interface for 16 bit registers
-type WordRegisterInterface interface {
-	Get() uint16
-	Set(data uint16)
-	Inc()
-	IncBy(q uint16)
-	Dec()
-	DecBy(q uint16)
-	GetMask() uint16
-	SetMask(uint16)
-	H() ByteRegisterInterface
-	L() ByteRegisterInterface
-	RegisterInterface
-}
-
 // ByteRegister is an 8 bit register
 type ByteRegister struct {
 	value uint8
 	mask  byte
-	ByteRegisterInterface
 }
 
 // WordRegister is an 16 bit register, composed of two 8 bit registers
 type WordRegister struct {
 	highByte *ByteRegister
 	lowByte  *ByteRegister
-	WordRegisterInterface
 }
 
 // NewByteRegister creates a new 8 bit register
-func NewByteRegister() *ByteRegister {
+func newByteRegister() *ByteRegister {
 	return &ByteRegister{
 		value: 0,
 		mask:  0xFF,
@@ -57,7 +25,7 @@ func NewByteRegister() *ByteRegister {
 }
 
 // NewMaskedByteRegister creates a new 8 bit register with some bits unavailable
-func NewMaskedByteRegister(mask byte) *ByteRegister {
+func newMaskedByteRegister(mask byte) *ByteRegister {
 	return &ByteRegister{
 		value: 0,
 		mask:  mask,
@@ -65,19 +33,19 @@ func NewMaskedByteRegister(mask byte) *ByteRegister {
 }
 
 // NewWordRegister creates a new 16 bit register
-func NewWordRegister() *WordRegister {
+func newWordRegister() *WordRegister {
 	return &WordRegister{
-		highByte: NewByteRegister(),
-		lowByte:  NewByteRegister(),
+		highByte: newByteRegister(),
+		lowByte:  newByteRegister(),
 	}
 }
 
 // NewMaskedWordRegister creates a new 16 bit register with some bits unavailable
-func NewMaskedWordRegister(mask uint16) *WordRegister {
+func newMaskedWordRegister(mask uint16) *WordRegister {
 	maskH, maskL := bits.SplitWord(mask)
 	return &WordRegister{
-		highByte: NewMaskedByteRegister(maskH),
-		lowByte:  NewMaskedByteRegister(maskL),
+		highByte: newMaskedByteRegister(maskH),
+		lowByte:  newMaskedByteRegister(maskL),
 	}
 }
 
@@ -174,11 +142,11 @@ func (r *WordRegister) SetMask(mask uint16) {
 }
 
 // H gets the high byte register of a 16 bit register
-func (r *WordRegister) H() ByteRegisterInterface {
+func (r *WordRegister) H() *ByteRegister {
 	return r.highByte
 }
 
 // L gets the low byte register of a 16 bit register
-func (r *WordRegister) L() ByteRegisterInterface {
+func (r *WordRegister) L() *ByteRegister {
 	return r.lowByte
 }

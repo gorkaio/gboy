@@ -1,25 +1,24 @@
-package registers_test
+package cpu
 
 import (
-	registers "github.com/gorkaio/gboy/pkg/registers"
 	assert "github.com/stretchr/testify/assert"
 	testing "testing"
 )
 
 func TestByteRegistersUpdateTheirValues(t *testing.T) {
-	reg := registers.NewByteRegister()
+	reg := newByteRegister()
 	reg.Set(0xCA)
 	assert.Equal(t, byte(0xCA), reg.Get())
 }
 
 func TestMaskedByteRegistersDontSetMaskedBits(t *testing.T) {
-	reg := registers.NewMaskedByteRegister(0xAA)
+	reg := newMaskedByteRegister(0xAA)
 	reg.Set(0xF3)
 	assert.Equal(t, byte(0xA2), reg.Get())
 }
 
 func TestMasksCanBeAppliedDynamicallyToByteRegisters(t *testing.T) {
-	reg := registers.NewByteRegister()
+	reg := newByteRegister()
 	reg.Set(0xCA)
 	assert.Equal(t, byte(0xCA), reg.Get())
 	reg.SetMask(0xAA)
@@ -32,7 +31,7 @@ func TestMasksCanBeAppliedDynamicallyToByteRegisters(t *testing.T) {
 }
 
 func TestByteRegistersIncreaseTheirValues(t *testing.T) {
-	reg := registers.NewByteRegister()
+	reg := newByteRegister()
 	reg.Set(0xCA)
 	reg.Inc()
 	assert.Equal(t, byte(0xCB), reg.Get())
@@ -41,14 +40,14 @@ func TestByteRegistersIncreaseTheirValues(t *testing.T) {
 }
 
 func TestByteRegistersOverflowWithIncrease(t *testing.T) {
-	reg := registers.NewByteRegister()
+	reg := newByteRegister()
 	reg.Set(0xFE)
 	reg.IncBy(3)
 	assert.Equal(t, byte(0x01), reg.Get())
 }
 
 func TestMaskedByteRegistersIncreaseRespectingTheirMask(t *testing.T) {
-	reg := registers.NewMaskedByteRegister(0xAA)
+	reg := newMaskedByteRegister(0xAA)
 	reg.Set(0xCA)
 	assert.Equal(t, byte(0x8A), reg.Get())
 	reg.Inc()
@@ -58,7 +57,7 @@ func TestMaskedByteRegistersIncreaseRespectingTheirMask(t *testing.T) {
 }
 
 func TestByteRegistersDecreaseTheirValues(t *testing.T) {
-	reg := registers.NewByteRegister()
+	reg := newByteRegister()
 	reg.Set(0xCA)
 	reg.Dec()
 	assert.Equal(t, byte(0xC9), reg.Get())
@@ -67,7 +66,7 @@ func TestByteRegistersDecreaseTheirValues(t *testing.T) {
 }
 
 func TestMaskedByteRegistersDecreaseRespectingTheirMask(t *testing.T) {
-	reg := registers.NewMaskedByteRegister(0xAA)
+	reg := newMaskedByteRegister(0xAA)
 	reg.Set(0xCA)
 	assert.Equal(t, byte(0x8A), reg.Get())
 	reg.Dec()
@@ -77,14 +76,14 @@ func TestMaskedByteRegistersDecreaseRespectingTheirMask(t *testing.T) {
 }
 
 func TestByteRegistersOverflowWithDecrease(t *testing.T) {
-	reg := registers.NewByteRegister()
+	reg := newByteRegister()
 	reg.Set(0x01)
 	reg.DecBy(3)
 	assert.Equal(t, byte(0xFE), reg.Get())
 }
 
 func TestWordRegistersUpdateTheirValues(t *testing.T) {
-	reg := registers.NewWordRegister()
+	reg := newWordRegister()
 	reg.Set(0xCAFE)
 	assert.Equal(t, byte(0xCA), reg.H().Get())
 	assert.Equal(t, byte(0xFE), reg.L().Get())
@@ -92,13 +91,13 @@ func TestWordRegistersUpdateTheirValues(t *testing.T) {
 }
 
 func TestMaskedWordRegistersDontSetMaskedBits(t *testing.T) {
-	reg := registers.NewMaskedWordRegister(0xAAAA)
+	reg := newMaskedWordRegister(0xAAAA)
 	reg.Set(0xF33F)
 	assert.Equal(t, uint16(0xA22A), reg.Get())
 }
 
 func TestMasksCanBeAppliedDynamicallyToWordRegisters(t *testing.T) {
-	reg := registers.NewWordRegister()
+	reg := newWordRegister()
 	reg.Set(0xCAFE)
 	assert.Equal(t, uint16(0xCAFE), reg.Get())
 	reg.SetMask(0xABBA)
@@ -111,7 +110,7 @@ func TestMasksCanBeAppliedDynamicallyToWordRegisters(t *testing.T) {
 }
 
 func TestWordRegistersIncreaseTheirValues(t *testing.T) {
-	reg := registers.NewWordRegister()
+	reg := newWordRegister()
 	reg.Set(0xCAFE)
 	reg.Inc()
 	assert.Equal(t, byte(0xCA), reg.H().Get())
@@ -124,7 +123,7 @@ func TestWordRegistersIncreaseTheirValues(t *testing.T) {
 }
 
 func TestMaskedWordRegistersIncreaseTheirValuesRespectingTheirMask(t *testing.T) {
-	reg := registers.NewMaskedWordRegister(0xAAAA)
+	reg := newMaskedWordRegister(0xAAAA)
 	reg.Set(0xCAFE)
 	reg.Inc()
 	assert.Equal(t, byte(0x8A), reg.H().Get())
@@ -137,7 +136,7 @@ func TestMaskedWordRegistersIncreaseTheirValuesRespectingTheirMask(t *testing.T)
 }
 
 func TestWordRegistersIncreaseTheirValuesWithOverflow(t *testing.T) {
-	reg := registers.NewWordRegister()
+	reg := newWordRegister()
 	reg.Set(0xFFFE)
 	reg.IncBy(3)
 	assert.Equal(t, byte(0x00), reg.H().Get())
@@ -146,7 +145,7 @@ func TestWordRegistersIncreaseTheirValuesWithOverflow(t *testing.T) {
 }
 
 func TestWordRegistersDecreaseTheirValues(t *testing.T) {
-	reg := registers.NewWordRegister()
+	reg := newWordRegister()
 	reg.Set(0xCAFE)
 	reg.Dec()
 	assert.Equal(t, byte(0xCA), reg.H().Get())
@@ -159,7 +158,7 @@ func TestWordRegistersDecreaseTheirValues(t *testing.T) {
 }
 
 func TestWordRegistersDecreaseTheirValuesWithOverflow(t *testing.T) {
-	reg := registers.NewWordRegister()
+	reg := newWordRegister()
 	reg.Set(0x0001)
 	reg.DecBy(3)
 	assert.Equal(t, byte(0xFF), reg.H().Get())

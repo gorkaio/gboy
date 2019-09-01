@@ -1,20 +1,18 @@
 package cpu
 
-//go:generate mockgen -destination=../mocks/mock_cpu.go -package=mocks github.com/gorkaio/gboy/pkg/cpu CPUInterface
+//go:generate mockgen -destination=mocks/memory_mock.go -package=cpu_mock github.com/gorkaio/gboy/pkg/cpu Memory
 
 import (
 	"fmt"
 	"github.com/gorkaio/gboy/pkg/bits"
-	"github.com/gorkaio/gboy/pkg/memory"
-	reg "github.com/gorkaio/gboy/pkg/registers"
 	"github.com/olekukonko/tablewriter"
 	"os"
 )
 
-type CPUInterface interface {
-	Step() (int, error)
-	DebugEnable()
-	DebugDisable()
+// Memory defines the interface for memory interaction
+type Memory interface {
+	Read(address uint16) byte
+	Write(address uint16, data byte)
 }
 
 const (
@@ -26,22 +24,22 @@ const (
 
 // CPU structure
 type CPU struct {
-	AF, BC, DE, HL, SP, PC reg.WordRegisterInterface
-	A, F, B, C, D, E, H, L reg.ByteRegisterInterface
-	memory                 memory.MemoryInterface
+	AF, BC, DE, HL, SP, PC *WordRegister
+	A, F, B, C, D, E, H, L *ByteRegister
+	memory                 Memory
 	debugEnabled           bool
 	imeFlag                bool
 }
 
 // New initialises a new Z80 cpu
-func New(memory memory.MemoryInterface) *CPU {
+func New(memory Memory) *CPU {
 	cpu := CPU{
-		AF:     reg.NewMaskedWordRegister(0xFFF0),
-		BC:     reg.NewWordRegister(),
-		DE:     reg.NewWordRegister(),
-		HL:     reg.NewWordRegister(),
-		SP:     reg.NewWordRegister(),
-		PC:     reg.NewWordRegister(),
+		AF:     newMaskedWordRegister(0xFFF0),
+		BC:     newWordRegister(),
+		DE:     newWordRegister(),
+		HL:     newWordRegister(),
+		SP:     newWordRegister(),
+		PC:     newWordRegister(),
 		memory: memory,
 		debugEnabled: true,
 		imeFlag: false,
@@ -186,6 +184,27 @@ func (cpu *CPU) EnableInterrupts() {
 // InterruptsEnabled reads the status of the interrupt master enable flag
 func (cpu *CPU) InterruptsEnabled() bool {
 	return cpu.imeFlag
+}
+
+// Status returns the CPU register status
+func (cpu *CPU) Status() map[string]interface{} {
+	return map[string]interface{}{
+		"AF": cpu.AF.Get(),
+		"BC": cpu.BC.Get(),
+		"DE": cpu.DE.Get(),
+		"HL": cpu.HL.Get(),
+		"SP": cpu.SP.Get(),
+		"PC": cpu.PC.Get(),
+		"A": cpu.A.Get(),
+		"F": cpu.F.Get(),
+		"B": cpu.B.Get(),
+		"C": cpu.C.Get(),
+		"D": cpu.D.Get(),
+		"E": cpu.E.Get(),
+		"H": cpu.H.Get(),
+		"L": cpu.L.Get(),
+		"IME": cpu.InterruptsEnabled(),
+	}
 }
 
 func (cpu *CPU) printStatus() {

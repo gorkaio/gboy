@@ -2,11 +2,11 @@ package cart
 
 type mbc0 struct {
 	memory []byte
-	MemoryBankControllerInterface
+	MemoryBankController
 }
 
 // NewMBC0 creates a new memory bank controller of type 0
-func NewMBC0(data []byte) MemoryBankControllerInterface {
+func NewMBC0(data []byte) MemoryBankController {
 	return &mbc0{
 		memory: data,
 	}

@@ -1,42 +1,42 @@
 package cart_test
 
 import (
-	cart "github.com/gorkaio/gboy/pkg/cart"
-	assert "github.com/stretchr/testify/assert"
-	testing "testing"
+	"github.com/gorkaio/gboy/pkg/cart"
+	"github.com/stretchr/testify/assert"
+	"testing"
+	"io/ioutil"
 )
 
-const testfile string = "../../roms/10-print.gb"
-const testtitle string = "10 PRINT"
-
-func TestLoadsFile(t *testing.T) {
-	c, err := cart.New()
-	assert.NoError(t, err)
-	err = c.Load(testfile)
-	assert.NoError(t, err)
-	assert.Equal(t, c.Filename, testfile)
-}
+const testrom = "../../roms/10-print.gb"
 
 func TestReadsCartTitle(t *testing.T) {
-	c, err := cart.New()
+	c, err := loadTestCart()
 	assert.NoError(t, err)
-	err = c.Load(testfile)
-	assert.NoError(t, err)
-	assert.Equal(t, c.Title, testtitle)
+	assert.Equal(t, c.Title(), "10 PRINT")
 }
 
 func TestReadsControllerType(t *testing.T) {
-	c, err := cart.New()
+	c, err := loadTestCart()
 	assert.NoError(t, err)
-	err = c.Load(testfile)
-	assert.NoError(t, err)
-	assert.Equal(t, c.Type, cart.Type{ID: 0, Name: "MBC0", Description: "ROM only"})
+	assert.Equal(t, c.Type(), cart.Type{ID: 0, Name: "MBC0", Description: "ROM only"})
 }
 
 func TestReadsMemory(t *testing.T) {
-	c, err := cart.New()
-	assert.NoError(t, err)
-	err = c.Load(testfile)
+	c, err := loadTestCart()
 	assert.NoError(t, err)
 	assert.Equal(t, c.Read(0x137), byte('P'))
+}
+
+func loadTestCart() (*cart.Cart, error) {
+	data, err := ioutil.ReadFile(testrom)
+	if err != nil {
+		return nil, err
+	}
+
+	cart, err := cart.NewCart(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return cart, err
 }

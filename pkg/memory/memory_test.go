@@ -1,63 +1,79 @@
 package memory_test
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	memory "github.com/gorkaio/gboy/pkg/memory"
-	mocks "github.com/gorkaio/gboy/pkg/mocks"
-	assert "github.com/stretchr/testify/assert"
-	rand "math/rand"
-	testing "testing"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+	mocks "github.com/gorkaio/gboy/pkg/memory/mocks"
+	"github.com/gorkaio/gboy/pkg/memory"
+	"testing"
+)
+
+const (
+	mockAddress = uint16(0x7234)
+	mockData = byte(0xCA)
 )
 
 func TestReadsAddressInCartRange(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	address := uint16(0x7234)
+	data := byte(0xCA)
 
-	address := uint16(rand.Intn(0x7FFF))
-	data := byte(rand.Intn(0xFF))
-
-	cart := mocks.NewMockCartInterface(ctrl)
+	ctrlCart := gomock.NewController(t)
+	defer ctrlCart.Finish()
+	cart := mocks.NewMockCart(ctrlCart)
 	cart.
 		EXPECT().
 		Read(address).
-		Return(data).
-		AnyTimes()
+		Return(data)
 
-	mem, err := memory.New(cart)
-	assert.NoError(t, err)
-	assert.Equal(t, mem.Read(address), data)
+	mem := memory.New()
+	mem.Load(cart)
+
+	assert.Equal(t, data, mem.Read(address))
 }
 
 func TestWritesAddressInCartRange(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+	address := uint16(0x7FFF)
+	data := byte(0xFF)
 
-	address := uint16(rand.Intn(0x7FFF))
-	data := byte(rand.Intn(0xFF))
-
-	cart := mocks.NewMockCartInterface(ctrl)
+	ctrlCart := gomock.NewController(t)
+	defer ctrlCart.Finish()
+	cart := mocks.NewMockCart(ctrlCart)
 	cart.
 		EXPECT().
 		Write(address, data)
 
-	mem, err := memory.New(cart)
-	assert.NoError(t, err)
+	mem := memory.New()
+	mem.Load(cart)
+
 	mem.Write(address, data)
 }
 
-func TestLoadsCartFromFile(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestWorksWithAddressInSystemRange(t *testing.T) {
+	address := uint16(0x8000)
+	data := byte(0xFE)
 
-	romfile := "rom.gb"
-	cartdrige := mocks.NewMockCartInterface(ctrl)
-	cartdrige.
+	mem := memory.New()
+	mem.Write(address, data)
+	assert.Equal(t, data, mem.Read(address))
+}
+
+func TestEjectsCart(t *testing.T) {
+	address := uint16(0x7234)
+	data := byte(0xCA)
+
+	ctrlCart := gomock.NewController(t)
+	defer ctrlCart.Finish()
+	cart := mocks.NewMockCart(ctrlCart)
+	cart.
 		EXPECT().
-		Load(romfile)
+		Read(address).
+		Return(data)
 
-	mem, err := memory.New(cartdrige)
-	assert.NoError(t, err)
+	mem := memory.New()
+	mem.Load(cart)
 
-	err = mem.LoadRomFile(romfile)
-	assert.NoError(t, err)
+	assert.Equal(t, data, mem.Read(address))
+
+	mem.Eject()
+	assert.Equal(t, byte(0xFF), mem.Read(address))
 }

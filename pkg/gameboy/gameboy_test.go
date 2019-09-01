@@ -1,14 +1,23 @@
 package gameboy_test
 
 import (
-	gameboy "github.com/gorkaio/gboy/pkg/gameboy"
-	assert "github.com/stretchr/testify/assert"
-	testing "testing"
+	"testing"
+
+	"github.com/golang/mock/gomock"
+	mocks "github.com/gorkaio/gboy/pkg/gameboy/mocks"
+	"github.com/gorkaio/gboy/pkg/gameboy"
+	"github.com/stretchr/testify/assert"
 )
 
-const testfile string = "../../roms/10-print.gb"
-
 func TestInitialisesGameboySystem(t *testing.T) {
-	_, err := gameboy.New(testfile)
+	ctrlMemory := gomock.NewController(t)
+	defer ctrlMemory.Finish()
+	memory := mocks.NewMockMemory(ctrlMemory)
+
+	ctrlCPU := gomock.NewController(t)
+	defer ctrlCPU.Finish()
+	cpu := mocks.NewMockCPU(ctrlCPU)
+
+	_, err := gameboy.New(memory, cpu)
 	assert.NoError(t, err)
 }
