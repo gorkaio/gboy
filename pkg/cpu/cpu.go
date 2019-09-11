@@ -45,6 +45,7 @@ func New(memory Memory) *CPU {
 		imeFlag: false,
 	}
 	cpu.PC.Set(0x100)
+	cpu.SP.Set(0xFFFE)
 	cpu.A = cpu.AF.H()
 	cpu.F = cpu.AF.L()
 	cpu.B = cpu.BC.H()
