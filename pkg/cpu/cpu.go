@@ -31,6 +31,12 @@ type CPU struct {
 	imeFlag                bool
 }
 
+// State reflects the CPU status
+type State struct {
+	AF, BC, DE, HL, SP, PC uint16
+	IME bool
+}
+
 // New initialises a new Z80 cpu
 func New(memory Memory) *CPU {
 	cpu := CPU{
@@ -41,7 +47,7 @@ func New(memory Memory) *CPU {
 		SP:     newWordRegister(),
 		PC:     newWordRegister(),
 		memory: memory,
-		debugEnabled: true,
+		debugEnabled: false,
 		imeFlag: false,
 	}
 	cpu.PC.Set(0x100)
@@ -188,44 +194,38 @@ func (cpu *CPU) InterruptsEnabled() bool {
 }
 
 // Status returns the CPU register status
-func (cpu *CPU) Status() map[string]interface{} {
-	return map[string]interface{}{
-		"AF": cpu.AF.Get(),
-		"BC": cpu.BC.Get(),
-		"DE": cpu.DE.Get(),
-		"HL": cpu.HL.Get(),
-		"SP": cpu.SP.Get(),
-		"PC": cpu.PC.Get(),
-		"A": cpu.A.Get(),
-		"F": cpu.F.Get(),
-		"B": cpu.B.Get(),
-		"C": cpu.C.Get(),
-		"D": cpu.D.Get(),
-		"E": cpu.E.Get(),
-		"H": cpu.H.Get(),
-		"L": cpu.L.Get(),
-		"IME": cpu.InterruptsEnabled(),
+func (cpu *CPU) Status() State {
+	return State{
+		AF: cpu.AF.Get(),
+		BC: cpu.BC.Get(),
+		DE: cpu.DE.Get(),
+		HL: cpu.HL.Get(),
+		SP: cpu.SP.Get(),
+		PC: cpu.PC.Get(),
+		IME: cpu.imeFlag,
 	}
 }
 
+// SetStatus sets CPU status
+func (cpu *CPU) SetStatus(state State) {
+	cpu.AF.Set(state.AF)
+	cpu.BC.Set(state.BC)
+	cpu.DE.Set(state.DE)
+	cpu.HL.Set(state.HL)
+	cpu.SP.Set(state.SP)
+	cpu.PC.Set(state.PC)
+	cpu.imeFlag = state.IME
+}
+
 func (cpu *CPU) printStatus() {
+	status := cpu.Status()
 	registerTable := tablewriter.NewWriter(os.Stdout)
 	registerTable.SetHeader([]string{"Reg", "Value"})
-	registerTable.Append([]string{"AF", fmt.Sprintf("%#04x", cpu.AF.Get())})
-	registerTable.Append([]string{"BC", fmt.Sprintf("%#04x", cpu.BC.Get())})
-	registerTable.Append([]string{"DE", fmt.Sprintf("%#04x", cpu.DE.Get())})
-	registerTable.Append([]string{"HL", fmt.Sprintf("%#04x", cpu.HL.Get())})
-	registerTable.Append([]string{"SP", fmt.Sprintf("%#04x", cpu.SP.Get())})
-	registerTable.Append([]string{"PC", fmt.Sprintf("%#04x", cpu.PC.Get())})
+	registerTable.Append([]string{"AF", fmt.Sprintf("%#04x", status.AF)})
+	registerTable.Append([]string{"BC", fmt.Sprintf("%#04x", status.BC)})
+	registerTable.Append([]string{"DE", fmt.Sprintf("%#04x", status.DE)})
+	registerTable.Append([]string{"HL", fmt.Sprintf("%#04x", status.HL)})
+	registerTable.Append([]string{"SP", fmt.Sprintf("%#04x", status.SP)})
+	registerTable.Append([]string{"PC", fmt.Sprintf("%#04x", status.PC)})
 	registerTable.Render()
-	flagTable := tablewriter.NewWriter(os.Stdout)
-	flagTable.SetHeader([]string{"Z", "N", "H", "C", "IME"})
-	flagTable.Append([]string{
-		fmt.Sprintf("%t", cpu.F.Get()&0x80 > 1),
-		fmt.Sprintf("%t", cpu.F.Get()&0x40 > 1),
-		fmt.Sprintf("%t", cpu.F.Get()&0x20 > 1),
-		fmt.Sprintf("%t", cpu.F.Get()&0x10 > 1),
-		fmt.Sprintf("%t", cpu.InterruptsEnabled()),
-	})
-	flagTable.Render()
 }

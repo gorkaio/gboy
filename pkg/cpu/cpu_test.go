@@ -16,7 +16,7 @@ func TestProgramCounterStartsAt0x100(t *testing.T) {
 
 	mem := mocks.NewMockMemory(ctrl)
 	c := cpu.New(mem)
-	assert.Equal(t, uint16(0x100), c.Status()["PC"])
+	assert.Equal(t, uint16(0x100), c.Status().PC)
 }
 
 func TestExecutesInstructions(t *testing.T) {
@@ -24,19 +24,19 @@ func TestExecutesInstructions(t *testing.T) {
 	defer ctrl.Finish()
 
 	mem := mocks.NewMockMemory(ctrl)
-	mem.EXPECT().Read(PCStartAddress).Return(byte(cpu.NOP))
-	mem.EXPECT().Read(PCStartAddress + 1).Return(byte(cpu.NOP))
-	mem.EXPECT().Read(PCStartAddress + 2).Return(byte(cpu.NOP))
-	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress).Return(byte(0x00))
+	mem.EXPECT().Read(PCStartAddress + 1).Return(byte(0x00))
+	mem.EXPECT().Read(PCStartAddress + 2).Return(byte(0x00))
+	mem.EXPECT().Read(PCStartAddress + 3).Return(byte(0x00))
 
 	c := cpu.New(mem)
 	c.DebugDisable()
-	pc := c.Status()["PC"].(uint16)
+	pc := c.Status().PC
 	cyclesConsumed, err := c.Step()
 	assert.NoError(t, err)
 
 	assert.True(t, cyclesConsumed > 0)
-	assert.True(t, c.Status()["PC"].(uint16) > pc)
+	assert.True(t, c.Status().PC > pc)
 }
 
 func TestErrorsWithUnknownOpcodes(t *testing.T) {
@@ -59,10 +59,10 @@ func TestExecutesNOP(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mem := mocks.NewMockMemory(ctrl)
-	mem.EXPECT().Read(PCStartAddress).Return(uint8(cpu.NOP))
-	mem.EXPECT().Read(PCStartAddress + 1).Return(uint8(cpu.NOP))
-	mem.EXPECT().Read(PCStartAddress + 2).Return(uint8(cpu.NOP))
-	mem.EXPECT().Read(PCStartAddress + 3).Return(uint8(cpu.NOP))
+	mem.EXPECT().Read(PCStartAddress).Return(uint8(0x00))
+	mem.EXPECT().Read(PCStartAddress + 1).Return(uint8(0x00))
+	mem.EXPECT().Read(PCStartAddress + 2).Return(uint8(0x00))
+	mem.EXPECT().Read(PCStartAddress + 3).Return(uint8(0x00))
 
 	c := cpu.New(mem)
 	c.DebugDisable()

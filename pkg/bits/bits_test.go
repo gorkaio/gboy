@@ -19,3 +19,13 @@ func TestSplitsWordsIntoBytes(t *testing.T) {
 	assert.Equal(t, expectedH, actualH)
 	assert.Equal(t, expectedL, actualL)
 }
+
+func TestDeterminesIfABitOfAByteIsSet(t *testing.T) {
+	assert.True(t, bits.BitOfByte(0x08, 3))
+	assert.False(t, bits.BitOfByte(0x12, 0))
+}
+
+func TestDeterminesIfABitOfAWordIsSet(t *testing.T) {
+	assert.True(t, bits.BitOfWord(0x0101, 8))
+	assert.False(t, bits.BitOfWord(0x0801, 1))
+}
