@@ -210,7 +210,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.B, cpu.DE)
+			return cpu.ldR8aR16(cpu.A, cpu.DE)
 		},
 	},
 	0x1B: {
@@ -1413,7 +1413,7 @@ func (cpu *CPU) nop() int {
 }
 
 func (cpu *CPU) ldR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
-	cpu.memoryWriteByte(r2.Get(), r1.Get())
+	r1.Set(cpu.memoryReadByte(r2.Get()))
 	return 8
 }
 
@@ -1506,8 +1506,7 @@ func (cpu *CPU) ldaR16d8(r1 *WordRegister, d8 byte) int {
 }
 
 func (cpu *CPU) lddaR16R8(r1 *WordRegister, r2 *ByteRegister) int {
-	d8 := cpu.memoryReadByte(r1.Get())
-	r2.Set(d8)
+	cpu.memoryWriteByte(r1.Get(), r2.Get())
 	r1.Dec()
 	return 8
 }
@@ -1527,8 +1526,7 @@ func (cpu *CPU) ldiR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
 }
 
 func (cpu *CPU) ldiaR16R8(r1 *WordRegister, r2 *ByteRegister) int {
-	d8 := cpu.memoryReadByte(r1.Get())
-	r2.Set(d8)
+	cpu.memoryWriteByte(r1.Get(), r2.Get())
 	r1.Inc()
 	return 8
 }
