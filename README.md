@@ -14,3 +14,7 @@ For some tests I'm using [10-print ROM](https://github.com/svendahlstrand/10-pri
 ## Run tests
 
 `make test`
+
+## Execute emulator
+
+`./gboy roms/10-print.gb`
