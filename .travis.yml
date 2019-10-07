@@ -5,4 +5,10 @@ go:
 - 1.12.x
 - master
 
-script: env GO111MODULE=on make test
+env:
+  - GO111MODULE=on
+
+script: make test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
