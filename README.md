@@ -1,6 +1,7 @@
 # GBoy
 
 [![Build Status](https://travis-ci.org/gorkaio/gboy.svg?branch=master)](https://travis-ci.org/gorkaio/gboy)
+[![codecov](https://codecov.io/gh/gorkaio/gboy/branch/master/graph/badge.svg)](https://codecov.io/gh/gorkaio/gboy)
 
 A Nintendo GameBoy emulator in Go.
 
