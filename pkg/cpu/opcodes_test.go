@@ -8,7 +8,12 @@ import (
 	"testing"
 )
 
-const FlagN = 0x40
+const (
+	FlagZ = 0x80
+	FlagN = 0x40
+	FlagH = 0x20
+	FlagC = 0x10
+)
 
 type memoryAccess struct {
 	address uint16

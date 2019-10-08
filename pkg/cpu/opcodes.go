@@ -1609,9 +1609,11 @@ func (cpu *CPU) decR8(r *ByteRegister) int {
 }
 
 func (cpu *CPU) incR8(r *ByteRegister) int {
+	d8 := r.Get()
 	r.Inc()
 	cpu.SetFlagN(false)
 	cpu.SetFlagZ(r.Get() == 0)
+	cpu.SetFlagH(bits.BitOfByte(d8, 3) && !bits.BitOfByte(r.Get(), 3))
 	return 4
 }
 
@@ -1621,7 +1623,11 @@ func (cpu *CPU) decR16(r *WordRegister) int {
 }
 
 func (cpu *CPU) incR16(r *WordRegister) int {
+	d16 := r.Get()
 	r.Inc()
+	cpu.SetFlagN(false)
+	cpu.SetFlagZ(r.Get() == 0)
+	cpu.SetFlagH(bits.BitOfWord(d16, 7) && !bits.BitOfWord(r.Get(), 7))
 	return 8
 }
 
