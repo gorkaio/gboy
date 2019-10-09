@@ -3,292 +3,48 @@ package cpu_test
 import (
 	"fmt"
 	"testing"
-
-	"github.com/gorkaio/gboy/pkg/cpu"
 )
 
-func TestLoadImmediate(t *testing.T) {
-	for _, test := range testCasesForLoadImmediate() {
-		testInstruction(t, test)
+func TestLoadImmediateFor8BitRegisters(t *testing.T) {
+	registerOpcodes := map[string]opcode{
+		"A": opcode{0x3E, 0x12},
+		"B": opcode{0x06, 0x12}, "C": opcode{0x0E, 0x12},
+		"D": opcode{0x16, 0x12}, "E": opcode{0x1E, 0x12},
+		"H": opcode{0x26, 0x12}, "L": opcode{0x2E, 0x12},
+	}
+
+	for r8, opc := range registerOpcodes {
+		testDescription := testDescription{
+			fmt.Sprintf("'LD %s, %#02x' loads %#02x value into %s", r8, 0x12, 0x12, r8),
+			opc,
+			regMap{},
+			regMap{r8: 0x12},
+			memMap{},
+			memMap{},
+			8,
+		}
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
 	}
 }
 
-func testCasesForLoadImmediate() []testCase {
-	return []testCase{
-		{
-			description: fmt.Sprintf("'LD BC, %#04x' loads %#04x into BC", 0x1234, 0x1234),
-			instruction: []byte{0x01, 0x34, 0x12, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0x1234,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x103,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 12,
-		},
-		{
-			description: fmt.Sprintf("'LD DE, %#04x' loads %#04x into DE", 0x1234, 0x1234),
-			instruction: []byte{0x11, 0x34, 0x12, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0x1234,
-				HL:  0,
-				SP:  0,
-				PC:  0x103,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 12,
-		},
-		{
-			description: fmt.Sprintf("'LD HL, %#04x' loads %#04x into HL", 0x1234, 0x1234),
-			instruction: []byte{0x21, 0x34, 0x12, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0x1234,
-				SP:  0,
-				PC:  0x103,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 12,
-		},
-		{
-			description: fmt.Sprintf("'LD SP, %#04x' loads %#04x into SP", 0x1234, 0x1234),
-			instruction: []byte{0x31, 0x34, 0x12, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0x1234,
-				PC:  0x103,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 12,
-		},
-		{
-			description: fmt.Sprintf("'LD A, %#02x' loads %#02x into A", 0x12, 0x12),
-			instruction: []byte{0x3E, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0x1200,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
-		{
-			description: fmt.Sprintf("'LD B, %#02x' loads %#02x into B", 0x12, 0x12),
-			instruction: []byte{0x06, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0x1200,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
-		{
-			description: fmt.Sprintf("'LD C, %#02x' loads %#02x into C", 0x12, 0x12),
-			instruction: []byte{0x0E, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0x0012,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
-		{
-			description: fmt.Sprintf("'LD D, %#02x' loads %#02x into D", 0x12, 0x12),
-			instruction: []byte{0x16, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0x1200,
-				HL:  0,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
-		{
-			description: fmt.Sprintf("'LD E, %#02x' loads %#02x into E", 0x12, 0x12),
-			instruction: []byte{0x1E, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0x0012,
-				HL:  0,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
-		{
-			description: fmt.Sprintf("'LD H, %#02x' loads %#02x into H", 0x12, 0x12),
-			instruction: []byte{0x26, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0x1200,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
-		{
-			description: fmt.Sprintf("'LD L, %#02x' loads %#02x into L", 0x12, 0x12),
-			instruction: []byte{0x2E, 0x12, 0x00, 0x00},
-			initialState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0,
-				SP:  0,
-				PC:  0x100,
-				IME: false,
-			},
-			expectedState: cpu.State{
-				AF:  0,
-				BC:  0,
-				DE:  0,
-				HL:  0x0012,
-				SP:  0,
-				PC:  0x102,
-				IME: false,
-			},
-			expectedReads:  []memoryAccess{},
-			expectedWrites: []memoryAccess{},
-			expectedCycles: 8,
-		},
+func TestLoadImmediateFor16BitRegisters(t *testing.T) {
+	registerOpcodes := map[string]opcode{
+		"BC": opcode{0x01, 0x34, 0x12}, "DE": opcode{0x11, 0x34, 0x12},
+		"HL": opcode{0x21, 0x34, 0x12}, "SP": opcode{0x31, 0x34, 0x12},
+	}
+
+	for r16, opc := range registerOpcodes {
+		testDescription := testDescription{
+			fmt.Sprintf("'LD %s, %#04x' loads %#04x value into %s", r16, 0x1234, 0x1234, r16),
+			opc,
+			regMap{},
+			regMap{r16: 0x1234},
+			memMap{},
+			memMap{},
+			12,
+		}
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
 	}
 }

@@ -1,11 +1,7 @@
 package cpu_test
 
 import (
-	"github.com/golang/mock/gomock"
-	"github.com/gorkaio/gboy/pkg/cpu"
 	mocks "github.com/gorkaio/gboy/pkg/cpu/mocks"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const (
@@ -15,36 +11,17 @@ const (
 	FlagC = 0x10
 )
 
-type memoryAccess struct {
-	address uint16
-	data uint8
-}
-
-type testCase struct {
+type regMap map[string]int
+type memMap map[uint16]uint8
+type opcode []byte
+type testDescription struct{
 	description string
-	instruction []byte
-	initialState, expectedState cpu.State
-	expectedReads, expectedWrites []memoryAccess
-	expectedCycles int
-}
-
-func testInstruction(t *testing.T, test testCase) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mem := mocks.NewMockMemory(ctrl)
-	c := cpu.New(mem)
-	readInstruction(mem, test.initialState.PC, test.instruction)
-	setExpectedReads(mem, test.expectedReads)
-	setExpectedWrites(mem, test.expectedWrites)
-
-	c.SetStatus(test.initialState)
-	cycles, err := c.Step()
-	assert.NoError(t, err, "CPU execution failed for test \"%s\"", test.description)
-	assert.Equal(t, cycles, test.expectedCycles, "Expected CPU cycles do not match for test \"%s\"", test.description)
-
-	finalStatus := c.Status()
-	assert.Equal(t, test.expectedState, finalStatus, "Expected state does not match in test \"%s\"", test.description)
+	opcode opcode
+	regsGiven regMap
+	regsExpected regMap
+	memReadExpected memMap
+	memWriteExpected memMap
+	cycles int
 }
 
 func readInstruction(mem *mocks.MockMemory, address uint16, instruction []byte) {
@@ -53,23 +30,38 @@ func readInstruction(mem *mocks.MockMemory, address uint16, instruction []byte) 
 	}
 }
 
-func setExpectedReads(mem *mocks.MockMemory, reads []memoryAccess) {
-	if (len(reads) == 0) {
-		mem.EXPECT().Read(gomock.Any()).Times(0)
+func instruction(bytes ...byte) []byte {
+	result := make([]byte, 4)
+	for i, byte := range(bytes) {
+		result[i] = byte
 	}
-
-	for _, read := range(reads) {
-		mem.EXPECT().Read(read.address).Return(read.data)
-	}
+	return result
 }
 
-func setExpectedWrites(mem *mocks.MockMemory, writes []memoryAccess) {
-	if (len(writes) == 0) {
-		mem.EXPECT().Write(gomock.Any(), gomock.Any()).Times(0)
+func buildTestCase(test testDescription) testCase {
+	testCase := NewTestCase(instruction(test.opcode...))
+	for k, v := range(test.regsGiven) {
+		testCase.WithRegister(k, v)
 	}
 
-	for _, write := range(writes) {
-		mem.EXPECT().Write(write.address, write.data)
+	for addr, dat := range(test.memReadExpected) {
+		testCase.ExpectMemoryRead(addr, dat)
 	}
+
+	for addr, dat := range(test.memWriteExpected) {
+		testCase.ExpectMemoryWrite(addr, dat)
+	}
+
+	for k, v := range(test.regsExpected) {
+		testCase.ExpectRegister(k, v)
+	}
+
+	// Check PC has incremented same bytes than opcode length unless it's set in initial state or expected state
+	if (testCase.expectedState.regs["PC"] == testCase.initialState.regs["PC"] && testCase.initialState.regs["PC"] == 0) {
+		testCase.ExpectRegister("PC", int(testCase.initialState.regs["PC"]) + len(test.opcode))
+	}
+	testCase.ExpectCycles(test.cycles)
+	testCase.WithDescription(test.description)
+	
+	return testCase
 }
-
