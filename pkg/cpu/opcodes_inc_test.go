@@ -120,10 +120,10 @@ func TestIncrementDoesNotClearCarryFlagWhenSetIn16bitRegisters(t *testing.T) {
 func TestIncrementSetHalfCarryFor16bitRegisters(t *testing.T) {
 	for r16, opc := range incOpcodesFor16bitRegisters() {
 		testFlagH := testDescription{
-			fmt.Sprintf("'INC %s' sets half-carry flag when increment carries in bits 7-8", r16),
+			fmt.Sprintf("'INC %s' sets half-carry flag when increment carries in bits 11-12", r16),
 			opc,
-			regMap{r16: 0xF0FF},
-			regMap{r16: 0xF100, "F": FlagH},
+			regMap{r16: 0x0FFF},
+			regMap{r16: 0x1000, "F": FlagH},
 			memMap{},
 			memMap{},
 			8,

@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+
 	"github.com/gorkaio/gboy/pkg/bits"
 )
 
@@ -1601,33 +1602,39 @@ func (cpu *CPU) addR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
 	return 8
 }
 
-func (cpu *CPU) decR8(r *ByteRegister) int {
-	r.Dec()
-	cpu.SetFlagN(true)
-	cpu.SetFlagZ(r.Get() == 0)
-	return 4
-}
-
 func (cpu *CPU) incR8(r *ByteRegister) int {
-	d8 := r.Get()
+	halfCarry := bits.HalfCarryAddByte(r.Get(), 1)
 	r.Inc()
 	cpu.SetFlagN(false)
 	cpu.SetFlagZ(r.Get() == 0)
-	cpu.SetFlagH(bits.BitOfByte(d8, 3) && !bits.BitOfByte(r.Get(), 3))
+	cpu.SetFlagH(halfCarry)
+	return 4
+}
+
+func (cpu *CPU) incR16(r *WordRegister) int {
+	halfCarry := bits.HalfCarryAddByte(r.H().Get(), 1) && bits.HalfCarryAddByte(r.L().Get(), 1)
+	r.Inc()
+	cpu.SetFlagN(false)
+	cpu.SetFlagZ(r.Get() == 0)
+	cpu.SetFlagH(halfCarry)
+	return 8
+}
+
+func (cpu *CPU) decR8(r *ByteRegister) int {
+	halfCarry := bits.HalfCarrySubByte(r.Get(), 1)
+	r.Dec()
+	cpu.SetFlagN(true)
+	cpu.SetFlagZ(r.Get() == 0)
+	cpu.SetFlagH(halfCarry)
 	return 4
 }
 
 func (cpu *CPU) decR16(r *WordRegister) int {
+	halfCarry := bits.HalfCarrySubByte(r.H().Get(), 1) && bits.HalfCarrySubByte(r.L().Get(), 1)
 	r.Dec()
-	return 8
-}
-
-func (cpu *CPU) incR16(r *WordRegister) int {
-	d16 := r.Get()
-	r.Inc()
-	cpu.SetFlagN(false)
+	cpu.SetFlagN(true)
 	cpu.SetFlagZ(r.Get() == 0)
-	cpu.SetFlagH(bits.BitOfWord(d16, 7) && !bits.BitOfWord(r.Get(), 7))
+	cpu.SetFlagH(halfCarry)
 	return 8
 }
 

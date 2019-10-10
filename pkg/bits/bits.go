@@ -1,7 +1,7 @@
 package bits
 
 // ConcatWord concatenates two bytes into a single word
-func ConcatWord(a uint8, b uint8) uint16 {
+func ConcatWord(a, b uint8) uint16 {
 	return (uint16(a) << 8) | uint16(b)
 }
 
@@ -11,11 +11,21 @@ func SplitWord(data uint16) (uint8, uint8) {
 }
 
 // BitOfByte determines if given bit of byte is set
-func BitOfByte(data uint8, bit uint8) bool {
+func BitOfByte(data, bit uint8) bool {
 	return !(data&(1<<bit) == 0)
 }
 
 // BitOfWord determines if given bit of word is set
 func BitOfWord(data uint16, bit uint8) bool {
 	return !(data&(1<<bit) == 0)
+}
+
+// HalfCarryAddByte determines half carry for byte adding
+func HalfCarryAddByte(data, value byte) bool {
+	return ((data&0xF) + (value&0xf)) & 0x10 == 0x10
+}
+
+// HalfCarrySubByte determines half carry for byte substraction
+func HalfCarrySubByte(data, value byte) bool {
+	return ((data&0xF) - (value&0xf)) & 0x10 == 0x10
 }
