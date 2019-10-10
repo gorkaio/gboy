@@ -29,3 +29,8 @@ func HalfCarryAddByte(data, value byte) bool {
 func HalfCarrySubByte(data, value byte) bool {
 	return ((data&0xF) - (value&0xf)) & 0x10 == 0x10
 }
+
+// FlipWord interchanges the High and Low bytes of a word
+func FlipWord(data uint16) uint16 {
+	return ((data & 0xFF00) >> 8) | ((data & 0x00FF) << 8)
+}

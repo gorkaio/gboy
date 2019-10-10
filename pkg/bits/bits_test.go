@@ -29,3 +29,7 @@ func TestDeterminesIfABitOfAWordIsSet(t *testing.T) {
 	assert.True(t, bits.BitOfWord(0x0101, 8))
 	assert.False(t, bits.BitOfWord(0x0801, 1))
 }
+
+func TestFlipsBytesInAWord(t *testing.T) {
+	assert.Equal(t, uint16(0xFECA), bits.FlipWord(0xCAFE))
+}

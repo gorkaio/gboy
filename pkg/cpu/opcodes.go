@@ -1387,7 +1387,7 @@ func opCodeFrom(data uint32) (op, error) {
 			args = append(args, int(arg))
 			data = data << 8
 		case lword:
-			arg := flipWord(uint16((data & 0xFFFF0000) >> 16))
+			arg := bits.FlipWord(uint16((data & 0xFFFF0000) >> 16))
 			args = append(args, int(arg))
 			data = data << 16
 		default:
@@ -1636,8 +1636,4 @@ func (cpu *CPU) decR16(r *WordRegister) int {
 	cpu.SetFlagZ(r.Get() == 0)
 	cpu.SetFlagH(halfCarry)
 	return 8
-}
-
-func flipWord(data uint16) uint16 {
-	return ((data & 0xFF00) >> 8) | ((data & 0x00FF) << 8)
 }
