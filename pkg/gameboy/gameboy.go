@@ -2,9 +2,9 @@ package gameboy
 
 import (
 	"fmt"
-	"io/ioutil"
 	"github.com/gorkaio/gboy/pkg/cart"
 	"github.com/gorkaio/gboy/pkg/memory"
+	"io/ioutil"
 )
 
 //go:generate mockgen -destination=mocks/memory_mock.go -package=gameboy_mock github.com/gorkaio/gboy/pkg/gameboy Memory
@@ -30,7 +30,7 @@ type CPU interface {
 type Gameboy struct {
 	cpu             CPU
 	mem             Memory
-	romfile			string
+	romfile         string
 	scanlineCounter int
 	paused          bool
 }
@@ -58,7 +58,7 @@ func (gb *Gameboy) LoadCart(romfile string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	gb.mem.Load(cart)
 	gb.romfile = romfile
 	return nil

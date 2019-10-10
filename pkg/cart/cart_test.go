@@ -3,8 +3,8 @@ package cart_test
 import (
 	"github.com/gorkaio/gboy/pkg/cart"
 	"github.com/stretchr/testify/assert"
-	"testing"
 	"io/ioutil"
+	"testing"
 )
 
 const testrom = "../../roms/10-print.gb"

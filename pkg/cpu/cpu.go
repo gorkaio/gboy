@@ -34,21 +34,21 @@ type CPU struct {
 // State reflects the CPU status
 type State struct {
 	AF, BC, DE, HL, SP, PC uint16
-	IME bool
+	IME                    bool
 }
 
 // New initialises a new Z80 cpu
 func New(memory Memory) *CPU {
 	cpu := CPU{
-		AF:     newMaskedWordRegister(0xFFF0),
-		BC:     newWordRegister(),
-		DE:     newWordRegister(),
-		HL:     newWordRegister(),
-		SP:     newWordRegister(),
-		PC:     newWordRegister(),
-		memory: memory,
+		AF:           newMaskedWordRegister(0xFFF0),
+		BC:           newWordRegister(),
+		DE:           newWordRegister(),
+		HL:           newWordRegister(),
+		SP:           newWordRegister(),
+		PC:           newWordRegister(),
+		memory:       memory,
 		debugEnabled: false,
-		imeFlag: false,
+		imeFlag:      false,
 	}
 	cpu.PC.Set(0x100)
 	cpu.SP.Set(0xFFFE)
@@ -196,12 +196,12 @@ func (cpu *CPU) InterruptsEnabled() bool {
 // Status returns the CPU register status
 func (cpu *CPU) Status() State {
 	return State{
-		AF: cpu.AF.Get(),
-		BC: cpu.BC.Get(),
-		DE: cpu.DE.Get(),
-		HL: cpu.HL.Get(),
-		SP: cpu.SP.Get(),
-		PC: cpu.PC.Get(),
+		AF:  cpu.AF.Get(),
+		BC:  cpu.BC.Get(),
+		DE:  cpu.DE.Get(),
+		HL:  cpu.HL.Get(),
+		SP:  cpu.SP.Get(),
+		PC:  cpu.PC.Get(),
 		IME: cpu.imeFlag,
 	}
 }

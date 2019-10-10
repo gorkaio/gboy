@@ -14,14 +14,14 @@ const (
 type regMap map[string]int
 type memMap map[uint16]uint8
 type opcode []byte
-type testDescription struct{
-	description string
-	opcode opcode
-	regsGiven regMap
-	regsExpected regMap
-	memReadExpected memMap
+type testDescription struct {
+	description      string
+	opcode           opcode
+	regsGiven        regMap
+	regsExpected     regMap
+	memReadExpected  memMap
 	memWriteExpected memMap
-	cycles int
+	cycles           int
 }
 
 func readInstruction(mem *mocks.MockMemory, address uint16, instruction []byte) {
@@ -32,7 +32,7 @@ func readInstruction(mem *mocks.MockMemory, address uint16, instruction []byte) 
 
 func instruction(bytes ...byte) []byte {
 	result := make([]byte, 4)
-	for i, byte := range(bytes) {
+	for i, byte := range bytes {
 		result[i] = byte
 	}
 	return result
@@ -40,28 +40,28 @@ func instruction(bytes ...byte) []byte {
 
 func buildTestCase(test testDescription) testCase {
 	testCase := NewTestCase(instruction(test.opcode...))
-	for k, v := range(test.regsGiven) {
+	for k, v := range test.regsGiven {
 		testCase.WithRegister(k, v)
 	}
 
-	for addr, dat := range(test.memReadExpected) {
+	for addr, dat := range test.memReadExpected {
 		testCase.ExpectMemoryRead(addr, dat)
 	}
 
-	for addr, dat := range(test.memWriteExpected) {
+	for addr, dat := range test.memWriteExpected {
 		testCase.ExpectMemoryWrite(addr, dat)
 	}
 
-	for k, v := range(test.regsExpected) {
+	for k, v := range test.regsExpected {
 		testCase.ExpectRegister(k, v)
 	}
 
 	// Check PC has incremented same bytes than opcode length unless it's set in initial state or expected state
-	if (testCase.expectedState.regs["PC"] == testCase.initialState.regs["PC"] && testCase.initialState.regs["PC"] == 0) {
-		testCase.ExpectRegister("PC", int(testCase.initialState.regs["PC"]) + len(test.opcode))
+	if testCase.expectedState.regs["PC"] == testCase.initialState.regs["PC"] && testCase.initialState.regs["PC"] == 0 {
+		testCase.ExpectRegister("PC", int(testCase.initialState.regs["PC"])+len(test.opcode))
 	}
 	testCase.ExpectCycles(test.cycles)
 	testCase.WithDescription(test.description)
-	
+
 	return testCase
 }

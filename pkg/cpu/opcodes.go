@@ -1469,8 +1469,8 @@ func (cpu *CPU) ldR16R16a8(r1 *WordRegister, r2 *WordRegister, a8 byte) int {
 	r1.Set(d16)
 	cpu.SetFlagZ(false)
 	cpu.SetFlagN(false)
-	cpu.SetFlagC(d16 < r2.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false) 			// TODO: Fix this
+	cpu.SetFlagC(d16 < r2.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)          // TODO: Fix this
 	return 12
 }
 
@@ -1545,8 +1545,8 @@ func (cpu *CPU) subR8(r *ByteRegister) int {
 	d8 := cpu.A.Get() - r.Get()
 	cpu.SetFlagZ(d8 == 0)
 	cpu.SetFlagN(true)
-	cpu.SetFlagC(d8 >= cpu.A.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false)			// TODO: Fix this
+	cpu.SetFlagC(d8 >= cpu.A.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)             // TODO: Fix this
 	cpu.A.Set(d8)
 	return 4
 }
@@ -1555,8 +1555,8 @@ func (cpu *CPU) subd8(v8 byte) int {
 	d8 := cpu.A.Get() - v8
 	cpu.SetFlagZ(d8 == 0)
 	cpu.SetFlagN(true)
-	cpu.SetFlagC(d8 >= cpu.A.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false)			// TODO: Fix this
+	cpu.SetFlagC(d8 >= cpu.A.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)             // TODO: Fix this
 	cpu.A.Set(d8)
 	return 8
 }
@@ -1565,8 +1565,8 @@ func (cpu *CPU) subaR16(r *WordRegister) int {
 	d8 := cpu.A.Get() - cpu.memoryReadByte(r.Get())
 	cpu.SetFlagZ(d8 == 0)
 	cpu.SetFlagN(true)
-	cpu.SetFlagC(d8 >= cpu.A.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false)			// TODO: Fix this
+	cpu.SetFlagC(d8 >= cpu.A.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)             // TODO: Fix this
 	cpu.A.Set(d8)
 	return 8
 }
@@ -1575,8 +1575,8 @@ func (cpu *CPU) addR8R8(r1 *ByteRegister, r2 *ByteRegister) int {
 	d8 := r1.Get() + r2.Get()
 	cpu.SetFlagZ(d8 == 0)
 	cpu.SetFlagN(false)
-	cpu.SetFlagC(d8 < r1.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false)			// TODO: Fix this
+	cpu.SetFlagC(d8 < r1.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)         // TODO: Fix this
 	r1.Set(d8)
 	return 4
 }
@@ -1585,8 +1585,8 @@ func (cpu *CPU) addR8d8(r1 *ByteRegister, v8 byte) int {
 	d8 := r1.Get() + v8
 	cpu.SetFlagZ(d8 == 0)
 	cpu.SetFlagN(false)
-	cpu.SetFlagC(d8 < r1.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false)			// TODO: Fix this
+	cpu.SetFlagC(d8 < r1.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)         // TODO: Fix this
 	r1.Set(d8)
 	return 8
 }
@@ -1595,8 +1595,8 @@ func (cpu *CPU) addR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
 	d8 := cpu.memoryReadByte(r2.Get()) + r1.Get()
 	cpu.SetFlagZ(d8 == 0)
 	cpu.SetFlagN(false)
-	cpu.SetFlagC(d8 < r1.Get())	// TODO: Is this correct?
-	cpu.SetFlagH(false)			// TODO: Fix this
+	cpu.SetFlagC(d8 < r1.Get()) // TODO: Is this correct?
+	cpu.SetFlagH(false)         // TODO: Fix this
 	r1.Set(d8)
 	return 8
 }

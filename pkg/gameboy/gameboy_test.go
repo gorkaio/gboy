@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mocks "github.com/gorkaio/gboy/pkg/gameboy/mocks"
 	"github.com/gorkaio/gboy/pkg/gameboy"
+	mocks "github.com/gorkaio/gboy/pkg/gameboy/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

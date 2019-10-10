@@ -2,15 +2,15 @@ package memory_test
 
 import (
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
-	mocks "github.com/gorkaio/gboy/pkg/memory/mocks"
 	"github.com/gorkaio/gboy/pkg/memory"
+	mocks "github.com/gorkaio/gboy/pkg/memory/mocks"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 const (
 	mockAddress = uint16(0x7234)
-	mockData = byte(0xCA)
+	mockData    = byte(0xCA)
 )
 
 func TestReadsAddressInCartRange(t *testing.T) {

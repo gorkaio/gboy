@@ -135,16 +135,16 @@ func TestIncrementSetHalfCarryFor16bitRegisters(t *testing.T) {
 
 func incOpcodesFor8bitRegisters() map[string]opcode {
 	return map[string]opcode{
-		"A": opcode{0x3C},
-		"B": opcode{0x04}, "C": opcode{0x0C},
-		"D": opcode{0x14}, "E": opcode{0x1C},
-		"H": opcode{0x24}, "L": opcode{0x2C},
+		"A": {0x3C},
+		"B": {0x04}, "C": {0x0C},
+		"D": {0x14}, "E": {0x1C},
+		"H": {0x24}, "L": {0x2C},
 	}
 }
 
 func incOpcodesFor16bitRegisters() map[string]opcode {
 	return map[string]opcode{
-		"BC": opcode{0x03}, "DE": opcode{0x13},
-		"HL": opcode{0x23}, "SP": opcode{0x33},
+		"BC": {0x03}, "DE": {0x13},
+		"HL": {0x23}, "SP": {0x33},
 	}
 }
