@@ -113,9 +113,9 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	0x09: {
-		mnemonic: "ADD HL, BC",
+		mnemonic:   "ADD HL, BC",
 		argLengths: []int{},
-		length: 1,
+		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			return cpu.addR16R16(cpu.HL, cpu.BC)
 		},
@@ -213,9 +213,9 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0x17 */
 	/* TODO: 0x18 */
 	0x19: {
-		mnemonic: "ADD HL, DE",
+		mnemonic:   "ADD HL, DE",
 		argLengths: []int{},
-		length: 1,
+		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			return cpu.addR16R16(cpu.HL, cpu.DE)
 		},
@@ -400,14 +400,14 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	0x34: {
-		mnemonic: "INC (HL)",
+		mnemonic:   "INC (HL)",
 		argLengths: []int{},
-		length: 1,
+		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			a := cpu.HL.Get()
 			d8 := cpu.memoryReadByte(cpu.HL.Get())
 			halfCarry := bits.HalfCarryAddByte(d8, 1)
-			cpu.memoryWriteByte(a, d8 + 1)
+			cpu.memoryWriteByte(a, d8+1)
 			cpu.SetFlagN(false)
 			cpu.SetFlagZ(d8 == 0xFF)
 			cpu.SetFlagH(halfCarry)
@@ -415,14 +415,14 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	0x35: {
-		mnemonic: "DEC (HL)",
+		mnemonic:   "DEC (HL)",
 		argLengths: []int{},
-		length: 1,
+		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			a := cpu.HL.Get()
 			d8 := cpu.memoryReadByte(cpu.HL.Get())
 			halfCarry := bits.HalfCarrySubByte(d8, 1)
-			cpu.memoryWriteByte(a, d8 - 1)
+			cpu.memoryWriteByte(a, d8-1)
 			cpu.SetFlagN(true)
 			cpu.SetFlagZ(d8 == 1)
 			cpu.SetFlagH(halfCarry)
@@ -441,9 +441,9 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0x37 */
 	/* TODO: 0x38 */
 	0x39: {
-		mnemonic: "ADD HL, SP",
+		mnemonic:   "ADD HL, SP",
 		argLengths: []int{},
-		length: 1,
+		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			return cpu.addR16R16(cpu.HL, cpu.SP)
 		},
@@ -1058,14 +1058,71 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.addR8R8(cpu.A, cpu.A)
 		},
 	},
-	/* TODO: 0x88 */
-	/* TODO: 0x89 */
-	/* TODO: 0x8A */
-	/* TODO: 0x8B */
-	/* TODO: 0x8C */
-	/* TODO: 0x8D */
+	0x88: {
+		mnemonic:   "ADC A, B",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.B)
+		},
+	},
+	0x89: {
+		mnemonic:   "ADC A, C",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.C)
+		},
+	},
+	0x8A: {
+		mnemonic:   "ADC A, D",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.D)
+		},
+	},
+	0x8B: {
+		mnemonic:   "ADC A, E",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.E)
+		},
+	},
+	0x8C: {
+		mnemonic:   "ADC A, H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.H)
+		},
+	},
+	0x8D: {
+		mnemonic:   "ADC A, L",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.L)
+		},
+	},
+	0x8E: {
+		mnemonic:   "ADC A, (HL)",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8aR16(cpu.A, cpu.HL)
+		},
+	},
 	/* TODO: 0x8E */
-	/* TODO: 0x8F */
+	0x8F: {
+		mnemonic:   "ADC A, A",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.adcR8R8(cpu.A, cpu.A)
+		},
+	},
 	0x90: {
 		mnemonic:   "SUB B",
 		argLengths: []int{},
@@ -1310,9 +1367,9 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0xE6 */
 	/* TODO: 0xE7 */
 	0xE8: {
-		mnemonic: "ADD SP, %#02x",
+		mnemonic:   "ADD SP, %#02x",
 		argLengths: []int{lbyte},
-		length: 2,
+		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
 			return cpu.addSP(int8(args[0]))
 		},
@@ -1475,7 +1532,7 @@ func (cpu *CPU) ldR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
 func (cpu *CPU) lda16R16(a16 uint16, r *WordRegister) int {
 	h, l := bits.SplitWord(r.Get())
 	cpu.memoryWriteByte(a16, l)
-	cpu.memoryWriteByte(a16 + 1, h)
+	cpu.memoryWriteByte(a16+1, h)
 	return 20
 }
 
@@ -1523,7 +1580,7 @@ func (cpu *CPU) popR16(r *WordRegister) int {
 
 func (cpu *CPU) ldR16R16a8(r1, r2 *WordRegister, r8 int8) int {
 	var carry, halfCarry bool
-	if (r8 < 0) {
+	if r8 < 0 {
 		halfCarry = bits.HalfCarrySubWord(r2.Get(), -uint16(r8))
 		carry = bits.CarrySubWord(r2.Get(), -uint16(r8))
 	} else {
@@ -1649,6 +1706,37 @@ func (cpu *CPU) addR8R8(r1, r2 *ByteRegister) int {
 	return 4
 }
 
+func (cpu *CPU) adcR8R8(r1, r2 *ByteRegister) int {
+	var previousCarry uint8
+	if cpu.FlagC() {
+		previousCarry = 1
+	}
+	halfCarry := bits.HalfCarryAddByte(r1.Get(), r2.Get()+previousCarry)
+	carry := bits.CarryAddByte(r1.Get(), r2.Get()+previousCarry)
+	r1.Set(r1.Get() + r2.Get() + previousCarry)
+	cpu.SetFlagZ(r1.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagC(carry)
+	cpu.SetFlagH(halfCarry)
+	return 4
+}
+
+func (cpu *CPU) adcR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
+	var previousCarry uint8
+	if cpu.FlagC() {
+		previousCarry = 1
+	}
+	d8 := cpu.memoryReadByte(r2.Get())
+	halfCarry := bits.HalfCarryAddByte(r1.Get(), d8+previousCarry)
+	carry := bits.CarryAddByte(r1.Get(), d8+previousCarry)
+	r1.Set(r1.Get() + d8 + previousCarry)
+	cpu.SetFlagZ(r1.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagC(carry)
+	cpu.SetFlagH(halfCarry)
+	return 8
+}
+
 func (cpu *CPU) addR16R16(r1, r2 *WordRegister) int {
 	halfCarry := bits.HalfCarryAddWord(r1.Get(), r2.Get())
 	carry := bits.CarryAddWord(r1.Get(), r2.Get())
@@ -1673,7 +1761,7 @@ func (cpu *CPU) addR8d8(r1 *ByteRegister, v8 byte) int {
 
 func (cpu *CPU) addSP(r8 int8) int {
 	var carry, halfCarry bool
-	if (r8 < 0) {
+	if r8 < 0 {
 		halfCarry = bits.HalfCarrySubWord(cpu.SP.Get(), -uint16(r8))
 		carry = bits.CarrySubWord(cpu.SP.Get(), -uint16(r8))
 	} else {
