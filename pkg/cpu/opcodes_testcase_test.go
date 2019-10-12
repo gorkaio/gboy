@@ -189,7 +189,7 @@ func (test *testCase) Run(t *testing.T) {
 	cycles, err := c.Step()
 	assert.NoError(t, err, "CPU execution failed for test case \"%s\"", test.description)
 	if test.expectedCycles > 0 {
-		assert.Equal(t, cycles, test.expectedCycles, "Expected CPU cycles do not match for test case \"%s\"", test.description)
+		assert.Equal(t, test.expectedCycles, cycles, "Expected CPU cycles do not match for test case \"%s\"", test.description)
 	}
 
 	finalStatus := NewTestStateFromCPU(c.Status())

@@ -120,7 +120,7 @@ func TestDecrementSetsHalfCarryFor8BitRegisters(t *testing.T) {
 func TestDecrementSetsHalfCarryFor16bitRegisters(t *testing.T) {
 	for r16, opc := range decOpcodesFor16bitRegisters() {
 		testFlagH := testDescription{
-			fmt.Sprintf("'DEC %s' sets half-carry flag when decrement carries in bits 7-8", r16),
+			fmt.Sprintf("'DEC %s' sets half-carry flag when decrement carries in bits 11-12", r16),
 			opc,
 			regMap{r16: 0x1000},
 			regMap{r16: 0x0FFF, "F": FlagH | FlagN},
@@ -131,6 +131,48 @@ func TestDecrementSetsHalfCarryFor16bitRegisters(t *testing.T) {
 		testCase := buildTestCase(testFlagH)
 		testCase.Run(t)
 	}
+}
+
+func TestDecrementIndirectSetsNegativeFlag(t *testing.T) {
+	testFlagN := testDescription{
+		"'DEC (HL)' decrements memory address HL and set negative flag",
+		opcode{0x35},
+		regMap{"HL": 0x1234},
+		regMap{"F": FlagN},
+		memMap{0x1234: 0x56},
+		memMap{0x1234: 0x55},
+		12,
+	}
+	testCase := buildTestCase(testFlagN)
+	testCase.Run(t)
+}
+
+func TestDecrementIndirectSetsZeroFlagWithoutAffectingCarry(t *testing.T) {
+	testFlagN := testDescription{
+		"'DEC (HL)' decrements memory address HL and set zero flag if result zero without affecting carry flag",
+		opcode{0x35},
+		regMap{"HL": 0x1234, "F": FlagC},
+		regMap{"F": FlagN | FlagZ | FlagC},
+		memMap{0x1234: 0x01},
+		memMap{0x1234: 0x00},
+		12,
+	}
+	testCase := buildTestCase(testFlagN)
+	testCase.Run(t)
+}
+
+func TestDecrementIndirectSetsHalfCarry(t *testing.T) {
+	testFlagN := testDescription{
+		"'DEC (HL)' sets half-carry flag when carry in bits 3-4",
+		opcode{0x35},
+		regMap{"HL": 0x1234, "F": FlagC},
+		regMap{"F": FlagN | FlagH | FlagC},
+		memMap{0x1234: 0x10},
+		memMap{0x1234: 0x0F},
+		12,
+	}
+	testCase := buildTestCase(testFlagN)
+	testCase.Run(t)
 }
 
 func decOpcodesFor8bitRegisters() map[string]opcode {

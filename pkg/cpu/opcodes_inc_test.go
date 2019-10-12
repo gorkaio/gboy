@@ -133,6 +133,48 @@ func TestIncrementSetHalfCarryFor16bitRegisters(t *testing.T) {
 	}
 }
 
+func TestIncrementtIndirectClearsNegativeFlag(t *testing.T) {
+	testFlagN := testDescription{
+		"'INC (HL)' increments memory address HL and clears negative flag",
+		opcode{0x34},
+		regMap{"HL": 0x1234, "F": FlagN},
+		regMap{"F": 0},
+		memMap{0x1234: 0x56},
+		memMap{0x1234: 0x57},
+		12,
+	}
+	testCase := buildTestCase(testFlagN)
+	testCase.Run(t)
+}
+
+func TestIncrementIndirectSetsZeroFlagWithoutAffectingCarry(t *testing.T) {
+	testFlagN := testDescription{
+		"'INC (HL)' increments memory address HL and set zero flag if result zero, without affecting carry flag",
+		opcode{0x34},
+		regMap{"HL": 0x1234, "F": FlagC},
+		regMap{"F": FlagZ | FlagH | FlagC},
+		memMap{0x1234: 0xFF},
+		memMap{0x1234: 0x00},
+		12,
+	}
+	testCase := buildTestCase(testFlagN)
+	testCase.Run(t)
+}
+
+func TestIncrementIndirectSetsHalfCarry(t *testing.T) {
+	testFlagN := testDescription{
+		"'INC (HL)' sets half-carry flag when carry in bits 3-4",
+		opcode{0x34},
+		regMap{"HL": 0x1234, "F": FlagC},
+		regMap{"F":  FlagH | FlagC},
+		memMap{0x1234: 0x0F},
+		memMap{0x1234: 0x10},
+		12,
+	}
+	testCase := buildTestCase(testFlagN)
+	testCase.Run(t)
+}
+
 func incOpcodesFor8bitRegisters() map[string]opcode {
 	return map[string]opcode{
 		"A": {0x3C},
