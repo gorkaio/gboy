@@ -211,7 +211,14 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0x17 */
-	/* TODO: 0x18 */
+	0x18: {
+		mnemonic:   "JR %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.jr(int8(args[0]))
+		},
+	},
 	0x19: {
 		mnemonic:   "ADD HL, DE",
 		argLengths: []int{},
@@ -1679,6 +1686,12 @@ func (cpu *CPU) opCodeAt(address uint16) (op, error) {
 
 func (cpu *CPU) nop() int {
 	return 4
+}
+
+func (cpu *CPU) jr(r8 int8) int {
+	a16 := uint16(int(cpu.PC.Get()) + int(r8))
+	cpu.PC.Set(a16)
+	return 12
 }
 
 func (cpu *CPU) ldR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
