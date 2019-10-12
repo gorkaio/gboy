@@ -1380,7 +1380,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16R16a8(cpu.HL, cpu.SP, byte(args[0]))
+			return cpu.ldR16R16a8(cpu.HL, cpu.SP, int8(args[0]))
 		},
 	},
 	0xF9: {
@@ -1521,13 +1521,24 @@ func (cpu *CPU) popR16(r *WordRegister) int {
 	return 12
 }
 
-func (cpu *CPU) ldR16R16a8(r1, r2 *WordRegister, a8 byte) int {
-	d16 := r2.Get() + uint16(a8)
+func (cpu *CPU) ldR16R16a8(r1, r2 *WordRegister, r8 int8) int {
+	var carry, halfCarry bool
+	if (r8 < 0) {
+		halfCarry = bits.HalfCarrySubWord(r2.Get(), -uint16(r8))
+		carry = bits.CarrySubWord(r2.Get(), -uint16(r8))
+	} else {
+		halfCarry = bits.HalfCarryAddWord(r2.Get(), uint16(r8))
+		carry = bits.CarryAddWord(r2.Get(), uint16(r8))
+	}
+	a16 := uint16(int(r2.Get()) + int(r8))
+	l := cpu.memoryReadByte(a16)
+	h := cpu.memoryReadByte(a16 + 1)
+	d16 := bits.ConcatWord(h, l)
 	r1.Set(d16)
 	cpu.SetFlagZ(false)
 	cpu.SetFlagN(false)
-	cpu.SetFlagC(d16 < r2.Get()) // TODO: Is this correct?
-	cpu.SetFlagH(false)          // TODO: Fix this
+	cpu.SetFlagH(halfCarry)
+	cpu.SetFlagC(carry)
 	return 12
 }
 
@@ -1660,16 +1671,16 @@ func (cpu *CPU) addR8d8(r1 *ByteRegister, v8 byte) int {
 	return 8
 }
 
-func (cpu *CPU) addSP(s8 int8) int {
+func (cpu *CPU) addSP(r8 int8) int {
 	var carry, halfCarry bool
-	if (s8 < 0) {
-		halfCarry = bits.HalfCarrySubWord(cpu.SP.Get(), -uint16(s8))
-		carry = bits.CarrySubWord(cpu.SP.Get(), -uint16(s8))
+	if (r8 < 0) {
+		halfCarry = bits.HalfCarrySubWord(cpu.SP.Get(), -uint16(r8))
+		carry = bits.CarrySubWord(cpu.SP.Get(), -uint16(r8))
 	} else {
-		halfCarry = bits.HalfCarryAddWord(cpu.SP.Get(), uint16(s8))
-		carry = bits.CarryAddWord(cpu.SP.Get(), uint16(s8))
+		halfCarry = bits.HalfCarryAddWord(cpu.SP.Get(), uint16(r8))
+		carry = bits.CarryAddWord(cpu.SP.Get(), uint16(r8))
 	}
-	cpu.SP.Set(uint16(int(cpu.SP.Get()) + int(s8)))
+	cpu.SP.Set(uint16(int(cpu.SP.Get()) + int(r8)))
 	cpu.SetFlagN(false)
 	cpu.SetFlagZ(false)
 	cpu.SetFlagH(halfCarry)
