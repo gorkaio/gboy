@@ -200,6 +200,15 @@ func TestLoadIndirectOther(t *testing.T) {
 			memMap{0x1234: 0x56},
 			16,
 		},
+		{
+			"'LDH (a8), A' loads A into memory address (a8 + 0xFF00)",
+			opcode{0xE0, 0x12},
+			regMap{"A": 0x56},
+			regMap{},
+			memMap{},
+			memMap{0xFF12: 0x56},
+			12,
+		},
 	}
 
 	for _, testDescription := range testDescriptions {
