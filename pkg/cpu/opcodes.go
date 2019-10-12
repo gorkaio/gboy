@@ -1546,8 +1546,7 @@ func (cpu *CPU) ldhR8a8(r *ByteRegister, a8 byte) int {
 }
 
 func (cpu *CPU) lda16R8(a16 uint16, r *ByteRegister) int {
-	d8 := cpu.memoryReadByte(a16)
-	r.Set(d8)
+	cpu.memoryWriteByte(a16, r.Get())
 	return 16
 }
 
