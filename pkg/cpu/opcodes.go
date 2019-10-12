@@ -1276,14 +1276,70 @@ var opDefinitions = map[uint8]opDefinition{
 			return 4
 		},
 	},
-	/* TODO: 0xB0 */
-	/* TODO: 0xB1 */
-	/* TODO: 0xB2 */
-	/* TODO: 0xB3 */
-	/* TODO: 0xB4 */
-	/* TODO: 0xB5 */
-	/* TODO: 0xB6 */
-	/* TODO: 0xB7 */
+	0xB0: {
+		mnemonic:   "OR B",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.B)
+		},
+	},
+	0xB1: {
+		mnemonic:   "OR C",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.C)
+		},
+	},
+	0xB2: {
+		mnemonic:   "OR D",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.D)
+		},
+	},
+	0xB3: {
+		mnemonic:   "OR E",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.E)
+		},
+	},
+	0xB4: {
+		mnemonic:   "OR H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.H)
+		},
+	},
+	0xB5: {
+		mnemonic:   "OR L",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.L)
+		},
+	},
+	0xB6: {
+		mnemonic:   "OR (HL)",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.oraR16(cpu.HL)
+		},
+	},
+	0xB7: {
+		mnemonic:   "OR A",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orR8(cpu.A)
+		},
+	},
 	/* TODO: 0xB8 */
 	/* TODO: 0xB9 */
 	/* TODO: 0xBA */
@@ -1745,6 +1801,25 @@ func (cpu *CPU) andaR16(r *WordRegister) int {
 	cpu.SetFlagZ(cpu.A.Get() == 0)
 	cpu.SetFlagN(false)
 	cpu.SetFlagH(true)
+	cpu.SetFlagC(false)
+	return 8
+}
+
+func (cpu *CPU) orR8(r *ByteRegister) int {
+	cpu.A.Set(cpu.A.Get() | r.Get())
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(false)
+	cpu.SetFlagC(false)
+	return 4
+}
+
+func (cpu *CPU) oraR16(r *WordRegister) int {
+	d8 := cpu.memoryReadByte(r.Get())
+	cpu.A.Set(cpu.A.Get() | d8)
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(false)
 	cpu.SetFlagC(false)
 	return 8
 }

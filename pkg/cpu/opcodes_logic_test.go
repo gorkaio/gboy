@@ -72,3 +72,71 @@ func TestAndIndirectExecutesLogicalAndWithA(t *testing.T) {
 		testCase.Run(t)
 	}
 }
+
+func TestOrDirectExecutesLogicalOrWithA(t *testing.T) {
+	tests := []struct{
+		opc opcode
+		srcReg string
+		init regMap
+		expected regMap
+		cycles int
+	} {
+		{opcode{0xB0}, "B", regMap{"A": 0x43, "B": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
+		{opcode{0xB0}, "B", regMap{"A": 0x00, "B": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xB1}, "C", regMap{"A": 0x43, "C": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
+		{opcode{0xB1}, "C", regMap{"A": 0x00, "C": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xB2}, "D", regMap{"A": 0x43, "D": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
+		{opcode{0xB2}, "D", regMap{"A": 0x00, "D": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xB3}, "E", regMap{"A": 0x43, "E": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
+		{opcode{0xB3}, "E", regMap{"A": 0x00, "E": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xB4}, "H", regMap{"A": 0x43, "H": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
+		{opcode{0xB4}, "H", regMap{"A": 0x00, "H": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xB5}, "L", regMap{"A": 0x43, "L": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
+		{opcode{0xB5}, "L", regMap{"A": 0x00, "L": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xB7}, "A", regMap{"A": 0x43, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x43, "F": 0}, 4},
+		{opcode{0xB7}, "A", regMap{"A": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+	}
+
+	for _, test := range(tests) {
+		testDescription := testDescription{
+			fmt.Sprintf("'OR %s' executes logical OR of A with register %s and stores result in A", test.srcReg, test.srcReg),
+			test.opc,
+			test.init,
+			test.expected,
+			memMap{},
+			memMap{},
+			test.cycles,
+		}
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
+
+func TestOrIndirectExecutesLogicalOrWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		testDescription {
+			"'OR (HL)' executes logical OR of A with memory content (HL) and stores result in A",
+			opcode{0xB6},
+			regMap{"A": 0x43, "HL": 0x1234, "F": FlagN | FlagC | FlagH},
+			regMap{"A": 0x77, "F": 0},
+			memMap{0x1234: 0x35},
+			memMap{},
+			8,
+		},
+		testDescription {
+			"'OR (HL)' sets Zero flag if result is zero",
+			opcode{0xB6},
+			regMap{"A": 0x00, "HL": 0x1234, "F": FlagN | FlagC},
+			regMap{"A": 0x00, "F": FlagZ},
+			memMap{0x1234: 0x00},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range(testDescriptions) {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
