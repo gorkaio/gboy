@@ -1194,14 +1194,70 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0x9D */
 	/* TODO: 0x9E */
 	/* TODO: 0x9F */
-	/* TODO: 0xA0 */
-	/* TODO: 0xA1 */
-	/* TODO: 0xA2 */
-	/* TODO: 0xA3 */
-	/* TODO: 0xA4 */
-	/* TODO: 0xA5 */
-	/* TODO: 0xA6 */
-	/* TODO: 0xA7 */
+	0xA0: {
+		mnemonic:   "AND B",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.B)
+		},
+	},
+	0xA1: {
+		mnemonic:   "AND C",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.C)
+		},
+	},
+	0xA2: {
+		mnemonic:   "AND D",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.D)
+		},
+	},
+	0xA3: {
+		mnemonic:   "AND E",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.E)
+		},
+	},
+	0xA4: {
+		mnemonic:   "AND H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.H)
+		},
+	},
+	0xA5: {
+		mnemonic:   "AND L",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.L)
+		},
+	},
+	0xA6: {
+		mnemonic:   "AND (HL)",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andaR16(cpu.HL)
+		},
+	},
+	0xA7: {
+		mnemonic:   "AND A",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andR8(cpu.A)
+		},
+	},
 	/* TODO: 0xA8 */
 	/* TODO: 0xA9 */
 	/* TODO: 0xAA */
@@ -1672,6 +1728,25 @@ func (cpu *CPU) subR8(r *ByteRegister) int {
 	cpu.SetFlagH(false)             // TODO: Fix this
 	cpu.A.Set(d8)
 	return 4
+}
+
+func (cpu *CPU) andR8(r *ByteRegister) int {
+	cpu.A.Set(cpu.A.Get() & r.Get())
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(true)
+	cpu.SetFlagC(false)
+	return 4
+}
+
+func (cpu *CPU) andaR16(r *WordRegister) int {
+	d8 := cpu.memoryReadByte(r.Get())
+	cpu.A.Set(cpu.A.Get() & d8)
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(true)
+	cpu.SetFlagC(false)
+	return 8
 }
 
 func (cpu *CPU) subd8(v8 byte) int {
