@@ -1114,7 +1114,6 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.adcR8aR16(cpu.A, cpu.HL)
 		},
 	},
-	/* TODO: 0x8E */
 	0x8F: {
 		mnemonic:   "ADC A, A",
 		argLengths: []int{},

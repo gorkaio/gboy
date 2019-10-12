@@ -166,7 +166,7 @@ func TestIncrementIndirectSetsHalfCarry(t *testing.T) {
 		"'INC (HL)' sets half-carry flag when carry in bits 3-4",
 		opcode{0x34},
 		regMap{"HL": 0x1234, "F": FlagC},
-		regMap{"F":  FlagH | FlagC},
+		regMap{"F": FlagH | FlagC},
 		memMap{0x1234: 0x0F},
 		memMap{0x1234: 0x10},
 		12,
