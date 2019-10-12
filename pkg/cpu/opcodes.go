@@ -274,10 +274,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
 			if !cpu.FlagZ() {
-				rel := int8(args[0]) // Signed relative address jump distance
-				address := int(cpu.PC.Get()) + int(rel)
-				cpu.PC.Set(uint16(address))
-				return 12
+				return cpu.jr(int8(args[0]))
 			}
 			return 8
 		},
@@ -331,7 +328,17 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0x27 */
-	/* TODO: 0x28 */
+	0x28: {
+		mnemonic:   "JR Z, %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			if cpu.FlagZ() {
+				return cpu.jr(int8(args[0]))
+			}
+			return 8
+		},
+	},
 	0x29: {
 		mnemonic:   "ADD HL, HL",
 		argLengths: []int{},
@@ -381,7 +388,17 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0x2F */
-	/* TODO: 0x30 */
+	0x30: {
+		mnemonic:   "JR NC, %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			if !cpu.FlagC() {
+				return cpu.jr(int8(args[0]))
+			}
+			return 8
+		},
+	},
 	0x31: {
 		mnemonic:   "LD SP, %#04x",
 		argLengths: []int{lword},
@@ -446,7 +463,17 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0x37 */
-	/* TODO: 0x38 */
+	0x38: {
+		mnemonic:   "JR C, %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			if cpu.FlagC() {
+				return cpu.jr(int8(args[0]))
+			}
+			return 8
+		},
+	},
 	0x39: {
 		mnemonic:   "ADD HL, SP",
 		argLengths: []int{},
@@ -1410,14 +1437,23 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.popR16(cpu.BC)
 		},
 	},
-	/* TODO: 0xC2 */
+	0xC2: {
+		mnemonic:   "JR NZ, %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			if !cpu.FlagZ() {
+				return cpu.jmp(uint16(args[0]))
+			}
+			return 12
+		},
+	},
 	0xC3: {
 		mnemonic:   "JMP %#04x",
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.PC.Set(uint16(args[0]))
-			return 16
+			return cpu.jmp(uint16(args[0]))
 		},
 	},
 	/* TODO: 0xC4 */
@@ -1433,7 +1469,17 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0xC7 */
 	/* TODO: 0xC8 */
 	/* TODO: 0xC9 */
-	/* TODO: 0xCA */
+	0xCA: {
+		mnemonic:   "JP Z, %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			if cpu.FlagZ() {
+				return cpu.jmp(uint16(args[0]))
+			}
+			return 12
+		},
+	},
 	/* TODO: 0xCB */
 	/* TODO: 0xCC */
 	0xCD: {
@@ -1466,7 +1512,17 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.popR16(cpu.DE)
 		},
 	},
-	/* TODO: 0xD2 */
+	0xD2: {
+		mnemonic:   "JP NC, %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			if !cpu.FlagC() {
+				return cpu.jmp(uint16(args[0]))
+			}
+			return 12
+		},
+	},
 	/* TODO: 0xD3 */
 	/* TODO: 0xD4 */
 	0xD5: {
@@ -1488,7 +1544,17 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0xD7 */
 	/* TODO: 0xD8 */
 	/* TODO: 0xD9 */
-	/* TODO: 0xDA */
+	0xDA: {
+		mnemonic:   "JP C, %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			if cpu.FlagC() {
+				return cpu.jmp(uint16(args[0]))
+			}
+			return 12
+		},
+	},
 	/* TODO: 0xDB */
 	/* TODO: 0xDC */
 	/* TODO: 0xDD */
@@ -1538,7 +1604,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.addSP(int8(args[0]))
 		},
 	},
-	/* TODO: 0xE9 */
+	0xE9: {
+		mnemonic:   "JP (HL)",
+		argLengths: []int{lword},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.jmpR16(cpu.HL)
+		},
+	},
 	0xEA: {
 		mnemonic:   "LD (%#04x), A",
 		argLengths: []int{lword},
@@ -1692,6 +1765,16 @@ func (cpu *CPU) jr(r8 int8) int {
 	a16 := uint16(int(cpu.PC.Get()) + int(r8))
 	cpu.PC.Set(a16)
 	return 12
+}
+
+func (cpu *CPU) jmp(a16 uint16) int {
+	cpu.PC.Set(a16)
+	return 16
+}
+
+func (cpu *CPU) jmpR16(r *WordRegister) int {
+	cpu.PC.Set(r.Get())
+	return 4
 }
 
 func (cpu *CPU) ldR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
