@@ -227,6 +227,15 @@ func TestLoadIndirectOther(t *testing.T) {
 			memMap{},
 			12,
 		},
+		{
+			"'LD SP, HL' loads HL into SP",
+			opcode{0xF9},
+			regMap{"HL": 0x1234},
+			regMap{"SP": 0x1234},
+			memMap{},
+			memMap{},
+			8,
+		},
 	}
 
 	for _, testDescription := range testDescriptions {
