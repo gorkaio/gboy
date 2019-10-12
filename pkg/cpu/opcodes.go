@@ -1473,7 +1473,9 @@ func (cpu *CPU) ldR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
 }
 
 func (cpu *CPU) lda16R16(a16 uint16, r *WordRegister) int {
-	cpu.memoryWriteWord(a16, r.Get())
+	h, l := bits.SplitWord(r.Get())
+	cpu.memoryWriteByte(a16, l)
+	cpu.memoryWriteByte(a16 + 1, h)
 	return 20
 }
 
