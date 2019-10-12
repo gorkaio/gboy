@@ -6,13 +6,13 @@ import (
 )
 
 func TestAndDirectExecutesLogicalAndWithA(t *testing.T) {
-	tests := []struct{
-		opc opcode
-		srcReg string
-		init regMap
+	tests := []struct {
+		opc      opcode
+		srcReg   string
+		init     regMap
 		expected regMap
-		cycles int
-	} {
+		cycles   int
+	}{
 		{opcode{0xA0}, "B", regMap{"A": 0x13, "B": 0x35, "F": FlagN | FlagC}, regMap{"A": 0x11, "F": FlagH}, 4},
 		{opcode{0xA0}, "B", regMap{"A": 0x13, "B": 0x24, "F": FlagN | FlagC}, regMap{"A": 0x00, "F": FlagH | FlagZ}, 4},
 		{opcode{0xA1}, "C", regMap{"A": 0x13, "C": 0x35, "F": FlagN | FlagC}, regMap{"A": 0x11, "F": FlagH}, 4},
@@ -29,7 +29,7 @@ func TestAndDirectExecutesLogicalAndWithA(t *testing.T) {
 		{opcode{0xA7}, "A", regMap{"A": 0x00, "F": FlagN | FlagC}, regMap{"A": 0x00, "F": FlagH | FlagZ}, 4},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testDescription := testDescription{
 			fmt.Sprintf("'AND %s' executes logical AND of A with register %s and stores result in A", test.srcReg, test.srcReg),
 			test.opc,
@@ -44,10 +44,9 @@ func TestAndDirectExecutesLogicalAndWithA(t *testing.T) {
 	}
 }
 
-
 func TestAndIndirectExecutesLogicalAndWithA(t *testing.T) {
 	testDescriptions := []testDescription{
-		testDescription {
+		{
 			"'AND (HL)' executes logical AND of A with memory content (HL) and stores result in A",
 			opcode{0xA6},
 			regMap{"A": 0x13, "HL": 0x1234, "F": FlagN | FlagC},
@@ -56,7 +55,7 @@ func TestAndIndirectExecutesLogicalAndWithA(t *testing.T) {
 			memMap{},
 			8,
 		},
-		testDescription {
+		{
 			"'AND (HL)' sets Zero flag if result is zero",
 			opcode{0xA6},
 			regMap{"A": 0x13, "HL": 0x1234, "F": FlagN | FlagC},
@@ -67,20 +66,20 @@ func TestAndIndirectExecutesLogicalAndWithA(t *testing.T) {
 		},
 	}
 
-	for _, testDescription := range(testDescriptions) {
+	for _, testDescription := range testDescriptions {
 		testCase := buildTestCase(testDescription)
 		testCase.Run(t)
 	}
 }
 
 func TestOrDirectExecutesLogicalOrWithA(t *testing.T) {
-	tests := []struct{
-		opc opcode
-		srcReg string
-		init regMap
+	tests := []struct {
+		opc      opcode
+		srcReg   string
+		init     regMap
 		expected regMap
-		cycles int
-	} {
+		cycles   int
+	}{
 		{opcode{0xB0}, "B", regMap{"A": 0x43, "B": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
 		{opcode{0xB0}, "B", regMap{"A": 0x00, "B": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
 		{opcode{0xB1}, "C", regMap{"A": 0x43, "C": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x77, "F": 0}, 4},
@@ -97,7 +96,7 @@ func TestOrDirectExecutesLogicalOrWithA(t *testing.T) {
 		{opcode{0xB7}, "A", regMap{"A": 0x00, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testDescription := testDescription{
 			fmt.Sprintf("'OR %s' executes logical OR of A with register %s and stores result in A", test.srcReg, test.srcReg),
 			test.opc,
@@ -112,10 +111,9 @@ func TestOrDirectExecutesLogicalOrWithA(t *testing.T) {
 	}
 }
 
-
 func TestOrIndirectExecutesLogicalOrWithA(t *testing.T) {
 	testDescriptions := []testDescription{
-		testDescription {
+		{
 			"'OR (HL)' executes logical OR of A with memory content (HL) and stores result in A",
 			opcode{0xB6},
 			regMap{"A": 0x43, "HL": 0x1234, "F": FlagN | FlagC | FlagH},
@@ -124,7 +122,7 @@ func TestOrIndirectExecutesLogicalOrWithA(t *testing.T) {
 			memMap{},
 			8,
 		},
-		testDescription {
+		{
 			"'OR (HL)' sets Zero flag if result is zero",
 			opcode{0xB6},
 			regMap{"A": 0x00, "HL": 0x1234, "F": FlagN | FlagC},
@@ -135,7 +133,73 @@ func TestOrIndirectExecutesLogicalOrWithA(t *testing.T) {
 		},
 	}
 
-	for _, testDescription := range(testDescriptions) {
+	for _, testDescription := range testDescriptions {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
+func TestXorDirectExecutesLogicalXorWithA(t *testing.T) {
+	tests := []struct {
+		opc      opcode
+		srcReg   string
+		init     regMap
+		expected regMap
+		cycles   int
+	}{
+		{opcode{0xA8}, "B", regMap{"A": 0x43, "B": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x76, "F": 0}, 4},
+		{opcode{0xA8}, "B", regMap{"A": 0xBA, "B": 0xBA, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xA9}, "C", regMap{"A": 0x43, "C": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x76, "F": 0}, 4},
+		{opcode{0xA9}, "C", regMap{"A": 0xBA, "C": 0xBA, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xAA}, "D", regMap{"A": 0x43, "D": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x76, "F": 0}, 4},
+		{opcode{0xAA}, "D", regMap{"A": 0xBA, "D": 0xBA, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xAB}, "E", regMap{"A": 0x43, "E": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x76, "F": 0}, 4},
+		{opcode{0xAB}, "E", regMap{"A": 0xBA, "E": 0xBA, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xAC}, "H", regMap{"A": 0x43, "H": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x76, "F": 0}, 4},
+		{opcode{0xAC}, "H", regMap{"A": 0xBA, "H": 0xBA, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xAD}, "L", regMap{"A": 0x43, "L": 0x35, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x76, "F": 0}, 4},
+		{opcode{0xAD}, "L", regMap{"A": 0xBA, "L": 0xBA, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+		{opcode{0xAF}, "A", regMap{"A": 0x43, "F": FlagN | FlagH | FlagC}, regMap{"A": 0x00, "F": FlagZ}, 4},
+	}
+
+	for _, test := range tests {
+		testDescription := testDescription{
+			fmt.Sprintf("'XOR %s' executes logical XOR of A with register %s and stores result in A", test.srcReg, test.srcReg),
+			test.opc,
+			test.init,
+			test.expected,
+			memMap{},
+			memMap{},
+			test.cycles,
+		}
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
+func TestXorIndirectExecutesLogicalXorWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		{
+			"'XOR (HL)' executes logical XOR of A with memory content (HL) and stores result in A",
+			opcode{0xAE},
+			regMap{"A": 0x43, "HL": 0x1234, "F": FlagN | FlagC | FlagH},
+			regMap{"A": 0x76, "F": 0},
+			memMap{0x1234: 0x35},
+			memMap{},
+			8,
+		},
+		{
+			"'XOR (HL)' sets Zero flag if result is zero",
+			opcode{0xAE},
+			regMap{"A": 0x56, "HL": 0x1234, "F": FlagN | FlagC},
+			regMap{"A": 0x00, "F": FlagZ},
+			memMap{0x1234: 0x56},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range testDescriptions {
 		testCase := buildTestCase(testDescription)
 		testCase.Run(t)
 	}

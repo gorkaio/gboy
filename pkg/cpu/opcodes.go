@@ -1258,22 +1258,68 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.andR8(cpu.A)
 		},
 	},
-	/* TODO: 0xA8 */
-	/* TODO: 0xA9 */
-	/* TODO: 0xAA */
-	/* TODO: 0xAB */
-	/* TODO: 0xAC */
-	/* TODO: 0xAD */
-	/* TODO: 0xAE */
+	0xA8: {
+		mnemonic:   "XOR B",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorR8(cpu.B)
+		},
+	},
+	0xA9: {
+		mnemonic:   "XOR C",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorR8(cpu.C)
+		},
+	},
+	0xAA: {
+		mnemonic:   "XOR D",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorR8(cpu.D)
+		},
+	},
+	0xAB: {
+		mnemonic:   "XOR E",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorR8(cpu.E)
+		},
+	},
+	0xAC: {
+		mnemonic:   "XOR H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorR8(cpu.H)
+		},
+	},
+	0xAD: {
+		mnemonic:   "XOR L",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorR8(cpu.L)
+		},
+	},
+	0xAE: {
+		mnemonic:   "XOR (HL)",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xoraR16(cpu.HL)
+		},
+	},
 	0xAF: {
 		mnemonic:   "XOR A",
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.A.Set(0)
-			cpu.SetFlagZ(true)
-			cpu.SetFlagN(false)
-			return 4
+			return cpu.xorR8(cpu.A)
 		},
 	},
 	0xB0: {
@@ -1817,6 +1863,25 @@ func (cpu *CPU) orR8(r *ByteRegister) int {
 func (cpu *CPU) oraR16(r *WordRegister) int {
 	d8 := cpu.memoryReadByte(r.Get())
 	cpu.A.Set(cpu.A.Get() | d8)
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(false)
+	cpu.SetFlagC(false)
+	return 8
+}
+
+func (cpu *CPU) xorR8(r *ByteRegister) int {
+	cpu.A.Set(cpu.A.Get() ^ r.Get())
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(false)
+	cpu.SetFlagC(false)
+	return 4
+}
+
+func (cpu *CPU) xoraR16(r *WordRegister) int {
+	d8 := cpu.memoryReadByte(r.Get())
+	cpu.A.Set(cpu.A.Get() ^ d8)
 	cpu.SetFlagZ(cpu.A.Get() == 0)
 	cpu.SetFlagN(false)
 	cpu.SetFlagH(false)
