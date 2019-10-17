@@ -37,7 +37,7 @@ func CarryAddByte(data, value byte) bool {
 
 // CarrySubByte determines carry for byte substraction
 func CarrySubByte(data, value byte) bool {
-	return (uint16(data) - uint16(value)) > 0xFF
+	return uint16(value) > uint16(data)
 }
 
 // HalfCarryAddWord determines half carry for byte adding
@@ -57,7 +57,7 @@ func CarryAddWord(data, value uint16) bool {
 
 // CarrySubWord determines carry for word adding
 func CarrySubWord(data, value uint16) bool {
-	return (uint32(data) - uint32(value)) > 0xFFFF
+	return uint32(value) > uint32(data)
 }
 
 // FlipWord interchanges the High and Low bytes of a word

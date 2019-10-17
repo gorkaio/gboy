@@ -6,28 +6,28 @@ import (
 
 func TestJumpRelative(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JR r8' jumps to a relative positive address from current PC",
-			opcode: opcode{0x18, 0x34},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x134},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR r8' jumps to a relative positive address from current PC",
+			opcode:           opcode{0x18, 0x34},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x134},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR r8' jumps to a relative negative address from current PC",
-			opcode: opcode{0x18, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1},
-			regsExpected: regMap{"PC": 0xFE5},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR r8' jumps to a relative negative address from current PC",
+			opcode:           opcode{0x18, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1},
+			regsExpected:     regMap{"PC": 0xFE5},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
 		/* TODO: Add JR 0 */
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -35,46 +35,46 @@ func TestJumpRelative(t *testing.T) {
 
 func TestJumpRelativeIfNonZero(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JR NZ, r8' jumps to a relative positive address from current PC if Flag Z not set",
-			opcode: opcode{0x20, 0x34},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x134},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' jumps to a relative positive address from current PC if Flag Z not set",
+			opcode:           opcode{0x20, 0x34},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x134},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR NZ, r8' jumps to a relative negative address from current PC if Flag Z not set",
-			opcode: opcode{0x20, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1},
-			regsExpected: regMap{"PC": 0xFE5},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' jumps to a relative negative address from current PC if Flag Z not set",
+			opcode:           opcode{0x20, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1},
+			regsExpected:     regMap{"PC": 0xFE5},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR NZ, r8' does not jump if Flag Z set",
-			opcode: opcode{0x20, 0x34},
-			regsGiven: regMap{"PC": 0x100, "F": FlagZ},
-			regsExpected: regMap{"PC": 0x102, "F": FlagZ},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' does not jump if Flag Z set",
+			opcode:           opcode{0x20, 0x34},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0x102, "F": FlagZ},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
-		testDescription {
-			description: "'JR NZ, r8' does not jump if Flag Z set",
-			opcode: opcode{0x20, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1, "F": FlagZ},
-			regsExpected: regMap{"PC": 0xFF3, "F": FlagZ},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' does not jump if Flag Z set",
+			opcode:           opcode{0x20, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0xFF3, "F": FlagZ},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
 		/* TODO: Add JR NZ, 0 */
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -82,46 +82,46 @@ func TestJumpRelativeIfNonZero(t *testing.T) {
 
 func TestJumpRelativeIfZero(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JR NZ, r8' jumps to a relative positive address from current PC if Flag Z set",
-			opcode: opcode{0x28, 0x34},
-			regsGiven: regMap{"PC": 0x100, "F": FlagZ},
-			regsExpected: regMap{"PC": 0x134, "F": FlagZ},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' jumps to a relative positive address from current PC if Flag Z set",
+			opcode:           opcode{0x28, 0x34},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0x134, "F": FlagZ},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR NZ, r8' jumps to a relative negative address from current PC if Flag Z set",
-			opcode: opcode{0x28, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1, "F": FlagZ},
-			regsExpected: regMap{"PC": 0xFE5, "F": FlagZ},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' jumps to a relative negative address from current PC if Flag Z set",
+			opcode:           opcode{0x28, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0xFE5, "F": FlagZ},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR NZ, r8' does not jump if Flag Z not set",
-			opcode: opcode{0x28, 0x34},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x102},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' does not jump if Flag Z not set",
+			opcode:           opcode{0x28, 0x34},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x102},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
-		testDescription {
-			description: "'JR NZ, r8' does not jump if Flag Z not set",
-			opcode: opcode{0x28, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1},
-			regsExpected: regMap{"PC": 0xFF3},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NZ, r8' does not jump if Flag Z not set",
+			opcode:           opcode{0x28, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1},
+			regsExpected:     regMap{"PC": 0xFF3},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
 		/* TODO: Add JR Z, 0 */
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -129,46 +129,46 @@ func TestJumpRelativeIfZero(t *testing.T) {
 
 func TestJumpRelativeIfNonCarry(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JR NC, r8' jumps to a relative positive address from current PC if Flag C not set",
-			opcode: opcode{0x30, 0x34},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x134},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NC, r8' jumps to a relative positive address from current PC if Flag C not set",
+			opcode:           opcode{0x30, 0x34},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x134},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR NC, r8' jumps to a relative negative address from current PC if Flag C not set",
-			opcode: opcode{0x30, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1},
-			regsExpected: regMap{"PC": 0xFE5},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NC, r8' jumps to a relative negative address from current PC if Flag C not set",
+			opcode:           opcode{0x30, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1},
+			regsExpected:     regMap{"PC": 0xFE5},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR NC, r8' does not jump if Flag C set",
-			opcode: opcode{0x30, 0x34},
-			regsGiven: regMap{"PC": 0x100, "F": FlagC},
-			regsExpected: regMap{"PC": 0x102, "F": FlagC},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NC, r8' does not jump if Flag C set",
+			opcode:           opcode{0x30, 0x34},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagC},
+			regsExpected:     regMap{"PC": 0x102, "F": FlagC},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
-		testDescription {
-			description: "'JR NC, r8' does not jump if Flag C set",
-			opcode: opcode{0x30, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1, "F": FlagC},
-			regsExpected: regMap{"PC": 0xFF3, "F": FlagC},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR NC, r8' does not jump if Flag C set",
+			opcode:           opcode{0x30, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1, "F": FlagC},
+			regsExpected:     regMap{"PC": 0xFF3, "F": FlagC},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
 		/* TODO: Add JR NC, 0 */
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -176,46 +176,46 @@ func TestJumpRelativeIfNonCarry(t *testing.T) {
 
 func TestJumpRelativeIfCarry(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JR C, r8' jumps to a relative positive address from current PC if Flag C not set",
-			opcode: opcode{0x38, 0x34},
-			regsGiven: regMap{"PC": 0x100, "F": FlagC},
-			regsExpected: regMap{"PC": 0x134, "F": FlagC},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR C, r8' jumps to a relative positive address from current PC if Flag C not set",
+			opcode:           opcode{0x38, 0x34},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagC},
+			regsExpected:     regMap{"PC": 0x134, "F": FlagC},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR C, r8' jumps to a relative negative address from current PC if Flag C not set",
-			opcode: opcode{0x38, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1, "F": FlagC},
-			regsExpected: regMap{"PC": 0xFE5, "F": FlagC},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR C, r8' jumps to a relative negative address from current PC if Flag C not set",
+			opcode:           opcode{0x38, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1, "F": FlagC},
+			regsExpected:     regMap{"PC": 0xFE5, "F": FlagC},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
-		testDescription {
-			description: "'JR C, r8' does not jump if Flag C set",
-			opcode: opcode{0x38, 0x34},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x102},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR C, r8' does not jump if Flag C set",
+			opcode:           opcode{0x38, 0x34},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x102},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
-		testDescription {
-			description: "'JR C, r8' does not jump if Flag C set",
-			opcode: opcode{0x38, 0xF4},
-			regsGiven: regMap{"PC": 0xFF1},
-			regsExpected: regMap{"PC": 0xFF3},
-			memReadExpected: memMap{},
+		{
+			description:      "'JR C, r8' does not jump if Flag C set",
+			opcode:           opcode{0x38, 0xF4},
+			regsGiven:        regMap{"PC": 0xFF1},
+			regsExpected:     regMap{"PC": 0xFF3},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 8,
+			cycles:           8,
 		},
 		/* TODO: Add JR C, 0 */
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -223,18 +223,18 @@ func TestJumpRelativeIfCarry(t *testing.T) {
 
 func TestJumpAbsoluteImmediate(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JP a16' jumps to an absolute address",
-			opcode: opcode{0xC3, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x1234},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP a16' jumps to an absolute address",
+			opcode:           opcode{0xC3, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x1234},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 16,
+			cycles:           16,
 		},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -242,18 +242,18 @@ func TestJumpAbsoluteImmediate(t *testing.T) {
 
 func TestJumpAbsoluteIndirect(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JP (HL)' jumps to an absolute address contained in register HL",
-			opcode: opcode{0xE9},
-			regsGiven: regMap{"PC": 0x100, "HL": 0x1234},
-			regsExpected: regMap{"PC": 0x1234},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP (HL)' jumps to an absolute address contained in register HL",
+			opcode:           opcode{0xE9},
+			regsGiven:        regMap{"PC": 0x100, "HL": 0x1234},
+			regsExpected:     regMap{"PC": 0x1234},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 4,
+			cycles:           4,
 		},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -261,56 +261,55 @@ func TestJumpAbsoluteIndirect(t *testing.T) {
 
 func TestJumpAbsoluteIfNonZero(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JP NZ, a16' jumps to an absolute address if Flag Z not set",
-			opcode: opcode{0xC2, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x1234},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP NZ, a16' jumps to an absolute address if Flag Z not set",
+			opcode:           opcode{0xC2, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x1234},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 16,
+			cycles:           16,
 		},
-		testDescription {
-			description: "'JP NZ, a16' does not jump if Flag Z set",
-			opcode: opcode{0xC2, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100, "F": FlagZ},
-			regsExpected: regMap{"PC": 0x103, "F": FlagZ},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP NZ, a16' does not jump if Flag Z set",
+			opcode:           opcode{0xC2, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0x103, "F": FlagZ},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
 }
 
-
 func TestJumpAbsoluteIfZero(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JP Z, a16' jumps to an absolute address if Flag Z set",
-			opcode: opcode{0xCA, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100, "F": FlagZ},
-			regsExpected: regMap{"PC": 0x1234, "F": FlagZ},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP Z, a16' jumps to an absolute address if Flag Z set",
+			opcode:           opcode{0xCA, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0x1234, "F": FlagZ},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 16,
+			cycles:           16,
 		},
-		testDescription {
-			description: "'JP Z, a16' does not jump if Flag Z not set",
-			opcode: opcode{0xCA, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x103},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP Z, a16' does not jump if Flag Z not set",
+			opcode:           opcode{0xCA, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x103},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -318,27 +317,27 @@ func TestJumpAbsoluteIfZero(t *testing.T) {
 
 func TestJumpAbsoluteIfNonCarry(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JP NC, a16' jumps to an absolute address if Flag C not set",
-			opcode: opcode{0xD2, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x1234},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP NC, a16' jumps to an absolute address if Flag C not set",
+			opcode:           opcode{0xD2, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x1234},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 16,
+			cycles:           16,
 		},
-		testDescription {
-			description: "'JP NC, a16' does not jump if Flag C set",
-			opcode: opcode{0xD2, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100, "F": FlagC},
-			regsExpected: regMap{"PC": 0x103, "F": FlagC},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP NC, a16' does not jump if Flag C set",
+			opcode:           opcode{0xD2, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagC},
+			regsExpected:     regMap{"PC": 0x103, "F": FlagC},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}
@@ -346,27 +345,27 @@ func TestJumpAbsoluteIfNonCarry(t *testing.T) {
 
 func TestJumpAbsoluteIfCarry(t *testing.T) {
 	tests := []testDescription{
-		testDescription {
-			description: "'JP C, a16' jumps to an absolute address if Flag C set",
-			opcode: opcode{0xDA, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100, "F": FlagC},
-			regsExpected: regMap{"PC": 0x1234, "F": FlagC},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP C, a16' jumps to an absolute address if Flag C set",
+			opcode:           opcode{0xDA, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100, "F": FlagC},
+			regsExpected:     regMap{"PC": 0x1234, "F": FlagC},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 16,
+			cycles:           16,
 		},
-		testDescription {
-			description: "'JP C, a16' does not jump if Flag C not set",
-			opcode: opcode{0xDA, 0x34, 0x12},
-			regsGiven: regMap{"PC": 0x100},
-			regsExpected: regMap{"PC": 0x103},
-			memReadExpected: memMap{},
+		{
+			description:      "'JP C, a16' does not jump if Flag C not set",
+			opcode:           opcode{0xDA, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100},
+			regsExpected:     regMap{"PC": 0x103},
+			memReadExpected:  memMap{},
 			memWriteExpected: memMap{},
-			cycles: 12,
+			cycles:           12,
 		},
 	}
 
-	for _, test := range(tests) {
+	for _, test := range tests {
 		testCase := buildTestCase(test)
 		testCase.Run(t)
 	}

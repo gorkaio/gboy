@@ -392,7 +392,7 @@ func TestAddSignedRelativeToSPSetsCarryFlagWhenOverflown(t *testing.T) {
 func TestAddImmediateClearsNegativeFlag(t *testing.T) {
 	testDescription := testDescription{
 		description:      fmt.Sprintf("'ADD A, %#02x' adds %#02x value to A and stores result in A. Negative flag cleared.", 0x34, 0x34),
-		opcode:           opcode{0xCE, 0x34},
+		opcode:           opcode{0xC6, 0x34},
 		regsGiven:        regMap{"A": 0x12, "F": FlagN},
 		regsExpected:     regMap{"A": 0x46, "F": 0},
 		memReadExpected:  memMap{},
@@ -406,7 +406,7 @@ func TestAddImmediateClearsNegativeFlag(t *testing.T) {
 func TestAddImmediateSetsHalfCarryFlag(t *testing.T) {
 	testDescription := testDescription{
 		description:      fmt.Sprintf("'ADD A, %#02x' sets half-carry flag when carry in bits 3-4.", 0x02),
-		opcode:           opcode{0xCE, 0x02},
+		opcode:           opcode{0xC6, 0x02},
 		regsGiven:        regMap{"A": 0x0F},
 		regsExpected:     regMap{"A": 0x11, "F": FlagH},
 		memReadExpected:  memMap{},
@@ -420,7 +420,7 @@ func TestAddImmediateSetsHalfCarryFlag(t *testing.T) {
 func TestAddImmediateSetsCarryFlagWhenOverflown(t *testing.T) {
 	testDescription := testDescription{
 		description:      "'ADD A, (HL)' sets carry flag when overflown.",
-		opcode:           opcode{0xCE, 0x83},
+		opcode:           opcode{0xC6, 0x83},
 		regsGiven:        regMap{"A": 0x82},
 		regsExpected:     regMap{"A": 0x05, "F": FlagC},
 		memReadExpected:  memMap{},
@@ -434,7 +434,7 @@ func TestAddImmediateSetsCarryFlagWhenOverflown(t *testing.T) {
 func TestAddImmediateSetsCarryAndZeroFlagsWhenOverflownAndResultZero(t *testing.T) {
 	testDescription := testDescription{
 		description:      "'ADD A, (HL)' sets carry and zero flags when overflown and result zero.",
-		opcode:           opcode{0xCE, 0x80},
+		opcode:           opcode{0xC6, 0x80},
 		regsGiven:        regMap{"A": 0x80},
 		regsExpected:     regMap{"A": 0x00, "F": FlagZ | FlagC},
 		memReadExpected:  memMap{},
@@ -443,6 +443,118 @@ func TestAddImmediateSetsCarryAndZeroFlagsWhenOverflownAndResultZero(t *testing.
 	}
 	testCase := buildTestCase(testDescription)
 	testCase.Run(t)
+}
+
+func TestAddImmediateWithCarryClearsNegativeFlag(t *testing.T) {
+	tests := []testDescription{
+		{
+			description:      fmt.Sprintf("'ADC %#02x' adds %#02x value to A and stores result in A. Negative flag cleared.", 0x34, 0x34),
+			opcode:           opcode{0xCE, 0x34},
+			regsGiven:        regMap{"A": 0x12, "F": FlagN},
+			regsExpected:     regMap{"A": 0x46, "F": 0},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+		{
+			description:      fmt.Sprintf("'ADC %#02x' adds %#02x value to A with carry and stores result in A. Negative flag cleared.", 0x34, 0x34),
+			opcode:           opcode{0xCE, 0x34},
+			regsGiven:        regMap{"A": 0x12, "F": FlagN | FlagC},
+			regsExpected:     regMap{"A": 0x47, "F": 0},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+	}
+
+	for _, test := range tests {
+		testCase := buildTestCase(test)
+		testCase.Run(t)
+	}
+}
+
+func TestAddImmediateWithCarrySetsHalfCarryFlag(t *testing.T) {
+	tests := []testDescription{
+		{
+			description:      fmt.Sprintf("'ADC %#02x' sets half-carry flag when carry in bits 3-4.", 0x02),
+			opcode:           opcode{0xCE, 0x02},
+			regsGiven:        regMap{"A": 0x0F},
+			regsExpected:     regMap{"A": 0x11, "F": FlagH},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+		{
+			description:      fmt.Sprintf("'ADC %#02x' sets half-carry flag with carry when carry in bits 3-4.", 0x02),
+			opcode:           opcode{0xCE, 0x02},
+			regsGiven:        regMap{"A": 0x0F, "F": FlagC},
+			regsExpected:     regMap{"A": 0x12, "F": FlagH},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+	}
+
+	for _, test := range tests {
+		testCase := buildTestCase(test)
+		testCase.Run(t)
+	}
+}
+
+func TestAddImmediateWithCarrySetsCarryFlagWhenOverflown(t *testing.T) {
+	tests := []testDescription{
+		{
+			description:      fmt.Sprintf("'ADC %#02x' sets carry flag when overflown.", 0x83),
+			opcode:           opcode{0xCE, 0x83},
+			regsGiven:        regMap{"A": 0x82},
+			regsExpected:     regMap{"A": 0x05, "F": FlagC},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+		{
+			description:      fmt.Sprintf("'ADC %#02x' sets carry flag with carry when overflown.", 0x33),
+			opcode:           opcode{0xCE, 0x83},
+			regsGiven:        regMap{"A": 0x82, "F": FlagC},
+			regsExpected:     regMap{"A": 0x06, "F": FlagC},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+	}
+
+	for _, test := range tests {
+		testCase := buildTestCase(test)
+		testCase.Run(t)
+	}
+}
+
+func TestAddImmediateWithCarrySetsCarryAndZeroFlagsWhenOverflownAndResultZero(t *testing.T) {
+	tests := []testDescription{
+		{
+			description:      fmt.Sprintf("'ADC %#02x' sets carry and zero flags when overflown and result zero.", 0x80),
+			opcode:           opcode{0xCE, 0x80},
+			regsGiven:        regMap{"A": 0x80},
+			regsExpected:     regMap{"A": 0x00, "F": FlagZ | FlagC},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+		{
+			description:      fmt.Sprintf("'ADC %#02x' sets carry and zero flags with carry when overflown and result zero.", 0x80),
+			opcode:           opcode{0xCE, 0x80},
+			regsGiven:        regMap{"A": 0x7F, "F": FlagC},
+			regsExpected:     regMap{"A": 0x00, "F": FlagZ | FlagC | FlagH},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           8,
+		},
+	}
+
+	for _, test := range tests {
+		testCase := buildTestCase(test)
+		testCase.Run(t)
+	}
 }
 
 func TestAddWithCarryDirectAddsCarryWhenSet(t *testing.T) {

@@ -88,7 +88,7 @@ func (cpu *CPU) Step() (int, error) {
 	/* TODO: Turn PC increment a responsibility of the instruction */
 	tmpPC := cpu.PC.Get()
 	cycles := op.handler(cpu, op.args...)
-	if (tmpPC == cpu.PC.Get()) {
+	if tmpPC == cpu.PC.Get() {
 		cpu.PC.IncBy(op.length)
 	}
 
