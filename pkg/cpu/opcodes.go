@@ -1749,7 +1749,14 @@ var opDefinitions = map[uint8]opDefinition{
 	/* TODO: 0xEB */
 	/* TODO: 0xEC */
 	/* TODO: 0xED */
-	/* TODO: 0xEE */
+	0xEE: {
+		mnemonic:   "XOR %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.xorD8(byte(args[0]))
+		},
+	},
 	/* TODO: 0xEF */
 	0xF0: {
 		mnemonic:   "LDH A, (%#02x)",
@@ -2155,6 +2162,15 @@ func (cpu *CPU) xorR8(r *ByteRegister) int {
 	cpu.SetFlagH(false)
 	cpu.SetFlagC(false)
 	return 4
+}
+
+func (cpu *CPU) xorD8(d8 byte) int {
+	cpu.A.Set(cpu.A.Get() ^ d8)
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(false)
+	cpu.SetFlagC(false)
+	return 8
 }
 
 func (cpu *CPU) xoraR16(r *WordRegister) int {

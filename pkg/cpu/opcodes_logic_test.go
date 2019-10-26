@@ -177,6 +177,34 @@ func TestXorDirectExecutesLogicalXorWithA(t *testing.T) {
 	}
 }
 
+func TestXorImmediateExecutesLogicalXorWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		{
+			"'XOR d8' executes logical XOR of A with d8 and stores result in A",
+			opcode{0xEE, 0x35},
+			regMap{"A": 0x43, "F": FlagN | FlagC | FlagH},
+			regMap{"A": 0x76, "F": 0},
+			memMap{},
+			memMap{},
+			8,
+		},
+		{
+			"'XOR d8' sets Zero flag if result is zero",
+			opcode{0xEE, 0x56},
+			regMap{"A": 0x56, "F": FlagN | FlagC},
+			regMap{"A": 0x00, "F": FlagZ},
+			memMap{},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range testDescriptions {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
 func TestXorIndirectExecutesLogicalXorWithA(t *testing.T) {
 	testDescriptions := []testDescription{
 		{
