@@ -44,6 +44,34 @@ func TestAndDirectExecutesLogicalAndWithA(t *testing.T) {
 	}
 }
 
+func TestAndImmediateExecutesLogicalAndWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		{
+			"'AND d8' executes logical AND of A with d8 and stores result in A",
+			opcode{0xE6, 0x35},
+			regMap{"A": 0x13, "F": FlagN | FlagC},
+			regMap{"A": 0x11, "F": FlagH},
+			memMap{},
+			memMap{},
+			8,
+		},
+		{
+			"'AND d8' sets Zero flag if result is zero",
+			opcode{0xE6, 0x24},
+			regMap{"A": 0x13, "F": FlagN | FlagC},
+			regMap{"A": 0x00, "F": FlagH | FlagZ},
+			memMap{},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range testDescriptions {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
 func TestAndIndirectExecutesLogicalAndWithA(t *testing.T) {
 	testDescriptions := []testDescription{
 		{

@@ -1720,7 +1720,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.pushR16(cpu.HL)
 		},
 	},
-	/* TODO: 0xE6 */
+	0xE6: {
+		mnemonic:   "AND %#02x",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.andD8(byte(args[0]))
+		},
+	},
 	/* TODO: 0xE7 */
 	0xE8: {
 		mnemonic:   "ADD SP, %#02x",
@@ -2094,6 +2101,15 @@ func (cpu *CPU) andR8(r *ByteRegister) int {
 	cpu.SetFlagH(true)
 	cpu.SetFlagC(false)
 	return 4
+}
+
+func (cpu *CPU) andD8(d8 byte) int {
+	cpu.A.Set(cpu.A.Get() & d8)
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(true)
+	cpu.SetFlagC(false)
+	return 8
 }
 
 func (cpu *CPU) andaR16(r *WordRegister) int {
