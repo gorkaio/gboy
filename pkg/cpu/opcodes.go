@@ -1800,7 +1800,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.pushR16(cpu.AF)
 		},
 	},
-	/* TODO: 0xF6 */
+	0xF6: {
+		mnemonic:   "OR %#02",
+		argLengths: []int{lbyte},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.orD8(byte(args[0]))
+		},
+	},
 	/* TODO: 0xF7 */
 	0xF8: {
 		mnemonic:   "LDHL SP, %#02x",
@@ -2106,6 +2113,15 @@ func (cpu *CPU) orR8(r *ByteRegister) int {
 	cpu.SetFlagH(false)
 	cpu.SetFlagC(false)
 	return 4
+}
+
+func (cpu *CPU) orD8(d8 byte) int {
+	cpu.A.Set(cpu.A.Get() | d8)
+	cpu.SetFlagZ(cpu.A.Get() == 0)
+	cpu.SetFlagN(false)
+	cpu.SetFlagH(false)
+	cpu.SetFlagC(false)
+	return 8
 }
 
 func (cpu *CPU) cpR8(r *ByteRegister) int {

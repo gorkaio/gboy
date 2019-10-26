@@ -111,6 +111,34 @@ func TestOrDirectExecutesLogicalOrWithA(t *testing.T) {
 	}
 }
 
+func TestOrImmediateExecutesLogicalOrWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		{
+			"'OR d8' executes logical OR of A with d8 and stores result in A",
+			opcode{0xF6, 0x35},
+			regMap{"A": 0x43, "F": FlagN | FlagC | FlagH},
+			regMap{"A": 0x77, "F": 0},
+			memMap{},
+			memMap{},
+			8,
+		},
+		{
+			"'OR d8' sets Zero flag if result is zero",
+			opcode{0xF6, 0x00},
+			regMap{"A": 0x00, "F": FlagN | FlagC},
+			regMap{"A": 0x00, "F": FlagZ},
+			memMap{},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range testDescriptions {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
 func TestOrIndirectExecutesLogicalOrWithA(t *testing.T) {
 	testDescriptions := []testDescription{
 		{
