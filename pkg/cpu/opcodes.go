@@ -1476,14 +1476,70 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.orR8(cpu.A)
 		},
 	},
-	/* TODO: 0xB8 */
-	/* TODO: 0xB9 */
-	/* TODO: 0xBA */
-	/* TODO: 0xBB */
-	/* TODO: 0xBC */
-	/* TODO: 0xBD */
-	/* TODO: 0xBE */
-	/* TODO: 0xBF */
+	0xB8: {
+		mnemonic:   "CP B",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.B)
+		},
+	},
+	0xB9: {
+		mnemonic:   "CP C",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.C)
+		},
+	},
+	0xBA: {
+		mnemonic:   "CP D",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.D)
+		},
+	},
+	0xBB: {
+		mnemonic:   "CP E",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.E)
+		},
+	},
+	0xBC: {
+		mnemonic:   "CP H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.H)
+		},
+	},
+	0xBD: {
+		mnemonic:   "CP L",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.L)
+		},
+	},
+	0xBE: {
+		mnemonic:   "CP (HL)",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpA8(cpu.L)
+		},
+	},
+	0xBF: {
+		mnemonic:   "CP A",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.cpR8(cpu.A)
+		},
+	},
 	/* TODO: 0xC0 */
 	0xC1: {
 		mnemonic:   "POP BC",
@@ -1779,11 +1835,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			d8 := uint8(args[0])
-			cpu.SetFlagZ(cpu.A.Get() == d8)
-			cpu.SetFlagC(cpu.A.Get() < d8)
-			cpu.SetFlagN(true)
-			return 8
+			return cpu.cpD8(byte(args[0]))
 		},
 	},
 	/* TODO: 0xFF */
@@ -2047,6 +2099,43 @@ func (cpu *CPU) orR8(r *ByteRegister) int {
 	cpu.SetFlagH(false)
 	cpu.SetFlagC(false)
 	return 4
+}
+
+func (cpu *CPU) cpR8(r *ByteRegister) int {
+	diff := cpu.A.Get() - r.Get()
+	carry := bits.CarrySubByte(cpu.A.Get(), r.Get())
+	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), r.Get())
+
+	cpu.SetFlagZ(diff == 0)
+	cpu.SetFlagN(true)
+	cpu.SetFlagH(halfCarry)
+	cpu.SetFlagC(carry)
+	return 4
+}
+
+func (cpu *CPU) cpD8(d8 byte) int {
+	diff := cpu.A.Get() - d8
+	carry := bits.CarrySubByte(cpu.A.Get(), d8)
+	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), d8)
+
+	cpu.SetFlagZ(diff == 0)
+	cpu.SetFlagN(true)
+	cpu.SetFlagH(halfCarry)
+	cpu.SetFlagC(carry)
+	return 8
+}
+
+func (cpu *CPU) cpA8(r *ByteRegister) int {
+	d8 := cpu.memoryReadByte(cpu.HL.Get())
+	diff := cpu.A.Get() - d8
+	carry := bits.CarrySubByte(cpu.A.Get(), d8)
+	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), d8)
+
+	cpu.SetFlagZ(diff == 0)
+	cpu.SetFlagN(true)
+	cpu.SetFlagH(halfCarry)
+	cpu.SetFlagC(carry)
+	return 8
 }
 
 func (cpu *CPU) oraR16(r *WordRegister) int {

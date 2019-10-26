@@ -204,3 +204,98 @@ func TestXorIndirectExecutesLogicalXorWithA(t *testing.T) {
 		testCase.Run(t)
 	}
 }
+
+func TestCpComparesGivenRegisterWithA(t *testing.T) {
+	tests := []struct {
+		opc      opcode
+		srcReg   string
+		init     regMap
+		expected regMap
+		cycles   int
+	}{
+		{opcode{0xB8}, "B", regMap{"A": 0x43, "B": 0x35}, regMap{"A": 0x43, "F": FlagN | FlagH}, 4},
+		{opcode{0xB8}, "B", regMap{"A": 0x43, "B": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+		{opcode{0xB9}, "C", regMap{"A": 0x43, "C": 0x35}, regMap{"A": 0x43, "F": FlagN | FlagH}, 4},
+		{opcode{0xB9}, "C", regMap{"A": 0x43, "C": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+		{opcode{0xBA}, "D", regMap{"A": 0x43, "D": 0x35}, regMap{"A": 0x43, "F": FlagN | FlagH}, 4},
+		{opcode{0xBA}, "D", regMap{"A": 0x43, "D": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+		{opcode{0xBB}, "E", regMap{"A": 0x43, "E": 0x35}, regMap{"A": 0x43, "F": FlagN | FlagH}, 4},
+		{opcode{0xBB}, "E", regMap{"A": 0x43, "E": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+		{opcode{0xBC}, "H", regMap{"A": 0x43, "H": 0x35}, regMap{"A": 0x43, "F": FlagN | FlagH}, 4},
+		{opcode{0xBC}, "H", regMap{"A": 0x43, "H": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+		{opcode{0xBD}, "L", regMap{"A": 0x43, "L": 0x35}, regMap{"A": 0x43, "F": FlagN | FlagH}, 4},
+		{opcode{0xBD}, "L", regMap{"A": 0x43, "L": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+		{opcode{0xBF}, "A", regMap{"A": 0x43}, regMap{"A": 0x43, "F": FlagN | FlagZ}, 4},
+	}
+
+	for _, test := range tests {
+		testDescription := testDescription{
+			fmt.Sprintf("'CP %s' substracts value from A without storing value and sets flags accordingly", test.srcReg),
+			test.opc,
+			test.init,
+			test.expected,
+			memMap{},
+			memMap{},
+			test.cycles,
+		}
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
+
+func TestCpIndirectComparesMemoryValueWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		{
+			"'CP (HL)' substracts value at memory address (HL) from A without storing value and sets flags accordingly",
+			opcode{0xBE},
+			regMap{"A": 0x43, "HL": 0x1234},
+			regMap{"A": 0x43, "F": FlagN},
+			memMap{0x1234: 0x11},
+			memMap{},
+			8,
+		},
+		{
+			"'CP (HL)' substracts value at memory address (HL) from A without storing value and sets flags accordingly",
+			opcode{0xBE},
+			regMap{"A": 0x56, "HL": 0x1234},
+			regMap{"A": 0x56, "F": FlagN | FlagZ},
+			memMap{0x1234: 0x56},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range testDescriptions {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
+
+func TestCpImmediateComparesValueWithA(t *testing.T) {
+	testDescriptions := []testDescription{
+		{
+			"'CP d8' substracts value d8 from A without storing value and sets flags accordingly",
+			opcode{0xFE, 0x11},
+			regMap{"A": 0x43},
+			regMap{"A": 0x43, "F": FlagN},
+			memMap{},
+			memMap{},
+			8,
+		},
+		{
+			"'CP (HL)' substracts value d8 from A without storing value and sets flags accordingly",
+			opcode{0xFE, 0x56},
+			regMap{"A": 0x56},
+			regMap{"A": 0x56, "F": FlagN | FlagZ},
+			memMap{},
+			memMap{},
+			8,
+		},
+	}
+
+	for _, testDescription := range testDescriptions {
+		testCase := buildTestCase(testDescription)
+		testCase.Run(t)
+	}
+}
