@@ -1540,7 +1540,20 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.cpR8(cpu.A)
 		},
 	},
-	/* TODO: 0xC0 */
+	0xC0: {
+		mnemonic:   "RETNZ",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			if (cpu.FlagZ()) {
+				return 8
+			}
+			addr := cpu.memoryReadWord(cpu.SP.Get())
+			cpu.PC.Set(addr)
+			cpu.SP.IncBy(2)
+			return 20
+		},
+	},
 	0xC1: {
 		mnemonic:   "POP BC",
 		argLengths: []int{},
@@ -1586,8 +1599,31 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0xC7 */
-	/* TODO: 0xC8 */
-	/* TODO: 0xC9 */
+	0xC8: {
+		mnemonic:   "RETZ",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			if (!cpu.FlagZ()) {
+				return 8
+			}
+			addr := cpu.memoryReadWord(cpu.SP.Get())
+			cpu.PC.Set(addr)
+			cpu.SP.IncBy(2)
+			return 20
+		},
+	},
+	0xC9: {
+		mnemonic:   "RET",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			addr := cpu.memoryReadWord(cpu.SP.Get())
+			cpu.PC.Set(addr)
+			cpu.SP.IncBy(2)
+			return 16
+		},
+	},
 	0xCA: {
 		mnemonic:   "JP Z, %#04x",
 		argLengths: []int{lword},
@@ -1622,7 +1658,20 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0xCF */
-	/* TODO: 0xD0 */
+	0xD0: {
+		mnemonic:   "RETNC",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			if (cpu.FlagC()) {
+				return 8
+			}
+			addr := cpu.memoryReadWord(cpu.SP.Get())
+			cpu.PC.Set(addr)
+			cpu.SP.IncBy(2)
+			return 20
+		},
+	},
 	0xD1: {
 		mnemonic:   "POP DE",
 		argLengths: []int{},
@@ -1661,8 +1710,32 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0xD7 */
-	/* TODO: 0xD8 */
-	/* TODO: 0xD9 */
+	0xD8: {
+		mnemonic:   "RETC",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			if (!cpu.FlagC()) {
+				return 8
+			}
+			addr := cpu.memoryReadWord(cpu.SP.Get())
+			cpu.PC.Set(addr)
+			cpu.SP.IncBy(2)
+			return 20
+		},
+	},
+	0xD9: {
+		mnemonic:   "RETI",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			addr := cpu.memoryReadWord(cpu.SP.Get())
+			cpu.PC.Set(addr)
+			cpu.SP.IncBy(2)
+			cpu.EnableInterrupts()
+			return 16
+		},
+	},
 	0xDA: {
 		mnemonic:   "JP C, %#04x",
 		argLengths: []int{lword},
