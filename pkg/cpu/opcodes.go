@@ -1598,7 +1598,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.addR8d8(cpu.A, byte(args[0]))
 		},
 	},
-	/* TODO: 0xC7 */
+	0xC7: {
+		mnemonic:   "RST 00H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0000)
+		},
+	},
 	0xC8: {
 		mnemonic:   "RETZ",
 		argLengths: []int{},
@@ -1657,7 +1664,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.adcR8d8(cpu.A, byte(args[0]))
 		},
 	},
-	/* TODO: 0xCF */
+	0xCF: {
+		mnemonic:   "RST 08H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0008)
+		},
+	},
 	0xD0: {
 		mnemonic:   "RETNC",
 		argLengths: []int{},
@@ -1709,7 +1723,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.subd8(byte(args[0]))
 		},
 	},
-	/* TODO: 0xD7 */
+	0xD7: {
+		mnemonic:   "RST 10H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0010)
+		},
+	},
 	0xD8: {
 		mnemonic:   "RETC",
 		argLengths: []int{},
@@ -1758,7 +1779,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.sbcD8(byte(args[0]))
 		},
 	},
-	/* TODO: 0xDF */
+	0xDF: {
+		mnemonic:   "RST 18H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0018)
+		},
+	},
 	0xE0: {
 		mnemonic:   "LDH (%#02x), A",
 		argLengths: []int{lbyte},
@@ -1801,7 +1829,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.andD8(byte(args[0]))
 		},
 	},
-	/* TODO: 0xE7 */
+	0xE7: {
+		mnemonic:   "RST 20H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0020)
+		},
+	},
 	0xE8: {
 		mnemonic:   "ADD SP, %#02x",
 		argLengths: []int{lbyte},
@@ -1837,7 +1872,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.xorD8(byte(args[0]))
 		},
 	},
-	/* TODO: 0xEF */
+	0xEF: {
+		mnemonic:   "RST 28H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0028)
+		},
+	},
 	0xF0: {
 		mnemonic:   "LDH A, (%#02x)",
 		argLengths: []int{lbyte},
@@ -1888,7 +1930,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.orD8(byte(args[0]))
 		},
 	},
-	/* TODO: 0xF7 */
+	0xF7: {
+		mnemonic:   "RST 30H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0030)
+		},
+	},
 	0xF8: {
 		mnemonic:   "LDHL SP, %#02x",
 		argLengths: []int{lbyte},
@@ -1932,7 +1981,14 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.cpD8(byte(args[0]))
 		},
 	},
-	/* TODO: 0xFF */
+	0xFF: {
+		mnemonic:   "RST 38H",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			return cpu.rst(0x0038)
+		},
+	},
 }
 
 func opCodeFrom(data uint32) (op, error) {
@@ -2470,4 +2526,11 @@ func (cpu *CPU) decR16(r *WordRegister) int {
 	cpu.SetFlagZ(r.Get() == 0)
 	cpu.SetFlagH(halfCarry)
 	return 8
+}
+
+func (cpu *CPU) rst(addr uint16) int {
+	cpu.SP.DecBy(2)
+	cpu.memoryWriteWord(cpu.SP.Get(), cpu.PC.Get())
+	cpu.PC.Set(addr)
+	return 16
 }
