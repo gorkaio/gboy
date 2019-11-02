@@ -2209,123 +2209,83 @@ func (cpu *CPU) sbcD8(d8 byte) int {
 }
 
 func (cpu *CPU) andR8(r *ByteRegister) int {
-	cpu.A.Set(cpu.A.Get() & r.Get())
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(true)
-	cpu.SetFlagC(false)
+	result, flags := cpu.and(cpu.A.Get(), r.Get())
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) andD8(d8 byte) int {
-	cpu.A.Set(cpu.A.Get() & d8)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(true)
-	cpu.SetFlagC(false)
+	result, flags := cpu.and(cpu.A.Get(), d8)
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) andaR16(r *WordRegister) int {
-	d8 := cpu.memoryReadByte(r.Get())
-	cpu.A.Set(cpu.A.Get() & d8)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(true)
-	cpu.SetFlagC(false)
+	result, flags := cpu.and(cpu.A.Get(), cpu.memoryReadByte(r.Get()))
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) orR8(r *ByteRegister) int {
-	cpu.A.Set(cpu.A.Get() | r.Get())
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(false)
-	cpu.SetFlagC(false)
+	result, flags := cpu.or(cpu.A.Get(), r.Get())
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) orD8(d8 byte) int {
-	cpu.A.Set(cpu.A.Get() | d8)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(false)
-	cpu.SetFlagC(false)
-	return 8
-}
-
-func (cpu *CPU) cpR8(r *ByteRegister) int {
-	diff := cpu.A.Get() - r.Get()
-	carry := bits.CarrySubByte(cpu.A.Get(), r.Get())
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), r.Get())
-
-	cpu.SetFlagZ(diff == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagH(halfCarry)
-	cpu.SetFlagC(carry)
-	return 4
-}
-
-func (cpu *CPU) cpD8(d8 byte) int {
-	diff := cpu.A.Get() - d8
-	carry := bits.CarrySubByte(cpu.A.Get(), d8)
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), d8)
-
-	cpu.SetFlagZ(diff == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagH(halfCarry)
-	cpu.SetFlagC(carry)
-	return 8
-}
-
-func (cpu *CPU) cpA8(r *ByteRegister) int {
-	d8 := cpu.memoryReadByte(cpu.HL.Get())
-	diff := cpu.A.Get() - d8
-	carry := bits.CarrySubByte(cpu.A.Get(), d8)
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), d8)
-
-	cpu.SetFlagZ(diff == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagH(halfCarry)
-	cpu.SetFlagC(carry)
+	result, flags := cpu.or(cpu.A.Get(), d8)
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) oraR16(r *WordRegister) int {
-	d8 := cpu.memoryReadByte(r.Get())
-	cpu.A.Set(cpu.A.Get() | d8)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(false)
-	cpu.SetFlagC(false)
+	result, flags := cpu.or(cpu.A.Get(), cpu.memoryReadByte(r.Get()))
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) xorR8(r *ByteRegister) int {
-	cpu.A.Set(cpu.A.Get() ^ r.Get())
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(false)
-	cpu.SetFlagC(false)
+	result, flags := cpu.xor(cpu.A.Get(), r.Get())
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) xorD8(d8 byte) int {
-	cpu.A.Set(cpu.A.Get() ^ d8)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(false)
-	cpu.SetFlagC(false)
+	result, flags := cpu.xor(cpu.A.Get(), d8)
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) xoraR16(r *WordRegister) int {
-	d8 := cpu.memoryReadByte(r.Get())
-	cpu.A.Set(cpu.A.Get() ^ d8)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagH(false)
-	cpu.SetFlagC(false)
+	result, flags := cpu.xor(cpu.A.Get(), cpu.memoryReadByte(r.Get()))
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
+	return 8
+}
+
+func (cpu *CPU) cpR8(r *ByteRegister) int {
+	flags := cpu.cmp(cpu.A.Get(), r.Get())
+	cpu.F.Set(flags)
+	return 4
+}
+
+func (cpu *CPU) cpD8(d8 byte) int {
+	flags := cpu.cmp(cpu.A.Get(), d8)
+	cpu.F.Set(flags)
+	return 8
+}
+
+func (cpu *CPU) cpA8(r *ByteRegister) int {
+	flags := cpu.cmp(cpu.A.Get(), cpu.memoryReadByte(cpu.HL.Get()))
+	cpu.F.Set(flags)
 	return 8
 }
 
@@ -2450,6 +2410,29 @@ func (cpu *CPU) rst(addr uint16) int {
 }
 
 // Instructions
+
+func (cpu *CPU) and(op byte, value byte) (byte, byte) {
+	result := op & value
+	flags := buildFlags(result == 0, false, true, false)
+	return result, flags
+}
+
+func (cpu *CPU) or(op byte, value byte) (byte, byte) {
+	result := op | value
+	flags := buildFlags(result == 0, false, false, false)
+	return result, flags
+}
+
+func (cpu *CPU) xor(op byte, value byte) (byte, byte) {
+	result := op ^ value
+	flags := buildFlags(result == 0, false, false, false)
+	return result, flags
+}
+
+func (cpu *CPU) cmp(op byte, value byte) byte {
+	diff := op - value
+	return buildFlags(diff == 0, true, bits.HalfCarrySubByte(op, value), bits.CarrySubByte(op, value))
+}
 
 func (cpu *CPU) addByte(op byte, value byte, carryBit bool) (byte, byte) {
 	if carryBit {
