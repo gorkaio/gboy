@@ -2395,19 +2395,15 @@ func (cpu *CPU) adcR8d8(r1 *ByteRegister, d8 byte) int {
 }
 
 func (cpu *CPU) addSP(r8 int8) int {
-	var carry, halfCarry bool
+	var result uint16
+	var flags byte
 	if r8 < 0 {
-		halfCarry = bits.HalfCarrySubWord(cpu.SP.Get(), -uint16(r8))
-		carry = bits.CarrySubWord(cpu.SP.Get(), -uint16(r8))
+		result, flags = cpu.subWord(cpu.SP.Get(), -uint16(r8), false)
 	} else {
-		halfCarry = bits.HalfCarryAddWord(cpu.SP.Get(), uint16(r8))
-		carry = bits.CarryAddWord(cpu.SP.Get(), uint16(r8))
+		result, flags = cpu.addWord(cpu.SP.Get(), uint16(r8), false)
 	}
-	cpu.SP.Set(uint16(int(cpu.SP.Get()) + int(r8)))
-	cpu.SetFlagN(false)
-	cpu.SetFlagZ(false)
-	cpu.SetFlagH(halfCarry)
-	cpu.SetFlagC(carry)
+	cpu.SP.Set(result)
+	cpu.F.Set(flags & ^flagZ & ^flagN)
 	return 16
 }
 
