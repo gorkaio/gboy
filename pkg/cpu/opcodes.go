@@ -2526,14 +2526,18 @@ func (cpu *CPU) popR16(r *WordRegister) int {
 
 func (cpu *CPU) ldR16R16a8(r1, r2 *WordRegister, r8 int8) int {
 	var carry, halfCarry bool
+	var a16 uint16
 	if r8 < 0 {
-		halfCarry = bits.HalfCarrySubWord(r2.Get(), -uint16(r8))
-		carry = bits.CarrySubWord(r2.Get(), -uint16(r8))
+		rel := uint16(^r8 - 1)
+		a16 = uint16(r2.Get() - rel)
+		halfCarry = bits.HalfCarrySubWord(r2.Get(), rel)
+		carry = bits.CarrySubWord(r2.Get(), rel)
 	} else {
-		halfCarry = bits.HalfCarryAddWord(r2.Get(), uint16(r8))
-		carry = bits.CarryAddWord(r2.Get(), uint16(r8))
+		rel := uint16(r8)
+		a16 = uint16(r2.Get() + rel)
+		halfCarry = bits.HalfCarryAddWord(r2.Get(), rel)
+		carry = bits.CarryAddWord(r2.Get(), rel)
 	}
-	a16 := uint16(int(r2.Get()) + int(r8))
 	l := cpu.memoryReadByte(a16)
 	h := cpu.memoryReadByte(a16 + 1)
 	d16 := bits.ConcatWord(h, l)
@@ -2782,7 +2786,7 @@ func (cpu *CPU) addSP(r8 int8) int {
 	var result uint16
 	var flags byte
 	if r8 < 0 {
-		result, flags = cpu.subWord(cpu.SP.Get(), -uint16(r8), false)
+		result, flags = cpu.subWord(cpu.SP.Get(), uint16(^r8 - 1), false)
 	} else {
 		result, flags = cpu.addWord(cpu.SP.Get(), uint16(r8), false)
 	}

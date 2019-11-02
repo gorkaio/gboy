@@ -336,7 +336,7 @@ func TestAddSignedRelativeToSPClearsNegativeFlag(t *testing.T) {
 func TestAddSignedRelativeToSPDecrementsSPWithNegativeNumbers(t *testing.T) {
 	testDescription := testDescription{
 		description:      fmt.Sprintf("'ADD SP, %#02x' decrements SP with signed negative numbers (0xFE = -2).", 0xFE),
-		opcode:           opcode{0xE8, 0xFE},
+		opcode:           opcode{0xE8, 0xFC},
 		regsGiven:        regMap{"SP": 0x0012},
 		regsExpected:     regMap{"SP": 0x0010},
 		memReadExpected:  memMap{},

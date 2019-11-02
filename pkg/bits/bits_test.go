@@ -72,3 +72,7 @@ func TestDetectsCarryInWordSubs(t *testing.T) {
 	assert.True(t, bits.CarrySubWord(0x01, 2))
 	assert.False(t, bits.CarrySubWord(0x0FF0, 5))
 }
+
+func TestAddAndSubAreTheSameThing(t *testing.T) {
+	
+}
