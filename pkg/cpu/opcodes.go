@@ -2033,19 +2033,19 @@ func (cpu *CPU) nop() int {
 	return 4
 }
 
-func (cpu *CPU) jr(r8 int8) int {
-	a16 := uint16(int(cpu.PC.Get()) + int(r8))
-	cpu.PC.Set(a16)
-	return 12
-}
-
 func (cpu *CPU) jmp(a16 uint16) int {
-	cpu.PC.Set(a16)
+	cpu.jump(a16)
 	return 16
 }
 
+func (cpu *CPU) jr(r8 int8) int {
+	a16 := uint16(int(cpu.PC.Get()) + int(r8))
+	cpu.jump(a16)
+	return 12
+}
+
 func (cpu *CPU) jmpR16(r *WordRegister) int {
-	cpu.PC.Set(r.Get())
+	cpu.jump(r.Get())
 	return 4
 }
 
@@ -2091,15 +2091,12 @@ func (cpu *CPU) ldR16R16(r1, r2 *WordRegister) int {
 }
 
 func (cpu *CPU) pushR16(r *WordRegister) int {
-	cpu.SP.DecBy(2)
-	cpu.memoryWriteWord(cpu.SP.Get(), r.Get())
+	cpu.push(r.Get())
 	return 16
 }
 
 func (cpu *CPU) popR16(r *WordRegister) int {
-	a16 := cpu.memoryReadWord(cpu.SP.Get())
-	r.Set(a16)
-	cpu.SP.IncBy(2)
+	r.Set(cpu.pop())
 	return 12
 }
 
@@ -2191,35 +2188,23 @@ func (cpu *CPU) ldR8R8(r1, r2 *ByteRegister) int {
 }
 
 func (cpu *CPU) subR8(r *ByteRegister) int {
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), r.Get())
-	carry := bits.CarrySubByte(cpu.A.Get(), r.Get())
-	cpu.A.Set(cpu.A.Get() - r.Get())
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.subByte(cpu.A.Get(), r.Get(), false)
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) sbcR8(r *ByteRegister) int {
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), r.Get()+1)
-	carry := bits.CarrySubByte(cpu.A.Get(), r.Get()+1)
-	cpu.A.Set(cpu.A.Get() - r.Get() - 1)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.subByte(cpu.A.Get(), r.Get(), cpu.FlagC())
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) sbcD8(d8 byte) int {
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), d8+1)
-	carry := bits.CarrySubByte(cpu.A.Get(), d8+1)
-	cpu.A.Set(cpu.A.Get() - d8 - 1)
-	cpu.SetFlagZ(cpu.A.Get() == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.subByte(cpu.A.Get(), d8, cpu.FlagC())
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
@@ -2344,122 +2329,68 @@ func (cpu *CPU) xoraR16(r *WordRegister) int {
 	return 8
 }
 
-func (cpu *CPU) subd8(v8 byte) int {
-	d8 := cpu.A.Get() - v8
-	carry := bits.CarrySubByte(cpu.A.Get(), v8)
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), v8)
-	cpu.SetFlagZ(d8 == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
-	cpu.A.Set(d8)
+func (cpu *CPU) subd8(d8 byte) int {
+	result, flags := cpu.subByte(cpu.A.Get(), d8, false)
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) subaR16(r *WordRegister) int {
-	d8 := cpu.A.Get() - cpu.memoryReadByte(r.Get())
-	carry := bits.CarrySubByte(cpu.A.Get(), d8)
-	halfCarry := bits.HalfCarrySubByte(cpu.A.Get(), d8)
-	cpu.A.Set(d8)
-	cpu.SetFlagZ(d8 == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	d8 := cpu.memoryReadByte(r.Get())
+	result, flags := cpu.subByte(cpu.A.Get(), d8, false)
+	cpu.A.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) addR8R8(r1, r2 *ByteRegister) int {
-	halfCarry := bits.HalfCarryAddByte(r1.Get(), r2.Get())
-	carry := bits.CarryAddByte(r1.Get(), r2.Get())
-	r1.Set(r1.Get() + r2.Get())
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addByte(r1.Get(), r2.Get(), false)
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) adcR8R8(r1, r2 *ByteRegister) int {
-	var previousCarry uint8
-	if cpu.FlagC() {
-		previousCarry = 1
-	}
-	halfCarry := bits.HalfCarryAddByte(r1.Get(), r2.Get()+previousCarry)
-	carry := bits.CarryAddByte(r1.Get(), r2.Get()+previousCarry)
-	r1.Set(r1.Get() + r2.Get() + previousCarry)
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addByte(r1.Get(), r2.Get(), cpu.FlagC())
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 4
 }
 
 func (cpu *CPU) adcR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
-	var previousCarry uint8
-	if cpu.FlagC() {
-		previousCarry = 1
-	}
 	d8 := cpu.memoryReadByte(r2.Get())
-	halfCarry := bits.HalfCarryAddByte(r1.Get(), d8+previousCarry)
-	carry := bits.CarryAddByte(r1.Get(), d8+previousCarry)
-	r1.Set(r1.Get() + d8 + previousCarry)
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addByte(r1.Get(), d8, cpu.FlagC())
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) sbcR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
-	var previousCarry uint8
-	if cpu.FlagC() {
-		previousCarry = 1
-	}
-	d8 := cpu.memoryReadByte(r2.Get())
-	halfCarry := bits.HalfCarrySubByte(r1.Get(), d8+previousCarry)
-	carry := bits.CarrySubByte(r1.Get(), d8+previousCarry)
-	r1.Set(r1.Get() - d8 - previousCarry)
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(true)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.subByte(r1.Get(), cpu.memoryReadByte(r2.Get()), cpu.FlagC())
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) addR16R16(r1, r2 *WordRegister) int {
-	halfCarry := bits.HalfCarryAddWord(r1.Get(), r2.Get())
-	carry := bits.CarryAddWord(r1.Get(), r2.Get())
-	r1.Set(r1.Get() + r2.Get())
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addWord(r1.Get(), r2.Get(), false)
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
-func (cpu *CPU) addR8d8(r1 *ByteRegister, v8 byte) int {
-	halfCarry := bits.HalfCarryAddByte(r1.Get(), v8)
-	carry := bits.CarryAddByte(r1.Get(), v8)
-	r1.Set(r1.Get() + v8)
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+func (cpu *CPU) addR8d8(r1 *ByteRegister, d8 byte) int {
+	result, flags := cpu.addByte(r1.Get(), d8, false)
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
-func (cpu *CPU) adcR8d8(r1 *ByteRegister, v8 byte) int {
-	var previousCarry uint8
-	if cpu.FlagC() {
-		previousCarry = 1
-	}
-	halfCarry := bits.HalfCarryAddByte(r1.Get(), v8+previousCarry)
-	carry := bits.CarryAddByte(r1.Get(), v8+previousCarry)
-	r1.Set(r1.Get() + v8 + previousCarry)
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+func (cpu *CPU) adcR8d8(r1 *ByteRegister, d8 byte) int {
+	result, flags := cpu.addByte(r1.Get(), d8, cpu.FlagC())
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
@@ -2482,55 +2413,112 @@ func (cpu *CPU) addSP(r8 int8) int {
 
 func (cpu *CPU) addR8aR16(r1 *ByteRegister, r2 *WordRegister) int {
 	d8 := cpu.memoryReadByte(r2.Get())
-	halfCarry := bits.HalfCarryAddByte(r1.Get(), d8)
-	carry := bits.CarryAddByte(r1.Get(), d8)
-	r1.Set(r1.Get() + d8)
-	cpu.SetFlagZ(r1.Get() == 0)
-	cpu.SetFlagN(false)
-	cpu.SetFlagC(carry)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addByte(r1.Get(), d8, false)
+	r1.Set(result)
+	cpu.F.Set(flags)
 	return 8
 }
 
 func (cpu *CPU) incR8(r *ByteRegister) int {
-	halfCarry := bits.HalfCarryAddByte(r.Get(), 1)
-	r.Inc()
-	cpu.SetFlagN(false)
-	cpu.SetFlagZ(r.Get() == 0)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addByte(r.Get(), 1, false)
+	r.Set(result)
+	cpu.F.Set((flags & ^flagC) | (cpu.F.Get() & flagC))
 	return 4
 }
 
 func (cpu *CPU) incR16(r *WordRegister) int {
-	halfCarry := bits.HalfCarryAddWord(r.Get(), 1)
-	r.Inc()
-	cpu.SetFlagN(false)
-	cpu.SetFlagZ(r.Get() == 0)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.addWord(r.Get(), 1, false)
+	r.Set(result)
+	cpu.F.Set((flags & ^flagC) | (cpu.F.Get() & flagC))
 	return 8
 }
 
 func (cpu *CPU) decR8(r *ByteRegister) int {
-	halfCarry := bits.HalfCarrySubByte(r.Get(), 1)
-	r.Dec()
-	cpu.SetFlagN(true)
-	cpu.SetFlagZ(r.Get() == 0)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.subByte(r.Get(), 1, false)
+	r.Set(result)
+	cpu.F.Set((flags & ^flagC) | (cpu.F.Get() & flagC))
 	return 4
 }
 
 func (cpu *CPU) decR16(r *WordRegister) int {
-	halfCarry := bits.HalfCarrySubByte(r.H().Get(), 1) && bits.HalfCarrySubByte(r.L().Get(), 1)
-	r.Dec()
-	cpu.SetFlagN(true)
-	cpu.SetFlagZ(r.Get() == 0)
-	cpu.SetFlagH(halfCarry)
+	result, flags := cpu.subWord(r.Get(), 1, false)
+	r.Set(result)
+	cpu.F.Set((flags & ^flagC) | (cpu.F.Get() & flagC))
 	return 8
 }
 
 func (cpu *CPU) rst(addr uint16) int {
-	cpu.SP.DecBy(2)
-	cpu.memoryWriteWord(cpu.SP.Get(), cpu.PC.Get())
-	cpu.PC.Set(addr)
+	cpu.push(cpu.PC.Get())
+	cpu.jump(addr)
 	return 16
+}
+
+// Instructions
+
+func (cpu *CPU) addByte(op byte, value byte, carryBit bool) (byte, byte) {
+	if carryBit {
+		value++
+	}
+	result := op + value
+	flags := buildFlags(result == 0, false, bits.HalfCarryAddByte(op, value), bits.CarryAddByte(op, value))
+	return result, flags
+}
+
+func (cpu *CPU) addWord(op uint16, value uint16, carryBit bool) (uint16, byte) {
+	if carryBit {
+		value++
+	}
+	result := op + value
+	flags := buildFlags(result == 0, false, bits.HalfCarryAddWord(op, value), bits.CarryAddWord(op, value))
+	return result, flags
+}
+
+func (cpu *CPU) subByte(op byte, value byte, carryBit bool) (byte, byte) {
+	if carryBit {
+		value++
+	}
+	result := op - value
+	flags := buildFlags(result == 0, true, bits.HalfCarrySubByte(op, value), bits.CarrySubByte(op, value))
+	return result, flags
+}
+
+func (cpu *CPU) subWord(op uint16, value uint16, carryBit bool) (uint16, byte) {
+	if carryBit {
+		value++
+	}
+	result := op - value
+	flags := buildFlags(result == 0, true, bits.HalfCarrySubWord(op, value), bits.CarrySubWord(op, value))
+	return result, flags
+}
+
+func (cpu *CPU) jump(a16 uint16) {
+	cpu.PC.Set(a16)
+}
+
+func (cpu *CPU) push(v uint16) {
+	cpu.SP.DecBy(2)
+	cpu.memoryWriteWord(cpu.SP.Get(), v)
+}
+
+func (cpu *CPU) pop() uint16 {
+	value := cpu.memoryReadWord(cpu.SP.Get())
+	cpu.SP.IncBy(2)
+	return value
+}
+
+func buildFlags(Z, N, H, C bool) byte {
+	var flags byte
+	if (Z) {
+		flags |= flagZ
+	}
+	if (N) {
+		flags |= flagN
+	}
+	if (H) {
+		flags |= flagH
+	}
+	if (C) {
+		flags |= flagC
+	}
+	return flags
 }

@@ -16,10 +16,10 @@ type Memory interface {
 }
 
 const (
-	flagZ = 0x80
-	flagN = 0x40
-	flagH = 0x20
-	flagC = 0x10
+	flagZ = byte(0x80)
+	flagN = byte(0x40)
+	flagH = byte(0x20)
+	flagC = byte(0x10)
 )
 
 // CPU structure
