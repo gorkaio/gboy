@@ -42,7 +42,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.nop()
+			cycles := cpu.nop()
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x01: {
@@ -50,7 +52,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16d16(cpu.BC, uint16(args[0]))
+			cycles := cpu.ldR16d16(cpu.BC, uint16(args[0]))
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	0x02: {
@@ -58,7 +62,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.BC, cpu.A)
+			cycles := cpu.ldaR16R8(cpu.BC, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x03: {
@@ -66,7 +72,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR16(cpu.BC)
+			cycles := cpu.incR16(cpu.BC)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x04: {
@@ -74,7 +82,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.B)
+			cycles := cpu.incR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x05: {
@@ -82,7 +92,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.B)
+			cycles := cpu.decR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x06: {
@@ -90,7 +102,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8d8(cpu.B, uint8(args[0]))
+			cycles := cpu.ldR8d8(cpu.B, uint8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0x07: {
@@ -101,6 +115,7 @@ var opDefinitions = map[uint8]opDefinition{
 			cpu.F.Set(0)
 			cpu.SetFlagC(bits.BitOfByte(cpu.A.Get(), 7))
 			cpu.A.Set(cpu.A.Get() << 1)
+			cpu.PC.Inc()
 			return 4
 		},
 	},
@@ -109,7 +124,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.lda16R16(uint16(args[0]), cpu.SP)
+			cycles := cpu.lda16R16(uint16(args[0]), cpu.SP)
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	0x09: {
@@ -117,7 +134,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR16R16(cpu.HL, cpu.BC)
+			cycles := cpu.addR16R16(cpu.HL, cpu.BC)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x0A: {
@@ -125,7 +144,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.A, cpu.BC)
+			cycles := cpu.ldR8aR16(cpu.A, cpu.BC)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x0B: {
@@ -133,7 +154,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR16(cpu.BC)
+			cycles := cpu.decR16(cpu.BC)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x0C: {
@@ -141,7 +164,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.C)
+			cycles := cpu.incR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x0D: {
@@ -149,7 +174,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.C)
+			cycles := cpu.decR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x0E: {
@@ -157,7 +184,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8d8(cpu.C, uint8(args[0]))
+			cycles := cpu.ldR8d8(cpu.C, uint8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	/* TODO: 0x0F */
@@ -167,7 +196,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16d16(cpu.DE, uint16(args[0]))
+			cycles := cpu.ldR16d16(cpu.DE, uint16(args[0]))
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	0x12: {
@@ -175,7 +206,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.DE, cpu.A)
+			cycles := cpu.ldaR16R8(cpu.DE, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x13: {
@@ -183,7 +216,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR16(cpu.DE)
+			cycles := cpu.incR16(cpu.DE)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x14: {
@@ -191,7 +226,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.D)
+			cycles := cpu.incR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x15: {
@@ -199,7 +236,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.D)
+			cycles := cpu.decR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x16: {
@@ -207,7 +246,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8d8(cpu.D, uint8(args[0]))
+			cycles := cpu.ldR8d8(cpu.D, uint8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	/* TODO: 0x17 */
@@ -224,7 +265,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR16R16(cpu.HL, cpu.DE)
+			cycles := cpu.addR16R16(cpu.HL, cpu.DE)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x1A: {
@@ -232,7 +275,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.A, cpu.DE)
+			cycles := cpu.ldR8aR16(cpu.A, cpu.DE)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x1B: {
@@ -240,7 +285,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR16(cpu.DE)
+			cycles := cpu.decR16(cpu.DE)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x1C: {
@@ -248,7 +295,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.E)
+			cycles := cpu.incR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x1D: {
@@ -256,7 +305,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.E)
+			cycles := cpu.decR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x1E: {
@@ -264,7 +315,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8d8(cpu.E, uint8(args[0]))
+			cycles := cpu.ldR8d8(cpu.E, uint8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	/* TODO: 0x1F */
@@ -276,6 +329,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if !cpu.FlagZ() {
 				return cpu.jr(int8(args[0]))
 			}
+			cpu.PC.IncBy(2)
 			return 8
 		},
 	},
@@ -284,7 +338,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16d16(cpu.HL, uint16(args[0]))
+			cycles := cpu.ldR16d16(cpu.HL, uint16(args[0]))
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	0x22: {
@@ -292,7 +348,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldiaR16R8(cpu.HL, cpu.A)
+			cycles := cpu.ldiaR16R8(cpu.HL, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x23: {
@@ -300,7 +358,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR16(cpu.HL)
+			cycles :=  cpu.incR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x24: {
@@ -308,7 +368,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.H)
+			cycles := cpu.incR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x25: {
@@ -316,7 +378,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.H)
+			cycles := cpu.decR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x26: {
@@ -324,7 +388,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8d8(cpu.H, uint8(args[0]))
+			cycles := cpu.ldR8d8(cpu.H, uint8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	/* TODO: 0x27 */
@@ -336,6 +402,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if cpu.FlagZ() {
 				return cpu.jr(int8(args[0]))
 			}
+			cpu.PC.IncBy(2)
 			return 8
 		},
 	},
@@ -344,7 +411,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR16R16(cpu.HL, cpu.HL)
+			cycles := cpu.addR16R16(cpu.HL, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x2A: {
@@ -352,7 +421,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldiR8aR16(cpu.A, cpu.HL)
+			cycles := cpu.ldiR8aR16(cpu.A, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x2B: {
@@ -360,7 +431,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR16(cpu.HL)
+			cycles := cpu.decR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x2C: {
@@ -368,7 +441,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.L)
+			cycles := cpu.incR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x2D: {
@@ -376,7 +451,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.L)
+			cycles := cpu.decR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x2E: {
@@ -384,7 +461,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8d8(cpu.L, uint8(args[0]))
+			cycles := cpu.ldR8d8(cpu.L, uint8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	/* TODO: 0x2F */
@@ -396,6 +475,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if !cpu.FlagC() {
 				return cpu.jr(int8(args[0]))
 			}
+			cpu.PC.IncBy(2)
 			return 8
 		},
 	},
@@ -404,7 +484,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16d16(cpu.SP, uint16(args[0]))
+			cycles := cpu.ldR16d16(cpu.SP, uint16(args[0]))
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	0x32: {
@@ -412,7 +494,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.lddaR16R8(cpu.HL, cpu.A)
+			cycles := cpu.lddaR16R8(cpu.HL, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x33: {
@@ -420,7 +504,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR16(cpu.SP)
+			cycles := cpu.incR16(cpu.SP)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x34: {
@@ -430,11 +516,13 @@ var opDefinitions = map[uint8]opDefinition{
 		handler: func(cpu *CPU, args ...int) int {
 			a := cpu.HL.Get()
 			d8 := cpu.memoryReadByte(cpu.HL.Get())
+			result := d8 + 1
 			halfCarry := bits.HalfCarryAddByte(d8, 1)
-			cpu.memoryWriteByte(a, d8+1)
+			cpu.memoryWriteByte(a, result)
 			cpu.SetFlagN(false)
-			cpu.SetFlagZ(d8 == 0xFF)
+			cpu.SetFlagZ(result == 0)
 			cpu.SetFlagH(halfCarry)
+			cpu.PC.Inc()
 			return 12
 		},
 	},
@@ -445,11 +533,13 @@ var opDefinitions = map[uint8]opDefinition{
 		handler: func(cpu *CPU, args ...int) int {
 			a := cpu.HL.Get()
 			d8 := cpu.memoryReadByte(cpu.HL.Get())
+			result := d8 - 1
 			halfCarry := bits.HalfCarrySubByte(d8, 1)
-			cpu.memoryWriteByte(a, d8-1)
+			cpu.memoryWriteByte(a, result)
 			cpu.SetFlagN(true)
-			cpu.SetFlagZ(d8 == 1)
+			cpu.SetFlagZ(result == 0)
 			cpu.SetFlagH(halfCarry)
+			cpu.PC.Inc()
 			return 12
 		},
 	},
@@ -459,7 +549,9 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
 			d8 := byte(args[0])
-			return cpu.ldaR16d8(cpu.HL, d8)
+			cycles := cpu.ldaR16d8(cpu.HL, d8)
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	/* TODO: 0x37 */
@@ -471,6 +563,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if cpu.FlagC() {
 				return cpu.jr(int8(args[0]))
 			}
+			cpu.PC.IncBy(2)
 			return 8
 		},
 	},
@@ -479,7 +572,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR16R16(cpu.HL, cpu.SP)
+			cycles := cpu.addR16R16(cpu.HL, cpu.SP)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x3A: {
@@ -487,7 +582,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.lddR8aR16(cpu.A, cpu.HL)
+			cycles := cpu.lddR8aR16(cpu.A, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x3B: {
@@ -495,7 +592,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR16(cpu.SP)
+			cycles := cpu.decR16(cpu.SP)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x3C: {
@@ -503,7 +602,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.incR8(cpu.A)
+			cycles := cpu.incR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x3D: {
@@ -511,7 +612,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.decR8(cpu.A)
+			cycles := cpu.decR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x3E: {
@@ -520,7 +623,9 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
 			d8 := byte(args[0])
-			return cpu.ldR8d8(cpu.A, d8)
+			cycles := cpu.ldR8d8(cpu.A, d8)
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0x40: {
@@ -528,7 +633,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.B)
+			cycles := cpu.ldR8R8(cpu.B, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x41: {
@@ -536,7 +643,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.C)
+			cycles := cpu.ldR8R8(cpu.B, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x42: {
@@ -544,7 +653,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.D)
+			cycles := cpu.ldR8R8(cpu.B, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x43: {
@@ -552,7 +663,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.E)
+			cycles := cpu.ldR8R8(cpu.B, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x44: {
@@ -560,7 +673,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.H)
+			cycles := cpu.ldR8R8(cpu.B, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x45: {
@@ -568,7 +683,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.L)
+			cycles := cpu.ldR8R8(cpu.B, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x46: {
@@ -576,7 +693,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.B, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.B, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x47: {
@@ -584,7 +703,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.B, cpu.A)
+			cycles := cpu.ldR8R8(cpu.B, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x48: {
@@ -592,7 +713,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.B)
+			cycles := cpu.ldR8R8(cpu.C, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x49: {
@@ -600,7 +723,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.C)
+			cycles := cpu.ldR8R8(cpu.C, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x4A: {
@@ -608,7 +733,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.D)
+			cycles := cpu.ldR8R8(cpu.C, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x4B: {
@@ -616,7 +743,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.E)
+			cycles := cpu.ldR8R8(cpu.C, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x4C: {
@@ -624,7 +753,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.H)
+			cycles := cpu.ldR8R8(cpu.C, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x4D: {
@@ -632,7 +763,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.L)
+			cycles := cpu.ldR8R8(cpu.C, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x4E: {
@@ -640,7 +773,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.C, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.C, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x4F: {
@@ -648,7 +783,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.C, cpu.A)
+			cycles := cpu.ldR8R8(cpu.C, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x50: {
@@ -656,7 +793,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.B)
+			cycles := cpu.ldR8R8(cpu.D, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x51: {
@@ -664,7 +803,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.C)
+			cycles := cpu.ldR8R8(cpu.D, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x52: {
@@ -672,7 +813,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.D)
+			cycles := cpu.ldR8R8(cpu.D, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x53: {
@@ -680,7 +823,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.E)
+			cycles := cpu.ldR8R8(cpu.D, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x54: {
@@ -688,7 +833,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.H)
+			cycles := cpu.ldR8R8(cpu.D, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x55: {
@@ -696,7 +843,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.L)
+			cycles := cpu.ldR8R8(cpu.D, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x56: {
@@ -704,7 +853,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.D, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.D, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x57: {
@@ -712,7 +863,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.D, cpu.A)
+			cycles := cpu.ldR8R8(cpu.D, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x58: {
@@ -720,7 +873,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.B)
+			cycles := cpu.ldR8R8(cpu.E, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x59: {
@@ -728,7 +883,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.C)
+			cycles := cpu.ldR8R8(cpu.E, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x5A: {
@@ -736,7 +893,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.D)
+			cycles := cpu.ldR8R8(cpu.E, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x5B: {
@@ -744,7 +903,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.E)
+			cycles := cpu.ldR8R8(cpu.E, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x5C: {
@@ -752,7 +913,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.H)
+			cycles := cpu.ldR8R8(cpu.E, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x5D: {
@@ -760,7 +923,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.L)
+			cycles := cpu.ldR8R8(cpu.E, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x5E: {
@@ -768,7 +933,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.E, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.E, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x5F: {
@@ -776,7 +943,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.E, cpu.A)
+			cycles := cpu.ldR8R8(cpu.E, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x60: {
@@ -784,7 +953,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.B)
+			cycles := cpu.ldR8R8(cpu.H, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x61: {
@@ -792,7 +963,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.C)
+			cycles := cpu.ldR8R8(cpu.H, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x62: {
@@ -800,7 +973,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.D)
+			cycles := cpu.ldR8R8(cpu.H, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x63: {
@@ -808,7 +983,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.E)
+			cycles := cpu.ldR8R8(cpu.H, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x64: {
@@ -816,7 +993,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.H)
+			cycles := cpu.ldR8R8(cpu.H, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x65: {
@@ -824,7 +1003,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.L)
+			cycles := cpu.ldR8R8(cpu.H, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x66: {
@@ -832,7 +1013,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.H, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.H, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x67: {
@@ -840,7 +1023,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.H, cpu.A)
+			cycles := cpu.ldR8R8(cpu.H, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x68: {
@@ -848,7 +1033,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.B)
+			cycles := cpu.ldR8R8(cpu.L, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x69: {
@@ -856,7 +1043,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.C)
+			cycles := cpu.ldR8R8(cpu.L, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x6A: {
@@ -864,7 +1053,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.D)
+			cycles := cpu.ldR8R8(cpu.L, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x6B: {
@@ -872,7 +1063,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.E)
+			cycles := cpu.ldR8R8(cpu.L, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x6C: {
@@ -880,7 +1073,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.H)
+			cycles := cpu.ldR8R8(cpu.L, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x6D: {
@@ -888,7 +1083,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.L)
+			cycles := cpu.ldR8R8(cpu.L, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x6E: {
@@ -896,7 +1093,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.L, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.L, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x6F: {
@@ -904,7 +1103,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.L, cpu.A)
+			cycles := cpu.ldR8R8(cpu.L, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x70: {
@@ -912,7 +1113,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.B)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x71: {
@@ -920,7 +1123,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.C)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x72: {
@@ -928,7 +1133,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.D)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x73: {
@@ -936,7 +1143,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.E)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x74: {
@@ -944,7 +1153,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.H)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x75: {
@@ -952,7 +1163,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.L)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	/* TODO: 0x76 */
@@ -961,7 +1174,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldaR16R8(cpu.HL, cpu.A)
+			cycles := cpu.ldaR16R8(cpu.HL, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x78: {
@@ -969,7 +1184,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.B)
+			cycles := cpu.ldR8R8(cpu.A, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x79: {
@@ -977,7 +1194,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.C)
+			cycles := cpu.ldR8R8(cpu.A, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x7A: {
@@ -985,7 +1204,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.D)
+			cycles := cpu.ldR8R8(cpu.A, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x7B: {
@@ -993,7 +1214,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.E)
+			cycles := cpu.ldR8R8(cpu.A, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x7C: {
@@ -1001,7 +1224,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.H)
+			cycles := cpu.ldR8R8(cpu.A, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x7D: {
@@ -1009,7 +1234,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.L)
+			cycles := cpu.ldR8R8(cpu.A, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x7E: {
@@ -1017,7 +1244,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8aR16(cpu.A, cpu.HL)
+			cycles := cpu.ldR8aR16(cpu.A, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x7F: {
@@ -1025,7 +1254,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8R8(cpu.A, cpu.A)
+			cycles := cpu.ldR8R8(cpu.A, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x80: {
@@ -1033,7 +1264,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.B)
+			cycles := cpu.addR8R8(cpu.A, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x81: {
@@ -1041,7 +1274,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.C)
+			cycles := cpu.addR8R8(cpu.A, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x82: {
@@ -1049,7 +1284,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.D)
+			cycles := cpu.addR8R8(cpu.A, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x83: {
@@ -1057,7 +1294,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.E)
+			cycles := cpu.addR8R8(cpu.A, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x84: {
@@ -1065,7 +1304,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.H)
+			cycles := cpu.addR8R8(cpu.A, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x85: {
@@ -1073,7 +1314,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.L)
+			cycles := cpu.addR8R8(cpu.A, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x86: {
@@ -1081,7 +1324,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8aR16(cpu.A, cpu.HL)
+			cycles := cpu.addR8aR16(cpu.A, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x87: {
@@ -1089,7 +1334,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8R8(cpu.A, cpu.A)
+			cycles := cpu.addR8R8(cpu.A, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x88: {
@@ -1097,7 +1344,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.B)
+			cycles := cpu.adcR8R8(cpu.A, cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x89: {
@@ -1105,7 +1354,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.C)
+			cycles := cpu.adcR8R8(cpu.A, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x8A: {
@@ -1113,7 +1364,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.D)
+			cycles := cpu.adcR8R8(cpu.A, cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x8B: {
@@ -1121,7 +1374,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.E)
+			cycles := cpu.adcR8R8(cpu.A, cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x8C: {
@@ -1129,7 +1384,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.H)
+			cycles := cpu.adcR8R8(cpu.A, cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x8D: {
@@ -1137,7 +1394,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.L)
+			cycles := cpu.adcR8R8(cpu.A, cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x8E: {
@@ -1145,7 +1404,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8aR16(cpu.A, cpu.HL)
+			cycles := cpu.adcR8aR16(cpu.A, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x8F: {
@@ -1153,7 +1414,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8R8(cpu.A, cpu.A)
+			cycles := cpu.adcR8R8(cpu.A, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x90: {
@@ -1161,7 +1424,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.B)
+			cycles := cpu.subR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x91: {
@@ -1169,7 +1434,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.C)
+			cycles := cpu.subR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x92: {
@@ -1177,7 +1444,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.D)
+			cycles := cpu.subR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x93: {
@@ -1185,7 +1454,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.E)
+			cycles := cpu.subR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x94: {
@@ -1193,7 +1464,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.H)
+			cycles := cpu.subR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x95: {
@@ -1201,7 +1474,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.L)
+			cycles := cpu.subR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x96: {
@@ -1209,7 +1484,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subaR16(cpu.HL)
+			cycles := cpu.subaR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x97: {
@@ -1217,7 +1494,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subR8(cpu.A)
+			cycles := cpu.subR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x98: {
@@ -1225,7 +1504,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.B)
+			cycles := cpu.sbcR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x99: {
@@ -1233,7 +1514,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.C)
+			cycles := cpu.sbcR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x9A: {
@@ -1241,7 +1524,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.D)
+			cycles := cpu.sbcR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x9B: {
@@ -1249,7 +1534,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.E)
+			cycles := cpu.sbcR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x9C: {
@@ -1257,7 +1544,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.H)
+			cycles := cpu.sbcR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x9D: {
@@ -1265,7 +1554,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.L)
+			cycles := cpu.sbcR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x9E: {
@@ -1273,7 +1564,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8aR16(cpu.A, cpu.HL)
+			cycles := cpu.sbcR8aR16(cpu.A, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0x9F: {
@@ -1281,7 +1574,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcR8(cpu.A)
+			cycles := cpu.sbcR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA0: {
@@ -1289,7 +1584,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.B)
+			cycles := cpu.andR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA1: {
@@ -1297,7 +1594,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.C)
+			cycles := cpu.andR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA2: {
@@ -1305,7 +1604,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.D)
+			cycles := cpu.andR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA3: {
@@ -1313,7 +1614,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.E)
+			cycles := cpu.andR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA4: {
@@ -1321,7 +1624,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.H)
+			cycles := cpu.andR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA5: {
@@ -1329,7 +1634,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.L)
+			cycles := cpu.andR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA6: {
@@ -1337,7 +1644,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andaR16(cpu.HL)
+			cycles := cpu.andaR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA7: {
@@ -1345,7 +1654,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andR8(cpu.A)
+			cycles := cpu.andR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA8: {
@@ -1353,7 +1664,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.B)
+			cycles := cpu.xorR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xA9: {
@@ -1361,7 +1674,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.C)
+			cycles := cpu.xorR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xAA: {
@@ -1369,7 +1684,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.D)
+			cycles := cpu.xorR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xAB: {
@@ -1377,7 +1694,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.E)
+			cycles := cpu.xorR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xAC: {
@@ -1385,7 +1704,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.H)
+			cycles := cpu.xorR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xAD: {
@@ -1393,7 +1714,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.L)
+			cycles := cpu.xorR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xAE: {
@@ -1401,7 +1724,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xoraR16(cpu.HL)
+			cycles := cpu.xoraR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xAF: {
@@ -1409,7 +1734,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorR8(cpu.A)
+			cycles := cpu.xorR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB0: {
@@ -1417,7 +1744,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.B)
+			cycles := cpu.orR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB1: {
@@ -1425,7 +1754,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.C)
+			cycles := cpu.orR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB2: {
@@ -1433,7 +1764,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.D)
+			cycles := cpu.orR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB3: {
@@ -1441,7 +1774,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.E)
+			cycles := cpu.orR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB4: {
@@ -1449,7 +1784,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.H)
+			cycles := cpu.orR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB5: {
@@ -1457,7 +1794,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.L)
+			cycles := cpu.orR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB6: {
@@ -1465,7 +1804,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.oraR16(cpu.HL)
+			cycles := cpu.oraR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB7: {
@@ -1473,7 +1814,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orR8(cpu.A)
+			cycles := cpu.orR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB8: {
@@ -1481,7 +1824,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.B)
+			cycles := cpu.cpR8(cpu.B)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xB9: {
@@ -1489,7 +1834,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.C)
+			cycles := cpu.cpR8(cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xBA: {
@@ -1497,7 +1844,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.D)
+			cycles := cpu.cpR8(cpu.D)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xBB: {
@@ -1505,7 +1854,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.E)
+			cycles := cpu.cpR8(cpu.E)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xBC: {
@@ -1513,7 +1864,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.H)
+			cycles := cpu.cpR8(cpu.H)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xBD: {
@@ -1521,7 +1874,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.L)
+			cycles := cpu.cpR8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xBE: {
@@ -1529,7 +1884,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpA8(cpu.L)
+			cycles := cpu.cpA8(cpu.L)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xBF: {
@@ -1537,7 +1894,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpR8(cpu.A)
+			cycles := cpu.cpR8(cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xC0: {
@@ -1546,6 +1905,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			if (cpu.FlagZ()) {
+				cpu.PC.Inc()
 				return 8
 			}
 			addr := cpu.memoryReadWord(cpu.SP.Get())
@@ -1559,7 +1919,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.popR16(cpu.BC)
+			cycles := cpu.popR16(cpu.BC)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xC2: {
@@ -1570,6 +1932,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if !cpu.FlagZ() {
 				return cpu.jmp(uint16(args[0]))
 			}
+			cpu.PC.IncBy(3)
 			return 12
 		},
 	},
@@ -1587,7 +1950,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.pushR16(cpu.BC)
+			cycles := cpu.pushR16(cpu.BC)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xC6: {
@@ -1595,7 +1960,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addR8d8(cpu.A, byte(args[0]))
+			cycles := cpu.addR8d8(cpu.A, byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xC7: {
@@ -1612,6 +1979,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			if (!cpu.FlagZ()) {
+				cpu.PC.Inc()
 				return 8
 			}
 			addr := cpu.memoryReadWord(cpu.SP.Get())
@@ -1639,6 +2007,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if cpu.FlagZ() {
 				return cpu.jmp(uint16(args[0]))
 			}
+			cpu.PC.IncBy(3)
 			return 12
 		},
 	},
@@ -1661,7 +2030,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.adcR8d8(cpu.A, byte(args[0]))
+			cycles := cpu.adcR8d8(cpu.A, byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xCF: {
@@ -1678,6 +2049,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			if (cpu.FlagC()) {
+				cpu.PC.Inc()
 				return 8
 			}
 			addr := cpu.memoryReadWord(cpu.SP.Get())
@@ -1691,7 +2063,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.popR16(cpu.DE)
+			cycles := cpu.popR16(cpu.DE)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xD2: {
@@ -1702,6 +2076,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if !cpu.FlagC() {
 				return cpu.jmp(uint16(args[0]))
 			}
+			cpu.PC.IncBy(3)
 			return 12
 		},
 	},
@@ -1712,7 +2087,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.pushR16(cpu.DE)
+			cycles := cpu.pushR16(cpu.DE)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xD6: {
@@ -1720,7 +2097,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.subd8(byte(args[0]))
+			cycles := cpu.subd8(byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xD7: {
@@ -1737,6 +2116,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			if (!cpu.FlagC()) {
+				cpu.PC.Inc()
 				return 8
 			}
 			addr := cpu.memoryReadWord(cpu.SP.Get())
@@ -1765,6 +2145,7 @@ var opDefinitions = map[uint8]opDefinition{
 			if cpu.FlagC() {
 				return cpu.jmp(uint16(args[0]))
 			}
+			cpu.PC.IncBy(3)
 			return 12
 		},
 	},
@@ -1776,7 +2157,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.sbcD8(byte(args[0]))
+			cycles := cpu.sbcD8(byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xDF: {
@@ -1792,7 +2175,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldha8R8(byte(args[0]), cpu.A)
+			cycles := cpu.ldha8R8(byte(args[0]), cpu.A)
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xE1: {
@@ -1800,7 +2185,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.popR16(cpu.HL)
+			cycles := cpu.popR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xE2: {
@@ -1808,7 +2195,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldhR8R8(cpu.C, cpu.A)
+			cycles := cpu.ldhR8R8(cpu.C, cpu.A)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	/* TODO: 0xE3 */
@@ -1818,7 +2207,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.pushR16(cpu.HL)
+			cycles := cpu.pushR16(cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xE6: {
@@ -1826,7 +2217,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.andD8(byte(args[0]))
+			cycles := cpu.andD8(byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xE7: {
@@ -1842,7 +2235,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.addSP(int8(args[0]))
+			cycles := cpu.addSP(int8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xE9: {
@@ -1858,7 +2253,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.lda16R8(uint16(args[0]), cpu.A)
+			cycles := cpu.lda16R8(uint16(args[0]), cpu.A)
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	/* TODO: 0xEB */
@@ -1869,7 +2266,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.xorD8(byte(args[0]))
+			cycles := cpu.xorD8(byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xEF: {
@@ -1885,7 +2284,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldhR8a8(cpu.A, byte(args[0]))
+			cycles := cpu.ldhR8a8(cpu.A, byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xF1: {
@@ -1893,7 +2294,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.popR16(cpu.AF)
+			cycles := cpu.popR16(cpu.AF)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xF2: {
@@ -1901,7 +2304,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8hR8(cpu.A, cpu.C)
+			cycles := cpu.ldR8hR8(cpu.A, cpu.C)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xF3: {
@@ -1910,6 +2315,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.DisableInterrupts()
+			cpu.PC.Inc()
 			return 4
 		},
 	},
@@ -1919,7 +2325,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.pushR16(cpu.AF)
+			cycles := cpu.pushR16(cpu.AF)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xF6: {
@@ -1927,7 +2335,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.orD8(byte(args[0]))
+			cycles := cpu.orD8(byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xF7: {
@@ -1943,7 +2353,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16R16a8(cpu.HL, cpu.SP, int8(args[0]))
+			cycles := cpu.ldR16R16a8(cpu.HL, cpu.SP, int8(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xF9: {
@@ -1951,7 +2363,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{},
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR16R16(cpu.SP, cpu.HL)
+			cycles := cpu.ldR16R16(cpu.SP, cpu.HL)
+			cpu.PC.Inc()
+			return cycles
 		},
 	},
 	0xFA: {
@@ -1959,7 +2373,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.ldR8a16(cpu.A, uint16(args[0]))
+			cycles := cpu.ldR8a16(cpu.A, uint16(args[0]))
+			cpu.PC.IncBy(3)
+			return cycles
 		},
 	},
 	0xFB: {
@@ -1968,6 +2384,7 @@ var opDefinitions = map[uint8]opDefinition{
 		length:     1,
 		handler: func(cpu *CPU, args ...int) int {
 			cpu.EnableInterrupts()
+			cpu.PC.Inc()
 			return 4
 		},
 	},
@@ -1978,7 +2395,9 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lbyte},
 		length:     2,
 		handler: func(cpu *CPU, args ...int) int {
-			return cpu.cpD8(byte(args[0]))
+			cycles := cpu.cpD8(byte(args[0]))
+			cpu.PC.IncBy(2)
+			return cycles
 		},
 	},
 	0xFF: {
@@ -2039,7 +2458,12 @@ func (cpu *CPU) jmp(a16 uint16) int {
 }
 
 func (cpu *CPU) jr(r8 int8) int {
-	a16 := uint16(int(cpu.PC.Get()) + int(r8))
+	var a16 uint16
+	if r8 < 0 {
+		a16 = cpu.PC.Get() - uint16(^r8 - 1)
+	} else {
+		a16 = cpu.PC.Get() + uint16(r8)
+	}
 	cpu.jump(a16)
 	return 12
 }
