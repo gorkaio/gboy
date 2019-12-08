@@ -24,7 +24,15 @@ func TestJumpRelative(t *testing.T) {
 			memWriteExpected: memMap{},
 			cycles:           12,
 		},
-		/* TODO: Add JR 0 */
+		{
+			description:      "'JR 0' loops",
+			opcode:           opcode{0x18, 0x00},
+			regsGiven:        regMap{"PC": 0x216},
+			regsExpected:     regMap{"PC": 0x216},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           12,
+		},
 	}
 
 	for _, test := range tests {
@@ -71,7 +79,15 @@ func TestJumpRelativeIfNonZero(t *testing.T) {
 			memWriteExpected: memMap{},
 			cycles:           8,
 		},
-		/* TODO: Add JR NZ, 0 */
+		{
+			description:      "'JR NZ, 0' loops if Flag Z clear",
+			opcode:           opcode{0x20, 0x00},
+			regsGiven:        regMap{"PC": 0xFF1},
+			regsExpected:     regMap{"PC": 0xFF1},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           12,
+		},
 	}
 
 	for _, test := range tests {
@@ -118,7 +134,15 @@ func TestJumpRelativeIfZero(t *testing.T) {
 			memWriteExpected: memMap{},
 			cycles:           8,
 		},
-		/* TODO: Add JR Z, 0 */
+		{
+			description:      "'JR NZ, 0' loops if Flag Z set",
+			opcode:           opcode{0x28, 0x00},
+			regsGiven:        regMap{"PC": 0x216, "F": FlagZ},
+			regsExpected:     regMap{"PC": 0x216, "F": FlagZ},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           12,
+		},
 	}
 
 	for _, test := range tests {
@@ -165,7 +189,15 @@ func TestJumpRelativeIfNonCarry(t *testing.T) {
 			memWriteExpected: memMap{},
 			cycles:           8,
 		},
-		/* TODO: Add JR NC, 0 */
+		{
+			description:      "'JR NC, 0' loops if Flag C not set",
+			opcode:           opcode{0x30, 0x00},
+			regsGiven:        regMap{"PC": 0x216},
+			regsExpected:     regMap{"PC": 0x216},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           12,
+		},
 	}
 
 	for _, test := range tests {
@@ -212,7 +244,15 @@ func TestJumpRelativeIfCarry(t *testing.T) {
 			memWriteExpected: memMap{},
 			cycles:           8,
 		},
-		/* TODO: Add JR C, 0 */
+		{
+			description:      "'JR C, 0' loops if Flag C not set",
+			opcode:           opcode{0x38, 0x00},
+			regsGiven:        regMap{"PC": 0x216, "F": FlagC},
+			regsExpected:     regMap{"PC": 0x216, "F": FlagC},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{},
+			cycles:           12,
+		},
 	}
 
 	for _, test := range tests {
