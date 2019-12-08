@@ -1953,8 +1953,7 @@ var opDefinitions = map[uint8]opDefinition{
 				cpu.PC.IncBy(3)
 				return 12
 			}
-			cpu.pushR16(cpu.PC)
-			cpu.PC.Set(uint16(args[0]))
+			cpu.call(uint16(args[0]))
 			return 24
 		},
 	},
@@ -2034,8 +2033,7 @@ var opDefinitions = map[uint8]opDefinition{
 				cpu.PC.IncBy(3)
 				return 12
 			}
-			cpu.pushR16(cpu.PC)
-			cpu.PC.Set(uint16(args[0]))
+			cpu.call(uint16(args[0]))
 			return 24
 		},
 	},
@@ -2044,8 +2042,7 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			cpu.pushR16(cpu.PC)
-			cpu.PC.Set(uint16(args[0]))
+			cpu.call(uint16(args[0]))
 			return 24
 		},
 	},
@@ -2114,8 +2111,7 @@ var opDefinitions = map[uint8]opDefinition{
 				cpu.PC.IncBy(3)
 				return 12
 			}
-			cpu.pushR16(cpu.PC)
-			cpu.PC.Set(uint16(args[0]))
+			cpu.call(uint16(args[0]))
 			return 24
 		},
 	},
@@ -2196,8 +2192,7 @@ var opDefinitions = map[uint8]opDefinition{
 				cpu.PC.IncBy(3)
 				return 12
 			}
-			cpu.pushR16(cpu.PC)
-			cpu.PC.Set(uint16(args[0]))
+			cpu.call(uint16(args[0]))
 			return 24
 		},
 	},
@@ -2961,6 +2956,11 @@ func (cpu *CPU) pop() uint16 {
 	value := cpu.memoryReadWord(cpu.SP.Get())
 	cpu.SP.IncBy(2)
 	return value
+}
+
+func (cpu *CPU) call(a16 uint16) {
+	cpu.push(cpu.PC.Get())
+	cpu.jump(a16)
 }
 
 func buildFlags(Z, N, H, C bool) byte {
