@@ -116,3 +116,22 @@ func TestCallCJumpsAndSetsSPWhenCarryFlagSet(t *testing.T) {
 		testCase.Run(t)
 	}
 }
+
+func TestCallJumpsAndSetsSP(t *testing.T) {
+	tests := []testDescription{
+		{
+			description:      "'CALL a16' unconditionally jumps to a16 address with PC in SP",
+			opcode:           opcode{0xCD, 0x34, 0x12},
+			regsGiven:        regMap{"PC": 0x100, "SP": 0x402},
+			regsExpected:     regMap{"PC": 0x1234, "SP": 0x400},
+			memReadExpected:  memMap{},
+			memWriteExpected: memMap{0x401: 0x01, 0x400: 0x00},
+			cycles:           24,
+		},
+	}
+
+	for _, test := range tests {
+		testCase := buildTestCase(test)
+		testCase.Run(t)
+	}
+}

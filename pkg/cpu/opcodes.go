@@ -2044,10 +2044,8 @@ var opDefinitions = map[uint8]opDefinition{
 		argLengths: []int{lword},
 		length:     3,
 		handler: func(cpu *CPU, args ...int) int {
-			address := uint16(args[0])
-			cpu.SP.Dec()
-			cpu.memoryWriteWord(cpu.SP.Get(), cpu.PC.Get())
-			cpu.PC.Set(address)
+			cpu.pushR16(cpu.PC)
+			cpu.PC.Set(uint16(args[0]))
 			return 24
 		},
 	},
