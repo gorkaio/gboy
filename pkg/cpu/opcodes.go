@@ -2025,7 +2025,20 @@ var opDefinitions = map[uint8]opDefinition{
 		},
 	},
 	/* TODO: 0xCB */
-	/* TODO: 0xCC */
+	0xCC: {
+		mnemonic: "CALL Z, %#04x",
+		argLengths: []int{lword},
+		length: 3,
+		handler: func(cpu *CPU, args ...int) int {
+			if !cpu.FlagZ() {
+				cpu.PC.IncBy(3)
+				return 12
+			}
+			cpu.pushR16(cpu.PC)
+			cpu.PC.Set(uint16(args[0]))
+			return 24
+		},
+	},
 	0xCD: {
 		mnemonic:   "CALL %#04x",
 		argLengths: []int{lword},
