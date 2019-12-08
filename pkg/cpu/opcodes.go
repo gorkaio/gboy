@@ -1944,7 +1944,20 @@ var opDefinitions = map[uint8]opDefinition{
 			return cpu.jmp(uint16(args[0]))
 		},
 	},
-	/* TODO: 0xC4 */
+	0xC4: {
+		mnemonic: "CALL NZ, %#04x",
+		argLengths: []int{lword},
+		length: 3,
+		handler: func(cpu *CPU, args ...int) int {
+			if cpu.FlagZ() {
+				cpu.PC.IncBy(3)
+				return 12
+			}
+			cpu.pushR16(cpu.PC)
+			cpu.PC.Set(uint16(args[0]))
+			return 24
+		},
+	},
 	0xC5: {
 		mnemonic:   "PUSH BC",
 		argLengths: []int{},
