@@ -5,34 +5,35 @@
 package cpu_mock
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
-// MockMemory is a mock of Memory interface
+// MockMemory is a mock of Memory interface.
 type MockMemory struct {
 	ctrl     *gomock.Controller
 	recorder *MockMemoryMockRecorder
 }
 
-// MockMemoryMockRecorder is the mock recorder for MockMemory
+// MockMemoryMockRecorder is the mock recorder for MockMemory.
 type MockMemoryMockRecorder struct {
 	mock *MockMemory
 }
 
-// NewMockMemory creates a new mock instance
+// NewMockMemory creates a new mock instance.
 func NewMockMemory(ctrl *gomock.Controller) *MockMemory {
 	mock := &MockMemory{ctrl: ctrl}
 	mock.recorder = &MockMemoryMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMemory) EXPECT() *MockMemoryMockRecorder {
 	return m.recorder
 }
 
-// Read mocks base method
+// Read mocks base method.
 func (m *MockMemory) Read(arg0 uint16) byte {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Read", arg0)
@@ -40,19 +41,19 @@ func (m *MockMemory) Read(arg0 uint16) byte {
 	return ret0
 }
 
-// Read indicates an expected call of Read
+// Read indicates an expected call of Read.
 func (mr *MockMemoryMockRecorder) Read(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockMemory)(nil).Read), arg0)
 }
 
-// Write mocks base method
+// Write mocks base method.
 func (m *MockMemory) Write(arg0 uint16, arg1 byte) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Write", arg0, arg1)
 }
 
-// Write indicates an expected call of Write
+// Write indicates an expected call of Write.
 func (mr *MockMemoryMockRecorder) Write(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockMemory)(nil).Write), arg0, arg1)

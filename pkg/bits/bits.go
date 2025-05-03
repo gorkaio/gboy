@@ -64,3 +64,17 @@ func CarrySubWord(data, value uint16) bool {
 func FlipWord(data uint16) uint16 {
 	return ((data & 0xFF00) >> 8) | ((data & 0x00FF) << 8)
 }
+
+// RotateLeftCircular rotates the bits of a byte to the left, with bit 7 going to bit 0
+func RotateLeftCircular(data uint8) uint8 {
+	result := (data << 1) | (data >> 7)
+	return result
+}
+
+// BoolToInt converts a boolean value to an integer (1 for true, 0 for false)
+func BoolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}

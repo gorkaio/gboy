@@ -36,6 +36,140 @@ type opDefinition struct {
 	handler    opHandler
 }
 
+// CB prefix opcode definitions
+var cbOpDefinitions = map[uint8]opDefinition{
+	// RLC instructions (Rotate Left Circular)
+	0x00: {
+		mnemonic:   "RLC B",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.B.Set(bits.RotateLeftCircular(cpu.B.Get()))
+			cpu.SetFlagZ(cpu.B.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.B.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	0x01: {
+		mnemonic:   "RLC C",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.C.Set(bits.RotateLeftCircular(cpu.C.Get()))
+			cpu.SetFlagZ(cpu.C.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.C.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	0x02: {
+		mnemonic:   "RLC D",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.D.Set(bits.RotateLeftCircular(cpu.D.Get()))
+			cpu.SetFlagZ(cpu.D.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.D.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	0x03: {
+		mnemonic:   "RLC E",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.E.Set(bits.RotateLeftCircular(cpu.E.Get()))
+			cpu.SetFlagZ(cpu.E.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.E.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	0x04: {
+		mnemonic:   "RLC H",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.H.Set(bits.RotateLeftCircular(cpu.H.Get()))
+			cpu.SetFlagZ(cpu.H.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.H.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	0x05: {
+		mnemonic:   "RLC L",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.L.Set(bits.RotateLeftCircular(cpu.L.Get()))
+			cpu.SetFlagZ(cpu.L.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.L.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	0x06: {
+		mnemonic:   "RLC (HL)",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			value := cpu.memoryReadByte(cpu.HL.Get())
+			value = bits.RotateLeftCircular(value)
+			cpu.memoryWriteByte(cpu.HL.Get(), value)
+			cpu.SetFlagZ(value == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(value, 7))
+			cpu.PC.IncBy(2)
+			return 16
+		},
+	},
+	0x07: {
+		mnemonic:   "RLC A",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.A.Set(bits.RotateLeftCircular(cpu.A.Get()))
+			cpu.SetFlagZ(cpu.A.Get() == 0)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bits.BitOfByte(cpu.A.Get(), 7))
+			cpu.PC.IncBy(2)
+			return 8
+		},
+	},
+	// BIT instructions (Test bit n of register r)
+	0xBE: {
+		mnemonic:   "BIT 7, (HL)",
+		argLengths: []int{},
+		length:     2,
+		handler: func(cpu *CPU, args ...int) int {
+			value := cpu.memoryReadByte(cpu.HL.Get())
+			cpu.SetFlagZ(!bits.BitOfByte(value, 7))
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(true)
+			cpu.PC.IncBy(2)
+			return 16
+		},
+	},
+	// Add more CB opcodes as needed
+}
+
 var opDefinitions = map[uint8]opDefinition{
 	0x00: {
 		mnemonic:   "NOP",
@@ -189,8 +323,87 @@ var opDefinitions = map[uint8]opDefinition{
 			return cycles
 		},
 	},
-	/* TODO: 0x0F */
+	0x0F: {
+		mnemonic:   "RRCA",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			// Get the value of bit 0 before rotation
+			bit0 := bits.BitOfByte(cpu.A.Get(), 0)
+			// Rotate right
+			value := cpu.A.Get()
+			value = (value >> 1) | (byte(bits.BoolToInt(bit0)) << 7)
+			cpu.A.Set(value)
+			// Set flags
+			cpu.SetFlagZ(false)
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(bit0)
+			cpu.PC.Inc()
+			return 4
+		},
+	},
 	/* TODO: 0x10 */
+	0x37: {
+		mnemonic:   "SCF",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(true)
+			cpu.PC.Inc()
+			return 4
+		},
+	},
+	0x3F: {
+		mnemonic:   "CCF",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			cpu.SetFlagN(false)
+			cpu.SetFlagH(false)
+			cpu.SetFlagC(!cpu.FlagC())
+			cpu.PC.Inc()
+			return 4
+		},
+	},
+	0x76: {
+		mnemonic:   "HALT",
+		argLengths: []int{},
+		length:     1,
+		handler: func(cpu *CPU, args ...int) int {
+			// In a real implementation, we would halt the CPU until an interrupt occurs
+			// For now, we'll just increment the PC and continue execution
+			cpu.PC.Inc()
+			return 4
+		},
+	},
+	0xE4: {
+		mnemonic:   "CALL NC, %#04x",
+		argLengths: []int{lword},
+		length:     3,
+		handler: func(cpu *CPU, args ...int) int {
+			if !cpu.FlagC() {
+				cpu.push(cpu.PC.Get() + 3)
+				cpu.jump(uint16(args[0]))
+				return 24
+			}
+			cpu.PC.IncBy(3)
+			return 12
+		},
+	},
+	// CB prefix opcode
+	0xCB: {
+		mnemonic:   "PREFIX CB",
+		argLengths: []int{},
+		length:     1, // The length is 1 because the CB opcode itself is 1 byte
+		handler: func(cpu *CPU, args ...int) int {
+			// The actual handling of CB opcodes is done in opCodeFrom
+			// This handler should never be called directly
+			return 0
+		},
+	},
 	0x11: {
 		mnemonic:   "LD DE, %#04x",
 		argLengths: []int{lword},
@@ -2455,9 +2668,46 @@ var opDefinitions = map[uint8]opDefinition{
 
 func opCodeFrom(data uint32) (op, error) {
 	opCode := byte((data & 0xFF000000) >> 24)
+	
+	// Handle CB prefix opcode
+	if opCode == 0xCB {
+		// Get the next byte after CB which contains the actual CB instruction
+		cbOpCode := byte((data & 0x00FF0000) >> 16)
+		cbOpDefinition, f := cbOpDefinitions[cbOpCode]
+		if f != true {
+			return op{}, fmt.Errorf("Unknown CB opcode 0x%02x", cbOpCode)
+		}
+		
+		args := []int{}
+		data = data << 16 // Skip the CB prefix and the CB opcode
+		for _, s := range cbOpDefinition.argLengths {
+			switch s {
+			case lbyte:
+				arg := (data & 0xFF000000) >> 24
+				args = append(args, int(arg))
+				data = data << 8
+			case lword:
+				arg := bits.FlipWord(uint16((data & 0xFFFF0000) >> 16))
+				args = append(args, int(arg))
+				data = data << 16
+			default:
+				panic("Unknown argument type")
+			}
+		}
+		
+		op := op{
+			mnemonic: cbOpDefinition.mnemonic,
+			args:     args,
+			length:   cbOpDefinition.length,
+			handler:  cbOpDefinition.handler,
+		}
+		return op, nil
+	}
+	
+	// Handle regular opcodes
 	opDefinition, f := opDefinitions[opCode]
 	if f != true {
-		return op{}, fmt.Errorf("Unknown opcode %#02x", opCode)
+		return op{}, fmt.Errorf("Unknown opcode 0x%02x", opCode)
 	}
 
 	args := []int{}

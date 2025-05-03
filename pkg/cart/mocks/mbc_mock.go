@@ -5,34 +5,35 @@
 package cart_mock
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
-// MockMemoryBankController is a mock of MemoryBankController interface
+// MockMemoryBankController is a mock of MemoryBankController interface.
 type MockMemoryBankController struct {
 	ctrl     *gomock.Controller
 	recorder *MockMemoryBankControllerMockRecorder
 }
 
-// MockMemoryBankControllerMockRecorder is the mock recorder for MockMemoryBankController
+// MockMemoryBankControllerMockRecorder is the mock recorder for MockMemoryBankController.
 type MockMemoryBankControllerMockRecorder struct {
 	mock *MockMemoryBankController
 }
 
-// NewMockMemoryBankController creates a new mock instance
+// NewMockMemoryBankController creates a new mock instance.
 func NewMockMemoryBankController(ctrl *gomock.Controller) *MockMemoryBankController {
 	mock := &MockMemoryBankController{ctrl: ctrl}
 	mock.recorder = &MockMemoryBankControllerMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMemoryBankController) EXPECT() *MockMemoryBankControllerMockRecorder {
 	return m.recorder
 }
 
-// Read mocks base method
+// Read mocks base method.
 func (m *MockMemoryBankController) Read(arg0 uint16) byte {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Read", arg0)
@@ -40,19 +41,19 @@ func (m *MockMemoryBankController) Read(arg0 uint16) byte {
 	return ret0
 }
 
-// Read indicates an expected call of Read
+// Read indicates an expected call of Read.
 func (mr *MockMemoryBankControllerMockRecorder) Read(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockMemoryBankController)(nil).Read), arg0)
 }
 
-// Write mocks base method
+// Write mocks base method.
 func (m *MockMemoryBankController) Write(arg0 uint16, arg1 byte) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Write", arg0, arg1)
 }
 
-// Write indicates an expected call of Write
+// Write indicates an expected call of Write.
 func (mr *MockMemoryBankControllerMockRecorder) Write(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockMemoryBankController)(nil).Write), arg0, arg1)

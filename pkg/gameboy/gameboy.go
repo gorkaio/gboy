@@ -2,6 +2,7 @@ package gameboy
 
 import (
 	"fmt"
+	"os"
 	"github.com/gorkaio/gboy/pkg/cart"
 	"github.com/gorkaio/gboy/pkg/memory"
 	"io/ioutil"
@@ -83,7 +84,10 @@ func (gb *Gameboy) Update() {
 	for cyclesConsumed < cyclesPerFrame {
 		cycles, err := gb.cpu.Step()
 		if err != nil {
-			fmt.Println(err.Error())
+			// Format the error message in a parsable format
+			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
+			// Exit with error code 1
+			os.Exit(1)
 		}
 		gb.updateGraphics(cycles)
 		cyclesConsumed += cycles
