@@ -5,6 +5,7 @@ import (
 	"os"
 	"github.com/gorkaio/gboy/pkg/cart"
 	"github.com/gorkaio/gboy/pkg/memory"
+	"github.com/gorkaio/gboy/pkg/video"
 	"io/ioutil"
 )
 
@@ -20,6 +21,7 @@ type Memory interface {
 	Eject()
 	Read(address uint16) uint8
 	Write(address uint16, data uint8)
+	GetGPU() *video.GPU
 }
 
 // CPU defines the interface for CPU interaction
@@ -92,17 +94,20 @@ func (gb *Gameboy) Update() {
 		gb.updateGraphics(cycles)
 		cyclesConsumed += cycles
 	}
-	// render
+	
+	// Get the GPU and update it
+	gpu := gb.mem.GetGPU()
+	gpu.Update(0) // Update with 0 cycles to trigger rendering
 }
 
 func (gb *Gameboy) updateGraphics(cycles int) {
+	// Get the GPU and update it with the elapsed cycles
+	gpu := gb.mem.GetGPU()
+	gpu.Update(cycles)
+	
+	// Update the scanline counter for compatibility with existing code
 	gb.scanlineCounter -= cycles
 	if gb.scanlineCounter <= 0 {
-		currentScanline := gb.mem.Read(0xFF44) + 1
-		if currentScanline > 153 {
-			currentScanline = 0
-		}
-		gb.mem.Write(0xFF44, currentScanline)
 		gb.scanlineCounter = cyclesPerScanline
 	}
 }

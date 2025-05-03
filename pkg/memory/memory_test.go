@@ -4,6 +4,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/gorkaio/gboy/pkg/memory"
 	mocks "github.com/gorkaio/gboy/pkg/memory/mocks"
+	"github.com/gorkaio/gboy/pkg/video"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -25,7 +26,9 @@ func TestReadsAddressInCartRange(t *testing.T) {
 		Read(address).
 		Return(data)
 
-	mem := memory.New()
+	// Create a mock display for testing
+	display := video.NewMockDisplay()
+	mem := memory.New(display)
 	mem.Load(cart)
 
 	assert.Equal(t, data, mem.Read(address))
@@ -42,7 +45,9 @@ func TestWritesAddressInCartRange(t *testing.T) {
 		EXPECT().
 		Write(address, data)
 
-	mem := memory.New()
+	// Create a mock display for testing
+	display := video.NewMockDisplay()
+	mem := memory.New(display)
 	mem.Load(cart)
 
 	mem.Write(address, data)
@@ -52,7 +57,9 @@ func TestWorksWithAddressInSystemRange(t *testing.T) {
 	address := uint16(0x8000)
 	data := byte(0xFE)
 
-	mem := memory.New()
+	// Create a mock display for testing
+	display := video.NewMockDisplay()
+	mem := memory.New(display)
 	mem.Write(address, data)
 	assert.Equal(t, data, mem.Read(address))
 }
@@ -69,7 +76,9 @@ func TestEjectsCart(t *testing.T) {
 		Read(address).
 		Return(data)
 
-	mem := memory.New()
+	// Create a mock display for testing
+	display := video.NewMockDisplay()
+	mem := memory.New(display)
 	mem.Load(cart)
 
 	assert.Equal(t, data, mem.Read(address))

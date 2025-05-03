@@ -10,11 +10,11 @@ import (
 type SDLDisplay struct {
 	window   *sdl.Window
 	renderer *sdl.Renderer
-	texture  *sdl.Texture
-	pixels   []byte
+	surface  *sdl.Surface
 	width    int
 	height   int
 	scale    int // Scaling factor for the display
+	pixels   []uint32 // Pixel buffer (one uint32 per pixel in RGBA format)
 }
 
 // NewSDLDisplay creates a new SDLDisplay with Game Boy LCD dimensions (160x144)
@@ -48,30 +48,26 @@ func NewSDLDisplay(scale int) (*SDLDisplay, error) {
 		return nil, fmt.Errorf("failed to create renderer: %v", err)
 	}
 
-	// Create a texture
-	texture, err := renderer.CreateTexture(
-		sdl.PIXELFORMAT_ABGR8888,
-		sdl.TEXTUREACCESS_STREAMING,
-		int32(width), int32(height),
-	)
+	// Create a surface
+	surface, err := sdl.CreateRGBSurface(0, int32(width), int32(height), 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF)
 	if err != nil {
 		renderer.Destroy()
 		window.Destroy()
 		sdl.Quit()
-		return nil, fmt.Errorf("failed to create texture: %v", err)
+		return nil, fmt.Errorf("failed to create surface: %v", err)
 	}
 
-	// Create a pixel buffer (4 bytes per pixel: RGBA)
-	pixels := make([]byte, width*height*4)
+	// Create a pixel buffer
+	pixels := make([]uint32, width*height)
 
 	return &SDLDisplay{
 		window:   window,
 		renderer: renderer,
-		texture:  texture,
-		pixels:   pixels,
+		surface:  surface,
 		width:    width,
 		height:   height,
 		scale:    scale,
+		pixels:   pixels,
 	}, nil
 }
 
@@ -93,22 +89,50 @@ func (d *SDLDisplay) SetPixel(x, y int, color byte) {
 		}
 
 		// Calculate the offset in the pixel buffer
-		offset := (y*d.width + x) * 4
+		offset := y*d.width + x
 
-		// Set the RGBA values
-		d.pixels[offset] = r     // R
-		d.pixels[offset+1] = g   // G
-		d.pixels[offset+2] = b   // B
-		d.pixels[offset+3] = 255 // A (fully opaque)
+		// Set the RGBA value (0xRRGGBBAA)
+		d.pixels[offset] = uint32(r)<<24 | uint32(g)<<16 | uint32(b)<<8 | 0xFF
 	}
 }
 
 // Refresh updates the display with the current pixel data
 func (d *SDLDisplay) Refresh() error {
-	// Update the texture with the pixel data
-	if err := d.texture.Update(nil, d.pixels, d.width*4); err != nil {
-		return fmt.Errorf("failed to update texture: %v", err)
+	// Lock the surface
+	err := d.surface.Lock()
+	if err != nil {
+		return fmt.Errorf("failed to lock surface: %v", err)
 	}
+
+	// Get the surface pixels
+	pixels := d.surface.Pixels()
+
+	// Copy our pixel data to the surface
+	for i := 0; i < len(d.pixels); i++ {
+		// Convert from RGBA to ABGR (SDL's format)
+		pixel := d.pixels[i]
+		r := byte(pixel >> 24)
+		g := byte(pixel >> 16)
+		b := byte(pixel >> 8)
+		a := byte(pixel)
+		
+		// Write to surface pixels (4 bytes per pixel)
+		offset := i * 4
+		pixels[offset] = b   // B
+		pixels[offset+1] = g // G
+		pixels[offset+2] = r // R
+		pixels[offset+3] = a // A
+	}
+
+	// Unlock the surface
+	d.surface.Unlock()
+
+	// Create a texture from the surface
+	texture, err := d.renderer.CreateTextureFromSurface(d.surface)
+	if err != nil {
+		return fmt.Errorf("failed to create texture from surface: %v", err)
+	}
+	defer texture.Destroy()
 
 	// Clear the renderer
 	if err := d.renderer.Clear(); err != nil {
@@ -116,7 +140,7 @@ func (d *SDLDisplay) Refresh() error {
 	}
 
 	// Copy the texture to the renderer, scaling it to the window size
-	if err := d.renderer.Copy(d.texture, nil, nil); err != nil {
+	if err := d.renderer.Copy(texture, nil, nil); err != nil {
 		return fmt.Errorf("failed to copy texture to renderer: %v", err)
 	}
 
@@ -137,12 +161,9 @@ func (d *SDLDisplay) Refresh() error {
 
 // Clear sets all pixels to color 0 (white)
 func (d *SDLDisplay) Clear() {
-	// Set all pixels to white (255, 255, 255, 255)
-	for i := 0; i < len(d.pixels); i += 4 {
-		d.pixels[i] = 255     // R
-		d.pixels[i+1] = 255   // G
-		d.pixels[i+2] = 255   // B
-		d.pixels[i+3] = 255   // A
+	// Set all pixels to white (0xFFFFFFFF)
+	for i := range d.pixels {
+		d.pixels[i] = 0xFFFFFFFF
 	}
 }
 
@@ -158,8 +179,8 @@ func (d *SDLDisplay) Height() int {
 
 // Close cleans up the SDL resources
 func (d *SDLDisplay) Close() error {
-	if d.texture != nil {
-		d.texture.Destroy()
+	if d.surface != nil {
+		d.surface.Free()
 	}
 	if d.renderer != nil {
 		d.renderer.Destroy()
