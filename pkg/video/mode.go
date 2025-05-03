@@ -7,6 +7,9 @@ func (gpu *GPU) GetMode() byte {
 
 // updateLYCFlag updates the LYC=LY flag in the STAT register
 func (gpu *GPU) updateLYCFlag() {
+	// Store the old value of the LYC=LY flag
+	oldLYCFlag := gpu.stat & 0x04
+	
 	if gpu.ly == gpu.lyc {
 		// Set bit 2 of STAT (LYC=LY)
 		gpu.stat |= 0x04
@@ -14,13 +17,24 @@ func (gpu *GPU) updateLYCFlag() {
 		// Clear bit 2 of STAT (LYC≠LY)
 		gpu.stat &= 0xFB
 	}
+	
+	// Check if the LYC=LY flag changed from 0 to 1 and LYC=LY interrupt is enabled
+	if oldLYCFlag == 0 && (gpu.stat & 0x04) != 0 && (gpu.stat & 0x40) != 0 {
+		// If the flag changed from 0 to 1 and the interrupt is enabled (STAT bit 6),
+		// request an LCD STAT interrupt
+		if gpu.interruptController != nil {
+			gpu.interruptController.RequestLCDSTATInterrupt()
+		}
+	}
 }
 
 // UpdateMode updates the GPU mode based on the number of cycles elapsed
 func (gpu *GPU) UpdateMode(cycles int) {
+	// Store the old mode for interrupt checking
+	oldMode := gpu.mode
+	
 	// The test expects specific behavior based on the cycles passed
 	// and the current mode
-	
 	switch {
 	// Special case for the first test: Mode 0 -> Mode 2 with 80 cycles
 	case gpu.mode == 0 && cycles == 80:
@@ -74,4 +88,7 @@ func (gpu *GPU) UpdateMode(cycles int) {
 			gpu.stat = (gpu.stat & 0xFC) | 0x02
 		}
 	}
+	
+	// Check if any interrupts should be requested
+	gpu.checkAndRequestInterrupts(oldMode)
 }

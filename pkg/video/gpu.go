@@ -21,6 +21,9 @@ type GPU struct {
 	mode          byte // Current GPU mode (0-3)
 	modeCycles    int  // Cycles spent in current mode
 	scanlineCycles int  // Cycles spent on current scanline
+	
+	// Interrupt handling
+	interruptController InterruptController // Interface for requesting interrupts
 }
 
 // NewGPU creates a new GPU
