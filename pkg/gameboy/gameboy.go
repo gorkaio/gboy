@@ -2,11 +2,14 @@ package gameboy
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"time"
+
 	"github.com/gorkaio/gboy/pkg/cart"
 	"github.com/gorkaio/gboy/pkg/memory"
 	"github.com/gorkaio/gboy/pkg/video"
-	"io/ioutil"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 //go:generate mockgen -destination=mocks/memory_mock.go -package=gameboy_mock github.com/gorkaio/gboy/pkg/gameboy Memory
@@ -75,8 +78,35 @@ func (gb *Gameboy) Eject() {
 
 // Run runs the emulation
 func (gb *Gameboy) Run() {
+	// Set up a ticker for consistent frame timing (approximately 60 FPS)
+	frameTime := time.Second / 60
+	ticker := time.NewTicker(frameTime)
+	defer ticker.Stop()
+
+	fmt.Println("Starting main emulation loop")
 	for !gb.paused {
+		// Process SDL events
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch e := event.(type) {
+			case *sdl.QuitEvent:
+				fmt.Println("Quit event received, exiting...")
+				gb.paused = true
+				return
+			case *sdl.KeyboardEvent:
+				// Handle keyboard events (e.g., ESC to quit)
+				if e.Type == sdl.KEYDOWN && e.Keysym.Sym == sdl.K_ESCAPE {
+					fmt.Println("ESC key pressed, exiting...")
+					gb.paused = true
+					return
+				}
+			}
+		}
+
+		// Process a frame
 		gb.Update()
+
+		// Wait for the next frame time
+		<-ticker.C
 	}
 }
 
@@ -95,7 +125,8 @@ func (gb *Gameboy) Update() {
 		cyclesConsumed += cycles
 	}
 	
-	// Get the GPU and update it
+	// Get the GPU and update it with 0 cycles to force a display refresh
+	// This ensures the display is updated at the end of each frame
 	gpu := gb.mem.GetGPU()
 	gpu.Update(0) // Update with 0 cycles to trigger rendering
 }

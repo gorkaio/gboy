@@ -125,7 +125,34 @@ func (gpu *GPU) Update(cycles int) {
 	// Update the GPU mode
 	gpu.UpdateMode(cycles)
 	
-	// Render the screen at the end of V-Blank (when starting a new frame)
+	// If cycles is 0, this is a special case where we want to force a refresh
+	// This is used by the gameboy.Update method at the end of each frame
+	if cycles == 0 {
+		// Clear the display
+		gpu.display.Clear()
+		
+		// Render the background
+		if gpu.lcdc&0x01 != 0 { // Check if background is enabled (LCDC bit 0)
+			gpu.RenderBackground()
+		}
+		
+		// Render the window
+		if gpu.lcdc&0x20 != 0 { // Check if window is enabled (LCDC bit 5)
+			gpu.RenderWindow()
+		}
+		
+		// Render the sprites
+		if gpu.lcdc&0x02 != 0 { // Check if sprites are enabled (LCDC bit 1)
+			gpu.RenderSprites()
+		}
+		
+		// Refresh the display
+		gpu.display.Refresh()
+		return
+	}
+	
+	// Normal rendering at the beginning of a new frame
+	// We render when we're at the start of a new frame (ly=0) and in OAM search mode (mode=2)
 	if gpu.ly == 0 && gpu.mode == 2 {
 		// Clear the display
 		gpu.display.Clear()
