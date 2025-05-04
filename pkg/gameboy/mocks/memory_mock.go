@@ -9,6 +9,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	memory "github.com/gorkaio/gboy/pkg/memory"
+	video "github.com/gorkaio/gboy/pkg/video"
 )
 
 // MockMemory is a mock of Memory interface.
@@ -44,6 +45,20 @@ func (m *MockMemory) Eject() {
 func (mr *MockMemoryMockRecorder) Eject() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Eject", reflect.TypeOf((*MockMemory)(nil).Eject))
+}
+
+// GetGPU mocks base method.
+func (m *MockMemory) GetGPU() *video.GPU {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGPU")
+	ret0, _ := ret[0].(*video.GPU)
+	return ret0
+}
+
+// GetGPU indicates an expected call of GetGPU.
+func (mr *MockMemoryMockRecorder) GetGPU() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGPU", reflect.TypeOf((*MockMemory)(nil).GetGPU))
 }
 
 // Load mocks base method.

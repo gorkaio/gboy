@@ -2,6 +2,7 @@ package video
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -98,6 +99,22 @@ func (d *SDLDisplay) SetPixel(x, y int, color byte) {
 
 // Refresh updates the display with the current pixel data
 func (d *SDLDisplay) Refresh() error {
+	// Process events to keep the window responsive
+	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch e := event.(type) {
+		case *sdl.QuitEvent:
+			// Handle quit event by exiting the program
+			fmt.Println("Quit event received, exiting...")
+			os.Exit(0)
+		case *sdl.KeyboardEvent:
+			// Handle keyboard events (e.g., ESC to quit)
+			if e.Type == sdl.KEYDOWN && e.Keysym.Sym == sdl.K_ESCAPE {
+				fmt.Println("ESC key pressed, exiting...")
+				os.Exit(0)
+			}
+		}
+	}
+
 	// Lock the surface
 	err := d.surface.Lock()
 	if err != nil {
@@ -146,15 +163,6 @@ func (d *SDLDisplay) Refresh() error {
 
 	// Present the renderer
 	d.renderer.Present()
-
-	// Process events to keep the window responsive
-	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		switch event.(type) {
-		case *sdl.QuitEvent:
-			// Handle quit event
-			return nil
-		}
-	}
 
 	return nil
 }
